@@ -1,0 +1,14 @@
+{
+  "name": "Praxis Plus",
+  "short_name": "Praxis Plus",
+  "description": "Clinical hours logbook",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F5F6",
+  "theme_color": "#174540",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

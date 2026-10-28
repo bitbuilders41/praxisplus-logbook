@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Praxis Plus</title>
+<meta name="description" content="Praxis Plus clinical hours logbook for counseling supervisees.">
+<meta name="application-name" content="Praxis Plus">
+<meta name="theme-color" content="#F3F5F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1416" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Praxis Plus">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+html{padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a clinical, quiet phone app. One deep-pine summary panel at the top carries the brand; everything
+   else sits in white panels on a cool light ground with hairline dividers. Clean bars for progress, a small bar
+   chart for the week, a fixed bottom bar with the primary Log hours action. */
+:root{
+  --bg:#F3F5F6;
+  --panel:#FFFFFF;
+  --line:#E3E8EB;
+  --line-strong:#C9D2D7;
+  --ink:#172029;
+  --ink-2:#5B6770;
+  --ink-3:#8C979F;
+  --brand:#174540;
+  --brand-2:#2E8276;
+  --brand-3:#8FCFC2;
+  --brand-4:#E3F1ED;
+  --on-brand:#FFFFFF;
+  --on-brand-2:rgba(255,255,255,.72);
+  --track:rgba(255,255,255,.22);
+  --good:#2E8276;
+  --danger:#B3261E;
+  --danger-bg:#FBEDEB;
+  --field:#FFFFFF;
+  --mark-bg:#174540;
+  --font:"IBM Plex Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --mark-bg:#4FB0A1; --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
+    --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
+    --track:rgba(255,255,255,.18); --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --mark-bg:#4FB0A1; --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
+  --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
+  --track:rgba(255,255,255,.18); --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
+  color-scheme:dark;
+}
+
+html{background:var(--bg)}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:15px;line-height:1.45;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  padding-bottom:calc(88px + env(safe-area-inset-bottom,0px));
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+*,*::before,*::after{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+svg{display:block}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;height:56px}
+.brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-.01em}
+.brand .mark{width:28px;height:28px;border-radius:8px;background:var(--mark-bg);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand .mark svg{width:16px;height:16px}
+.brand .wordmark b{font-weight:600;color:var(--brand-2);margin-left:4px}
+.top-right{display:flex;align-items:center;gap:6px}
+.today{font-size:14px;color:var(--ink-2)}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.icon-btn:active{background:var(--line)}
+
+main[hidden]{display:none}
+.view{display:flex;flex-direction:column;gap:14px;padding-block:8px 12px}
+
+/* Panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.panel-head h2{font-size:16px}
+.panel-num{font-size:14px;color:var(--ink-2);font-weight:500}
+
+/* Summary panel */
+.summary{background:var(--brand);color:var(--on-brand);border:0;border-radius:16px;padding:20px 18px 18px}
+.summary .label{font-size:14px;color:var(--on-brand-2)}
+.summary .total{font-size:52px;font-weight:600;line-height:1.05;letter-spacing:-.025em;margin-top:4px;font-variant-numeric:tabular-nums}
+.summary .total small{font-size:18px;font-weight:500;color:var(--on-brand-2);margin-left:6px;letter-spacing:0}
+.summary .sub{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--on-brand-2);margin-top:14px}
+.summary .sub b{color:var(--on-brand);font-weight:600}
+.track{position:relative;height:8px;border-radius:4px;background:var(--track);overflow:visible;margin-top:8px}
+.track .fill{height:100%;border-radius:4px;background:var(--brand-3);transition:width .35s ease}
+.track .mark{position:absolute;top:-4px;width:2px;height:16px;background:var(--on-brand-2);border-radius:1px}
+.track .mark-label{position:absolute;top:16px;font-size:11px;color:var(--on-brand-2);transform:translateX(-50%);white-space:nowrap}
+.summary .owner{font-size:13px;color:var(--on-brand-2);margin-top:26px;display:flex;justify-content:space-between;gap:12px}
+.summary .owner b{color:var(--on-brand);font-weight:500}
+
+/* Category rows */
+.rows{display:flex;flex-direction:column}
+.crow{padding:12px 0;border-top:1px solid var(--line)}
+.crow:first-child{border-top:0;padding-top:2px}
+.crow:last-child{padding-bottom:2px}
+.crow-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.crow-head .name{font-size:15px;font-weight:500}
+.crow-head .val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.crow-head .val small{font-size:13px;color:var(--ink-2);font-weight:400;margin-left:3px}
+.bar{height:6px;border-radius:3px;background:var(--brand-4);margin-top:8px;overflow:hidden}
+.bar .fill{height:100%;border-radius:3px;background:var(--brand-2)}
+.crow-sub{font-size:13px;color:var(--ink-2);margin-top:6px}
+
+/* Week chart */
+.chart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:132px}
+.col{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;min-width:0}
+.col .lbl{text-align:center;font-size:11px;color:var(--ink-2);margin-bottom:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.col .stack{display:flex;flex-direction:column-reverse;border-radius:5px 5px 2px 2px;overflow:hidden;min-height:3px;background:transparent}
+.col .seg{width:100%}
+.seg.direct{background:var(--brand-2)}
+.seg.indirect{background:var(--brand-3)}
+.seg.supervision{background:var(--brand)}
+.seg.other{background:var(--line-strong)}
+:root[data-theme="dark"] .seg.supervision{background:#8FCFC2}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .seg.supervision{background:#8FCFC2} }
+.col.empty .stack{background:var(--line);min-height:3px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+.day-lab{text-align:center;font-size:12px;color:var(--ink-2);line-height:1.2}
+.day-lab b{display:block;font-weight:600;color:var(--ink);font-size:14px}
+.day-lab.today b{color:var(--brand-2)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+.sw.direct{background:var(--brand-2)}.sw.indirect{background:var(--brand-3)}.sw.supervision{background:var(--brand)}.sw.other{background:var(--line-strong)}
+:root[data-theme="dark"] .sw.supervision{background:#8FCFC2}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .sw.supervision{background:#8FCFC2} }
+.week-note{margin-top:12px;font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.week-note .dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong);flex-shrink:0}
+.week-note.ok .dot{background:var(--good)}
+.week-note.ok{color:var(--ink)}
+
+/* Entries */
+.notice{background:var(--brand-4);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;line-height:1.4;color:var(--ink)}
+.notice .btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn-sm{min-height:36px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--line-strong);background:var(--panel)}
+.btn-sm.fill{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.day-group + .day-group{margin-top:14px}
+.day-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-2);padding-bottom:6px}
+.day-head .num{font-weight:500}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-top:1px solid var(--line);min-height:58px}
+.row:active{background:var(--bg)}
+.row.flash{animation:flash 1.4s ease-out}
+@keyframes flash{0%{background:var(--brand-4)}100%{background:transparent}}
+.row-main{flex:1;min-width:0}
+.row-title{font-size:15px;font-weight:500;line-height:1.25}
+.row-sub{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub span + span::before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--ink-3);margin:0 7px;vertical-align:middle}
+.row-h{font-size:16px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.row-h small{font-size:12px;color:var(--ink-2);margin-left:2px;font-weight:400}
+.chev{color:var(--ink-3);flex-shrink:0}
+.empty{padding:6px 0 2px;color:var(--ink-2);font-size:15px;line-height:1.5}
+.empty b{color:var(--ink);font-weight:600}
+
+/* Progress view */
+.pace{font-size:15px;line-height:1.5}
+.pace b{font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 0;text-align:right;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-weight:500;color:var(--ink-2);font-size:12px;border-top:0;padding-top:0}
+th:first-child,td:first-child{text-align:left}
+td:last-child{font-weight:600}
+.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px}
+.wk{aspect-ratio:1;border-radius:6px;background:var(--brand-4);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wk.ok{background:var(--brand-2);color:#fff;font-weight:500}
+.wk.cur{box-shadow:inset 0 0 0 1.5px var(--brand-2)}
+.wk-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:6px;font-size:10.5px;color:var(--ink-3);text-align:center}
+.note{font-size:13.5px;color:var(--ink-2);line-height:1.45}
+.note button{color:var(--brand-2);font-weight:500}
+.panel .note + .weeks{margin-top:12px}
+
+/* Bottom bar */
+.bar-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bar-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:74px;gap:8px}
+.tab{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:500;color:var(--ink-3);border-radius:10px}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--brand-2)}
+.log-btn{height:50px;padding:0 22px;background:var(--brand);color:var(--on-brand);border-radius:12px;font-size:16px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.log-btn svg{width:20px;height:20px}
+.log-btn:active{opacity:.9}
+
+/* Sheets */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+.sheet[hidden]{display:none}
+.sheet-top{position:sticky;top:0;z-index:2;background:var(--bg);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:56px}
+.sheet-top h2{font-size:16px;text-align:center}
+.link{min-height:44px;font-size:16px;font-weight:500;color:var(--brand-2);justify-self:start;padding:0 2px;border-radius:6px}
+.link.right{justify-self:end}
+.sheet-body{display:flex;flex-direction:column;gap:14px;padding-block:6px 8px}
+.f{border:0;padding:0;margin:0;min-width:0}
+.f legend{padding:0;margin:0 0 8px 2px;font-size:13px;color:var(--ink-2);font-weight:500}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.cat-opt{display:flex;align-items:center;gap:12px;min-height:50px;width:100%;border-top:1px solid var(--line);text-align:left;font-size:15px;font-weight:500}
+.cat-opt:first-child{border-top:0}
+.cat-opt .radio{width:20px;height:20px;border:1.5px solid var(--line-strong);border-radius:50%;flex-shrink:0;position:relative}
+.cat-opt[aria-checked="true"] .radio{border-color:var(--brand-2);border-width:6px}
+.dur{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px;padding:12px 0 6px}
+.step{height:52px;border:1.5px solid var(--line-strong);border-radius:12px;font-size:26px;font-weight:400;line-height:1;color:var(--brand-2)}
+.step:active{background:var(--brand-4)}
+.dur-val{text-align:center;line-height:1}
+.dur-val .n{font-size:44px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.dur-val small{font-size:15px;color:var(--ink-2);margin-left:4px;font-weight:500}
+.dur-h{display:block;font-size:13px;color:var(--ink-2);margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 12px}
+.chip{min-height:38px;padding:0 14px;border:1px solid var(--line-strong);color:var(--ink);border-radius:999px;font-size:14px;font-weight:500;background:var(--panel)}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+input[type="date"],input[type="text"],input[type="number"],textarea{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--line-strong);border-radius:10px;
+  padding:12px 12px;min-height:48px;-webkit-appearance:none;appearance:none}
+input[type="date"]{line-height:1.3;margin-bottom:12px}
+textarea{min-height:80px;resize:vertical;margin-top:10px;margin-bottom:10px}
+input::placeholder,textarea::placeholder{color:var(--ink-3)}
+.group.fields{padding:12px 14px}
+.primary{height:54px;background:var(--brand);color:var(--on-brand);border-radius:12px;font-size:16px;font-weight:600;width:100%;margin-top:6px}
+.primary:active{opacity:.9}
+.danger{height:48px;color:var(--danger);font-size:15px;font-weight:500;width:100%;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.danger.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
+.menu{display:flex;flex-direction:column}
+.menu-item{display:flex;justify-content:space-between;align-items:center;min-height:56px;width:100%;border-top:1px solid var(--line);text-align:left;font-size:15px;font-weight:500;gap:12px}
+.menu-item:first-child{border-top:0}
+.menu-item small{color:var(--ink-2);font-weight:400;font-size:13px;text-align:right;max-width:55%}
+.fine{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.fine + .fine{margin-top:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 10px}
+.lab{display:block;font-size:13px;color:var(--ink-2)}
+.lab input{margin-top:6px}
+.copybox textarea{min-height:200px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+/* Toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:30;
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);animation:toastin .18s ease-out}
+.toast[hidden]{display:none}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (min-width:600px){body{max-width:480px;margin:0 auto}.bar-nav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}}
+</style>
+
+<header class="top wrap">
+  <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><span class="wordmark">Praxis<b>Plus</b></span></div>
+  <div class="top-right">
+    <div class="today" id="todayLabel"></div>
+    <button class="icon-btn" id="btnMore" aria-label="More options">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="view-logbook" class="view wrap">
+  <section class="summary">
+    <p class="label">Total clinical hours</p>
+    <div class="total"><span id="heroTotal">0</span><small id="heroOf"></small></div>
+    <div class="sub"><span id="heroRemain"></span><span id="heroPct"></span></div>
+    <div class="track" id="trackTotal"><div class="fill" id="fillTotal" style="width:0%"></div></div>
+    <div class="owner"><span id="ownerLine">Your logbook</span><b id="phaseLine"></b></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Toward your targets</h2><span class="panel-num" id="catsNote"></span></div>
+    <div class="rows" id="catRows"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>This week</h2><span class="panel-num num" id="weekTotal"></span></div>
+    <div class="chart" id="chart"></div>
+    <div class="days" id="dayLabels"></div>
+    <div class="legend">
+      <span><i class="sw direct"></i>Direct</span>
+      <span><i class="sw indirect"></i>Indirect</span>
+      <span><i class="sw supervision"></i>Supervision</span>
+      <span><i class="sw other"></i>Other</span>
+    </div>
+    <p class="week-note" id="weekNote"><i class="dot"></i><span></span></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Entries</h2><span class="panel-num" id="entryCount"></span></div>
+    <div class="notice" id="banner" hidden>
+      <div>Example entries are loaded so you can see the logbook in use. Clear them whenever you like; anything you log yourself stays.</div>
+      <div class="btns"><button class="btn-sm fill" id="clearExamples">Clear examples</button><button class="btn-sm" id="keepExamples">Keep for now</button></div>
+    </div>
+    <div id="ledger"></div>
+    <div class="empty" id="emptyState" hidden>
+      <b>No entries yet.</b> Use <b>Log hours</b> below to record a session. Each entry takes a few taps.
+    </div>
+  </section>
+</main>
+
+<main id="view-progress" class="view wrap" hidden>
+  <section class="panel">
+    <div class="panel-head"><h2>Targets</h2><span class="panel-num" id="targetNote"></span></div>
+    <div class="rows" id="cats"></div>
+  </section>
+  <section class="panel"><p class="pace" id="pace"></p></section>
+  <section class="panel">
+    <div class="panel-head"><h2>By month</h2><span class="panel-num" id="monthCount"></span></div>
+    <div id="monthTable"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Supervision each week</h2><span class="panel-num" id="supWeeksNum"></span></div>
+    <p class="note">Programs commonly expect an hour of individual or triadic supervision every week. Filled weeks have at least one logged hour.</p>
+    <div class="weeks" id="weeks"></div>
+    <div class="wk-labels" id="weekLabels"></div>
+  </section>
+  <section class="panel"><p class="note" id="carriedNote"></p></section>
+</main>
+
+<nav class="bar-nav" aria-label="Main">
+  <div class="bar-in wrap">
+    <button class="tab" data-view="logbook" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      Logbook
+    </button>
+    <button class="log-btn" id="btnLog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Log hours
+    </button>
+    <button class="tab" data-view="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M7 15V9M12 15V5M17 15v-4"/></svg>
+      Progress
+    </button>
+  </div>
+</nav>
+
+<!-- Log / edit sheet -->
+<div class="sheet" id="sheet-log" hidden role="dialog" aria-modal="true" aria-labelledby="logTitle">
+  <div class="sheet-top wrap"><button class="link" id="logCancel">Cancel</button><h2 id="logTitle">Log hours</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <fieldset class="f"><legend>Type of hours</legend><div class="group" id="catList" role="radiogroup"></div></fieldset>
+    <fieldset class="f"><legend>Duration</legend>
+      <div class="group">
+        <div class="dur">
+          <button class="step" id="durMinus" aria-label="Five minutes less">&minus;</button>
+          <div class="dur-val"><span class="n" id="durMin">50</span><small>min</small><span class="dur-h" id="durH"></span></div>
+          <button class="step" id="durPlus" aria-label="Five minutes more">+</button>
+        </div>
+        <div class="chips" id="durPresets"></div>
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Date</legend>
+      <div class="group fields">
+        <div class="chips" id="dateQuick" style="padding-top:0"></div>
+        <input type="date" id="dateInput" aria-label="Session date" style="margin-bottom:0">
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Format</legend><div class="group fields"><div class="chips" id="modList" style="padding:0"></div></div></fieldset>
+    <fieldset class="f"><legend>Details (optional)</legend>
+      <div class="group fields">
+        <input type="text" id="clientInput" placeholder="Client code, for example A12" autocomplete="off" autocapitalize="characters" maxlength="24">
+        <textarea id="noteInput" placeholder="Note" maxlength="300" style="margin-bottom:0"></textarea>
+      </div>
+    </fieldset>
+    <button class="primary" id="logSave">Save entry</button>
+    <button class="danger" id="logDelete" hidden>Delete entry</button>
+  </div>
+</div>
+
+<!-- More sheet -->
+<div class="sheet" id="sheet-more" hidden role="dialog" aria-modal="true" aria-labelledby="moreTitle">
+  <div class="sheet-top wrap"><span></span><h2 id="moreTitle">More</h2><button class="link right" id="moreClose">Done</button></div>
+  <div class="sheet-body wrap">
+    <div class="group">
+      <div class="menu">
+        <button class="menu-item" id="miSettings">Settings<small>Name, targets, carried-in hours</small></button>
+        <button class="menu-item" id="miCopySummary">Copy summary<small>Totals as text</small></button>
+        <button class="menu-item" id="miCopyCsv">Copy spreadsheet rows<small>All entries as CSV</small></button>
+        <button class="menu-item" id="miExamples">Example entries<small id="miExamplesSub"></small></button>
+      </div>
+    </div>
+    <div class="group fields copybox" id="copyBox" hidden>
+      <p class="fine" style="margin-bottom:8px">Copying was blocked on this phone. Select the text below and copy it yourself.</p>
+      <textarea id="copyText" readonly aria-label="Text to copy" style="margin:0"></textarea>
+    </div>
+    <div class="group fields">
+      <p class="fine">This is a test build of Praxis Plus for phones. Everything you log is saved on this phone only, in this browser. Nothing is sent anywhere yet.</p>
+      <p class="fine">For an app-like experience, add it to your home screen: in Safari tap Share, then Add to Home Screen. In Chrome, open the menu and choose Add to Home screen.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Settings sheet -->
+<div class="sheet" id="sheet-settings" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="sheet-top wrap"><button class="link" id="setCancel">Cancel</button><h2 id="setTitle">Settings</h2><button class="link right" id="setSave">Save</button></div>
+  <div class="sheet-body wrap">
+    <fieldset class="f"><legend>Name</legend>
+      <div class="group fields"><input type="text" id="setName" placeholder="Your name" autocomplete="name" maxlength="60"></div>
+    </fieldset>
+    <fieldset class="f"><legend>Hour targets for your program</legend>
+      <div class="group fields">
+        <div class="grid3">
+          <label class="lab">Total<input type="number" id="setTotal" min="0" step="1" inputmode="numeric"></label>
+          <label class="lab">Direct<input type="number" id="setDirect" min="0" step="1" inputmode="numeric"></label>
+          <label class="lab">Supervision<input type="number" id="setSup" min="0" step="1" inputmode="numeric"></label>
+        </div>
+        <p class="fine" style="margin-top:10px">Use the numbers your program gives you. A target of 0 tracks that type without a goal.</p>
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Hours carried in from earlier logs</legend>
+      <div class="group fields">
+        <div class="grid3">
+          <label class="lab">Direct<input type="number" id="carDirect" min="0" step="0.25" inputmode="decimal"></label>
+          <label class="lab">Indirect<input type="number" id="carIndirect" min="0" step="0.25" inputmode="decimal"></label>
+          <label class="lab">Supervision<input type="number" id="carSup" min="0" step="0.25" inputmode="decimal"></label>
+        </div>
+        <p class="fine" style="margin-top:10px">Hours you already have on paper or in another system. They count toward your totals.</p>
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Start over</legend>
+      <button class="danger" id="wipeAll">Delete every entry on this phone</button>
+    </fieldset>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'praxisplus.logbook.v1';
+  var CATS = [
+    { id: 'direct',   label: 'Direct client hours',               group: 'direct' },
+    { id: 'indirect', label: 'Indirect hours',                    group: 'indirect' },
+    { id: 'sup_ind',  label: 'Individual or triadic supervision', group: 'supervision' },
+    { id: 'sup_grp',  label: 'Group supervision',                 group: 'supervision' },
+    { id: 'other',    label: 'Other',                             group: 'other' }
+  ];
+  var CAT_BY_ID = {}; CATS.forEach(function (c) { CAT_BY_ID[c.id] = c; });
+  var MODS = [
+    { id: 'in_person', label: 'In person' },
+    { id: 'telehealth', label: 'Telehealth' },
+    { id: 'phone', label: 'Phone' }
+  ];
+  var MOD_BY_ID = {}; MODS.forEach(function (m) { MOD_BY_ID[m.id] = m; });
+  var PRESETS = [30, 45, 50, 60, 90];
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+
+  /* ---------- state ---------- */
+  function freshState() {
+    return { v: 1, name: '', targets: { total: 700, direct: 400, supervision: 175 },
+             carried: { direct: 0, indirect: 0, supervision: 0 }, entries: [], examples: false, bannerDismissed: false };
+  }
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var s = JSON.parse(raw); if (s && s.v === 1 && Array.isArray(s.entries)) return s; }
+    } catch (e) { /* storage unavailable */ }
+    return null;
+  }
+  function saveState() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ }
+  }
+  var state = loadState();
+  if (!state) { state = freshState(); loadExamples(state); saveState(); }
+
+  function uid() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  /* ---------- dates ---------- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fromIso(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  function todayDate() { var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function startOfWeek(d) { var x = addDays(d, 0); var dow = (x.getDay() + 6) % 7; return addDays(x, -dow); }
+  function fmtDate(d) { return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+  function fmtDateLong(d) { return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
+
+  /* ---------- numbers ---------- */
+  function hrs(min) { var h = min / 60; var s = (Math.round(h * 100) / 100).toFixed(2); return s.replace(/\.?0+$/, ''); }
+  function pct(part, whole) { return whole > 0 ? Math.min(100, Math.round(part / whole * 100)) : 0; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  /* ---------- totals ---------- */
+  function groupMinutes(entries) {
+    var g = { direct: 0, indirect: 0, supervision: 0, other: 0, sup_ind: 0, sup_grp: 0 };
+    entries.forEach(function (e) {
+      var c = CAT_BY_ID[e.category] || CAT_BY_ID.other;
+      g[c.group] += e.minutes;
+      if (c.id === 'sup_ind') g.sup_ind += e.minutes;
+      if (c.id === 'sup_grp') g.sup_grp += e.minutes;
+    });
+    return g;
+  }
+  function totals() {
+    var g = groupMinutes(state.entries);
+    var car = state.carried || { direct: 0, indirect: 0, supervision: 0 };
+    var direct = g.direct + (car.direct || 0) * 60;
+    var indirect = g.indirect + (car.indirect || 0) * 60;
+    var sup = g.supervision + (car.supervision || 0) * 60;
+    var other = g.other;
+    return { direct: direct, indirect: indirect, supervision: sup, other: other,
+             sup_ind: g.sup_ind, sup_grp: g.sup_grp, total: direct + indirect + sup + other,
+             carriedMin: ((car.direct || 0) + (car.indirect || 0) + (car.supervision || 0)) * 60 };
+  }
+
+  /* ---------- example entries ---------- */
+  function loadExamples(s) {
+    var today = todayDate();
+    var out = [];
+    var clients = ['A12', 'B07', 'C03', 'D21', 'E15'];
+    var notesDirect = ['Intake', 'Session 4, CBT', 'Session 6, grief work', 'Session 2, anxiety', 'Session 9', 'Couples session', 'Session 3'];
+    var ci = 0, ni = 0;
+    function push(dayOffset, cat, minutes, mod, client, note) {
+      var d = addDays(today, -dayOffset);
+      out.push({ id: uid(), date: iso(d), category: cat, minutes: minutes, modality: mod || '', client: client || '', note: note || '',
+                 created: d.getTime() + out.length, ex: true });
+    }
+    for (var off = 34; off >= 0; off--) {
+      var d = addDays(today, -off); var dow = d.getDay(); var week = Math.floor(off / 7);
+      if (dow === 1) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'direct', 50, 'telehealth', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'indirect', 60, '', '', 'Progress notes'); }
+      if (dow === 2) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week !== 2) push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'indirect', 45, '', '', 'Treatment plan review'); }
+      if (dow === 3) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week % 2 === 1) push(off, 'sup_grp', 90, 'in_person', '', 'Group supervision'); }
+      if (dow === 4) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'direct', 50, 'telehealth', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week !== 3) push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); }
+      if (dow === 5) { if (week !== 2) push(off, 'sup_ind', 60, 'in_person', '', 'Weekly supervision'); push(off, 'indirect', 60, '', '', 'Case consultation and notes'); }
+    }
+    s.entries = s.entries.filter(function (e) { return !e.ex; }).concat(out);
+    s.carried = { direct: 166.75, indirect: 55.5, supervision: 34 };
+    s.examples = true;
+    s.bannerDismissed = false;
+  }
+  function clearExamples() {
+    state.entries = state.entries.filter(function (e) { return !e.ex; });
+    state.carried = { direct: 0, indirect: 0, supervision: 0 };
+    state.examples = false; state.bannerDismissed = false; saveState(); renderAll();
+  }
+
+  /* ---------- render: header + summary ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  function renderHeader() {
+    $('todayLabel').textContent = fmtDate(todayDate());
+    $('ownerLine').textContent = state.name ? state.name : 'Your logbook';
+  }
+  function renderSummary() {
+    var T = totals(); var target = state.targets.total || 0;
+    $('heroTotal').textContent = hrs(T.total);
+    $('heroOf').textContent = target ? 'of ' + target : 'hours';
+    var left = target * 60 - T.total;
+    $('heroRemain').textContent = target ? (left > 0 ? hrs(left) + ' hours to go' : 'Target reached') : 'No total target set';
+    $('heroPct').textContent = target ? pct(T.total, target * 60) + '% complete' : '';
+    var track = $('trackTotal');
+    track.hidden = !target;
+    $('fillTotal').style.width = pct(T.total, target * 60) + '%';
+    var marks = track.querySelectorAll('.mark, .mark-label'); marks.forEach(function (m) { m.remove(); });
+    if (target >= 300) {
+      track.insertAdjacentHTML('beforeend', '<div class="mark" style="left:50%"></div><div class="mark-label" style="left:50%">halfway</div>');
+      track.style.marginBottom = '18px';
+    } else { track.style.marginBottom = '0'; }
+    $('phaseLine').textContent = state.entries.length ? state.entries.length + (state.entries.length === 1 ? ' entry' : ' entries') : '';
+  }
+  function catRowsHtml(T, withSub) {
+    var tg = state.targets;
+    var rows = [
+      { label: 'Direct client hours', min: T.direct, target: tg.direct || 0 },
+      { label: 'Supervision', min: T.supervision, target: tg.supervision || 0,
+        sub: 'Individual or triadic ' + hrs(T.sup_ind) + ' h' + (T.sup_grp ? ', group ' + hrs(T.sup_grp) + ' h' : '') + (state.carried.supervision ? ', carried in ' + hrs(state.carried.supervision * 60) + ' h' : '') },
+      { label: 'Indirect hours', min: T.indirect, target: 0 },
+      { label: 'Other', min: T.other, target: 0 }
+    ];
+    return rows.map(function (r) {
+      if (!withSub && r.label === 'Other' && !r.min) return '';
+      return '<div class="crow"><div class="crow-head"><span class="name">' + r.label + '</span><span class="val">' + hrs(r.min) +
+             (r.target ? '<small>of ' + r.target + '</small>' : '<small>h</small>') + '</span></div>' +
+             (r.target ? '<div class="bar"><div class="fill" style="width:' + pct(r.min, r.target * 60) + '%"></div></div>' : '') +
+             (withSub && r.sub ? '<div class="crow-sub">' + r.sub + '</div>' : '') +
+             (withSub && !r.target ? '<div class="crow-sub">No target set</div>' : '') + '</div>';
+    }).join('');
+  }
+  function renderCats() {
+    var T = totals();
+    $('catRows').innerHTML = catRowsHtml(T, false);
+    $('catsNote').textContent = '';
+  }
+
+  /* ---------- render: week ---------- */
+  function renderWeek() {
+    var today = todayDate(); var mon = startOfWeek(today);
+    var byDay = {}; var weekMin = 0; var supIndMin = 0;
+    for (var i = 0; i < 7; i++) byDay[iso(addDays(mon, i))] = { direct: 0, indirect: 0, supervision: 0, other: 0, total: 0 };
+    state.entries.forEach(function (e) {
+      var d = byDay[e.date]; if (!d) return;
+      var g = (CAT_BY_ID[e.category] || CAT_BY_ID.other).group; d[g] += e.minutes; d.total += e.minutes; weekMin += e.minutes;
+      if (e.category === 'sup_ind') supIndMin += e.minutes;
+    });
+    var max = 0; Object.keys(byDay).forEach(function (k) { if (byDay[k].total > max) max = byDay[k].total; });
+    var usable = 108; /* px available for the tallest bar, leaves room for the label */
+    var cols = '', labs = '';
+    for (var d = 0; d < 7; d++) {
+      var day = addDays(mon, d); var key = iso(day); var v = byDay[key];
+      var h = max ? Math.round(v.total / max * usable) : 0;
+      var segs = ['direct', 'indirect', 'supervision', 'other'].map(function (g) {
+        if (!v[g]) return ''; var sh = Math.max(2, Math.round(v[g] / v.total * h)); return '<div class="seg ' + g + '" style="height:' + sh + 'px"></div>';
+      }).join('');
+      cols += '<div class="col' + (v.total ? '' : ' empty') + '"><div class="lbl">' + (v.total ? hrs(v.total) : '') + '</div><div class="stack" style="height:' + (v.total ? h : 3) + 'px">' + segs + '</div></div>';
+      var isToday = key === iso(today);
+      labs += '<div class="day-lab' + (isToday ? ' today' : '') + '">' + DAYS[day.getDay()].charAt(0) + '<b>' + day.getDate() + '</b></div>';
+    }
+    $('chart').innerHTML = cols; $('dayLabels').innerHTML = labs;
+    $('weekTotal').textContent = hrs(weekMin) + ' h';
+    var note = $('weekNote');
+    note.className = 'week-note' + (supIndMin >= 60 ? ' ok' : '');
+    note.querySelector('span').textContent = supIndMin >= 60 ? 'Individual supervision logged this week' : 'No individual supervision logged this week';
+  }
+
+  /* ---------- render: ledger ---------- */
+  function renderLedger(flashId) {
+    var list = state.entries.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (b.created || 0) - (a.created || 0); });
+    $('entryCount').textContent = list.length ? list.length + (list.length === 1 ? ' entry' : ' entries') : '';
+    var hasExamples = list.some(function (e) { return e.ex; });
+    if (state.examples && !hasExamples) { state.examples = false; }
+    $('banner').hidden = !(hasExamples && !state.bannerDismissed);
+    $('emptyState').hidden = list.length > 0;
+    var html = '', cur = null, dayMin = 0, buf = '';
+    function flush() {
+      if (cur === null) return;
+      html += '<div class="day-group"><div class="day-head"><span>' + fmtDate(fromIso(cur)) + '</span><span class="num">' + hrs(dayMin) + ' h</span></div>' + buf + '</div>';
+      buf = ''; dayMin = 0;
+    }
+    list.forEach(function (e) {
+      if (e.date !== cur) { flush(); cur = e.date; }
+      dayMin += e.minutes;
+      var c = CAT_BY_ID[e.category] || CAT_BY_ID.other;
+      var sub = '';
+      if (e.modality && MOD_BY_ID[e.modality]) sub += '<span>' + MOD_BY_ID[e.modality].label + '</span>';
+      if (e.client) sub += '<span>Client ' + esc(e.client) + '</span>';
+      if (e.note) sub += '<span>' + esc(e.note) + '</span>';
+      buf += '<button class="row' + (e.id === flashId ? ' flash' : '') + '" data-id="' + e.id + '" aria-label="Edit entry">' +
+             '<div class="row-main"><div class="row-title">' + c.label + '</div>' + (sub ? '<div class="row-sub">' + sub + '</div>' : '') + '</div>' +
+             '<div class="row-h">' + hrs(e.minutes) + '<small>h</small></div>' + CHEV + '</button>';
+    });
+    flush();
+    $('ledger').innerHTML = html;
+  }
+
+  /* ---------- render: progress ---------- */
+  function renderProgress() {
+    var T = totals(); var tg = state.targets;
+    $('cats').innerHTML = catRowsHtml(T, true);
+    $('targetNote').textContent = tg.total ? pct(T.total, tg.total * 60) + '% of ' + tg.total : '';
+
+    var today = todayDate(); var since = addDays(today, -27); var sinceIso = iso(since);
+    var recent = 0; state.entries.forEach(function (e) { if (e.date >= sinceIso) recent += e.minutes; });
+    var perWeek = recent / 4;
+    var paceEl = $('pace');
+    if (tg.total && state.entries.length && perWeek > 0) {
+      var left = tg.total * 60 - T.total;
+      if (left <= 0) { paceEl.innerHTML = 'You have reached your total of <b>' + tg.total + ' hours</b>.'; }
+      else {
+        var weeks = left / perWeek; var eta = addDays(today, Math.round(weeks * 7));
+        paceEl.innerHTML = 'Over the last four weeks you logged <b>' + hrs(perWeek) + ' hours a week</b>. At that pace you reach ' + tg.total + ' hours around <b>' + MONTHS[eta.getMonth()] + ' ' + eta.getFullYear() + '</b>.';
+      }
+    } else if (!state.entries.length) { paceEl.textContent = 'Your weekly pace will appear here after a few weeks of entries.'; }
+    else { paceEl.textContent = 'Set a total target in Settings to see your pace.'; }
+
+    var months = {};
+    state.entries.forEach(function (e) {
+      var k = e.date.slice(0, 7); if (!months[k]) months[k] = { direct: 0, indirect: 0, supervision: 0, other: 0 };
+      months[k][(CAT_BY_ID[e.category] || CAT_BY_ID.other).group] += e.minutes;
+    });
+    var keys = Object.keys(months).sort().reverse();
+    $('monthCount').textContent = keys.length ? keys.length + (keys.length === 1 ? ' month' : ' months') : '';
+    if (!keys.length) { $('monthTable').innerHTML = '<p class="note">No entries yet.</p>'; }
+    else {
+      var t = '<table><thead><tr><th>Month</th><th>Direct</th><th>Indirect</th><th>Superv.</th><th>Total</th></tr></thead><tbody>';
+      keys.forEach(function (k) {
+        var m = months[k]; var p = k.split('-'); var tot = m.direct + m.indirect + m.supervision + m.other;
+        t += '<tr><td>' + MONTHS[+p[1] - 1] + ' ' + p[0] + '</td><td>' + hrs(m.direct) + '</td><td>' + hrs(m.indirect) + '</td><td>' + hrs(m.supervision) + '</td><td>' + hrs(tot) + '</td></tr>';
+      });
+      t += '</tbody></table>';
+      if (T.carriedMin) t += '<p class="note" style="margin-top:10px">Plus ' + hrs(T.carriedMin) + ' hours carried in from earlier logs.</p>';
+      $('monthTable').innerHTML = t;
+    }
+
+    var thisMon = startOfWeek(today); var boxes = '', labels = '', ok = 0;
+    for (var w = 7; w >= 0; w--) {
+      var ws = addDays(thisMon, -7 * w), we = addDays(ws, 6); var a = iso(ws), b = iso(we); var mins = 0;
+      state.entries.forEach(function (e) { if (e.category === 'sup_ind' && e.date >= a && e.date <= b) mins += e.minutes; });
+      var good = mins >= 60; if (good) ok++;
+      boxes += '<div class="wk' + (good ? ' ok' : '') + (w === 0 ? ' cur' : '') + '" title="Week of ' + fmtDateLong(ws) + '">' + (mins ? hrs(mins) : '') + '</div>';
+      labels += '<div>' + MONTHS[ws.getMonth()] + ' ' + ws.getDate() + '</div>';
+    }
+    $('weeks').innerHTML = boxes; $('weekLabels').innerHTML = labels;
+    $('supWeeksNum').textContent = ok + ' of 8 weeks';
+
+    $('carriedNote').innerHTML = T.carriedMin
+      ? 'Totals include ' + hrs(T.carriedMin) + ' hours carried in from earlier logs. <button type="button" id="openSettingsFromNote">Change in Settings</button>'
+      : 'Already have hours on paper? <button type="button" id="openSettingsFromNote">Add them in Settings</button> and they count toward your totals.';
+    $('openSettingsFromNote').addEventListener('click', function () { openSettings(); });
+  }
+
+  function renderAll(flashId) {
+    renderHeader(); renderSummary(); renderCats(); renderWeek(); renderLedger(flashId);
+    if (!$('view-progress').hidden) renderProgress();
+    $('miExamplesSub').textContent = state.examples ? 'Loaded. Tap to clear them' : 'Load a sample month';
+  }
+
+  /* ---------- views ---------- */
+  function showView(name) {
+    var v = name === 'progress' ? 'progress' : 'logbook';
+    $('view-logbook').hidden = v !== 'logbook';
+    $('view-progress').hidden = v !== 'progress';
+    document.querySelectorAll('.tab').forEach(function (b) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    if (v === 'progress') renderProgress();
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.tab').forEach(function (b) {
+    b.addEventListener('click', function () { var v = b.dataset.view; if (location.hash !== '#' + v) location.hash = v; else showView(v); });
+  });
+  window.addEventListener('hashchange', function () { showView(location.hash.replace('#', '')); });
+
+  /* ---------- sheets ---------- */
+  var openSheetId = null;
+  function openSheet(id) { closeSheet(); openSheetId = id; $(id).hidden = false; document.body.style.overflow = 'hidden'; $(id).scrollTop = 0; }
+  function closeSheet() { if (openSheetId) { $(openSheetId).hidden = true; openSheetId = null; } document.body.style.overflow = ''; }
+
+  /* ---------- toast ---------- */
+  var toastTimer = null;
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 1800); }
+
+  /* ---------- log form ---------- */
+  var form = null;
+  function openLog(entry) {
+    form = entry ? { id: entry.id, date: entry.date, category: entry.category, minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '' }
+                 : { id: null, date: iso(todayDate()), category: 'direct', minutes: 50, modality: 'in_person', client: '', note: '' };
+    $('logTitle').textContent = entry ? 'Edit entry' : 'Log hours';
+    $('logSave').textContent = entry ? 'Save changes' : 'Save entry';
+    $('logDelete').hidden = !entry; disarmDelete();
+    $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date;
+    renderForm(); openSheet('sheet-log');
+  }
+  function renderForm() {
+    $('catList').innerHTML = CATS.map(function (c) {
+      return '<button type="button" class="cat-opt" role="radio" data-cat="' + c.id + '" aria-checked="' + (form.category === c.id) + '"><span class="radio"></span>' + c.label + '</button>';
+    }).join('');
+    $('durMin').textContent = form.minutes; $('durH').textContent = hrs(form.minutes) + ' h';
+    $('durPresets').innerHTML = PRESETS.map(function (m) { return '<button type="button" class="chip" data-min="' + m + '" aria-pressed="' + (form.minutes === m) + '">' + m + ' min</button>'; }).join('');
+    var t = iso(todayDate()), y = iso(addDays(todayDate(), -1));
+    $('dateQuick').innerHTML = '<button type="button" class="chip" data-date="' + t + '" aria-pressed="' + (form.date === t) + '">Today</button>' +
+                               '<button type="button" class="chip" data-date="' + y + '" aria-pressed="' + (form.date === y) + '">Yesterday</button>';
+    $('modList').innerHTML = MODS.map(function (m) { return '<button type="button" class="chip" data-mod="' + m.id + '" aria-pressed="' + (form.modality === m.id) + '">' + m.label + '</button>'; }).join('');
+  }
+  $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.category = b.dataset.cat; renderForm(); });
+  $('durPresets').addEventListener('click', function (ev) { var b = ev.target.closest('[data-min]'); if (!b) return; form.minutes = +b.dataset.min; renderForm(); });
+  $('dateQuick').addEventListener('click', function (ev) { var b = ev.target.closest('[data-date]'); if (!b) return; form.date = b.dataset.date; $('dateInput').value = form.date; renderForm(); });
+  $('modList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-mod]'); if (!b) return; form.modality = form.modality === b.dataset.mod ? '' : b.dataset.mod; renderForm(); });
+  $('durMinus').addEventListener('click', function () { form.minutes = Math.max(5, form.minutes - 5); renderForm(); });
+  $('durPlus').addEventListener('click', function () { form.minutes = Math.min(600, form.minutes + 5); renderForm(); });
+  $('dateInput').addEventListener('change', function () { if (/^\d{4}-\d{2}-\d{2}$/.test(this.value)) { form.date = this.value; renderForm(); } });
+  $('logCancel').addEventListener('click', closeSheet);
+  $('logSave').addEventListener('click', function () {
+    form.client = $('clientInput').value.trim(); form.note = $('noteInput').value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date)) { toast('Choose a date first'); return; }
+    var id = form.id;
+    if (id) {
+      var e = state.entries.filter(function (x) { return x.id === id; })[0];
+      if (e) { e.date = form.date; e.category = form.category; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; }
+    } else {
+      id = uid();
+      state.entries.push({ id: id, date: form.date, category: form.category, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, created: Date.now() });
+    }
+    saveState(); closeSheet();
+    if (location.hash === '#progress') { location.hash = 'logbook'; }
+    renderAll(id); toast(form.id ? 'Changes saved' : 'Entry saved');
+  });
+  var armTimer = null;
+  function disarmDelete() { var b = $('logDelete'); b.classList.remove('armed'); b.textContent = 'Delete entry'; clearTimeout(armTimer); }
+  $('logDelete').addEventListener('click', function () {
+    var b = this;
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; armTimer = setTimeout(disarmDelete, 3500); return; }
+    state.entries = state.entries.filter(function (x) { return x.id !== form.id; });
+    saveState(); closeSheet(); renderAll(); toast('Entry deleted');
+  });
+  $('ledger').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.row'); if (!b) return;
+    var e = state.entries.filter(function (x) { return x.id === b.dataset.id; })[0]; if (e) openLog(e);
+  });
+  $('btnLog').addEventListener('click', function () { openLog(null); });
+
+  /* ---------- banner ---------- */
+  $('clearExamples').addEventListener('click', function () { clearExamples(); toast('Examples cleared'); });
+  $('keepExamples').addEventListener('click', function () { state.bannerDismissed = true; saveState(); renderLedger(); });
+
+  /* ---------- more sheet ---------- */
+  $('btnMore').addEventListener('click', function () { $('copyBox').hidden = true; openSheet('sheet-more'); });
+  $('moreClose').addEventListener('click', closeSheet);
+  function copyText(text, label) {
+    var done = function () { toast(label + ' copied'); };
+    var fail = function () { var box = $('copyBox'); box.hidden = false; var ta = $('copyText'); ta.value = text; ta.focus(); ta.select(); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail); else fail();
+    } catch (e) { fail(); }
+  }
+  function summaryText() {
+    var T = totals(); var tg = state.targets; var lines = [];
+    lines.push('Praxis Plus logbook' + (state.name ? ' for ' + state.name : ''));
+    lines.push('As of ' + fmtDateLong(todayDate()));
+    lines.push('Total: ' + hrs(T.total) + (tg.total ? ' of ' + tg.total : '') + ' hours');
+    lines.push('Direct client: ' + hrs(T.direct) + (tg.direct ? ' of ' + tg.direct : ''));
+    lines.push('Supervision: ' + hrs(T.supervision) + (tg.supervision ? ' of ' + tg.supervision : ''));
+    lines.push('Indirect: ' + hrs(T.indirect));
+    if (T.other) lines.push('Other: ' + hrs(T.other));
+    if (T.carriedMin) lines.push('Includes ' + hrs(T.carriedMin) + ' hours carried in from earlier logs');
+    lines.push('Entries: ' + state.entries.length);
+    return lines.join('\n');
+  }
+  function csvText() {
+    function q(v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+    var rows = [['date', 'category', 'minutes', 'hours', 'format', 'client_code', 'note']];
+    state.entries.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); }).forEach(function (e) {
+      rows.push([e.date, (CAT_BY_ID[e.category] || CAT_BY_ID.other).label, e.minutes, hrs(e.minutes), e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.client || '', e.note || '']);
+    });
+    return rows.map(function (r) { return r.map(q).join(','); }).join('\n');
+  }
+  $('miCopySummary').addEventListener('click', function () { copyText(summaryText(), 'Summary'); });
+  $('miCopyCsv').addEventListener('click', function () { copyText(csvText(), 'Spreadsheet rows'); });
+  $('miExamples').addEventListener('click', function () {
+    if (state.examples) { clearExamples(); toast('Examples cleared'); }
+    else { loadExamples(state); saveState(); renderAll(); toast('Example entries loaded'); }
+    $('miExamplesSub').textContent = state.examples ? 'Loaded. Tap to clear them' : 'Load a sample month';
+  });
+
+  /* ---------- settings ---------- */
+  function openSettings() {
+    $('setName').value = state.name || '';
+    $('setTotal').value = state.targets.total || 0; $('setDirect').value = state.targets.direct || 0; $('setSup').value = state.targets.supervision || 0;
+    $('carDirect').value = state.carried.direct || 0; $('carIndirect').value = state.carried.indirect || 0; $('carSup').value = state.carried.supervision || 0;
+    var w = $('wipeAll'); w.classList.remove('armed'); w.textContent = 'Delete every entry on this phone';
+    openSheet('sheet-settings');
+  }
+  function num(id) { var v = parseFloat($(id).value); return isFinite(v) && v >= 0 ? v : 0; }
+  $('miSettings').addEventListener('click', openSettings);
+  $('setCancel').addEventListener('click', function () { closeSheet(); });
+  $('setSave').addEventListener('click', function () {
+    state.name = $('setName').value.trim().slice(0, 60);
+    state.targets = { total: Math.round(num('setTotal')), direct: Math.round(num('setDirect')), supervision: Math.round(num('setSup')) };
+    state.carried = { direct: num('carDirect'), indirect: num('carIndirect'), supervision: num('carSup') };
+    saveState(); closeSheet(); renderAll(); toast('Settings saved');
+  });
+  var wipeTimer = null;
+  $('wipeAll').addEventListener('click', function () {
+    var b = this;
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete everything'; wipeTimer = setTimeout(function () { b.classList.remove('armed'); b.textContent = 'Delete every entry on this phone'; }, 3500); return; }
+    clearTimeout(wipeTimer);
+    var name = state.name; var tg = state.targets; state = freshState(); state.name = name; state.targets = tg; saveState(); closeSheet(); renderAll(); toast('Logbook emptied');
+  });
+
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && openSheetId) closeSheet(); });
+
+  /* ---------- boot ---------- */
+  renderAll();
+  showView(location.hash.replace('#', ''));
+})();
+</script>
+
+</body>
+</html>
