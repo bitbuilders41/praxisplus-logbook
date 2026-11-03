@@ -24,123 +24,143 @@ img{max-width:100%}
 <body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: a clinical, quiet phone app. One deep-pine summary panel at the top carries the brand; everything
-   else sits in white panels on a cool light ground with hairline dividers. Clean bars for progress, a small bar
-   chart for the week, a fixed bottom bar with the primary Log hours action. */
+/* Layout: clinical phone app. Pine summary panel, white panels on a cool ground, hairline dividers.
+   Five-slot bottom bar with a raised Log hours button. Bars, rings or pie for targets, chosen by the user. */
 :root{
-  --bg:#F3F5F6;
-  --panel:#FFFFFF;
-  --line:#E3E8EB;
-  --line-strong:#C9D2D7;
-  --ink:#172029;
-  --ink-2:#5B6770;
-  --ink-3:#8C979F;
-  --brand:#174540;
-  --brand-2:#2E8276;
-  --brand-3:#8FCFC2;
-  --brand-4:#E3F1ED;
-  --on-brand:#FFFFFF;
-  --on-brand-2:rgba(255,255,255,.72);
-  --track:rgba(255,255,255,.22);
-  --good:#2E8276;
-  --danger:#B3261E;
-  --danger-bg:#FBEDEB;
-  --field:#FFFFFF;
-  --mark-bg:#174540;
+  --bg:#F3F5F6; --panel:#FFFFFF; --line:#E3E8EB; --line-strong:#C9D2D7;
+  --ink:#172029; --ink-2:#5B6770; --ink-3:#8C979F;
+  --brand:#174540; --brand-2:#2E8276; --brand-3:#8FCFC2; --brand-4:#E3F1ED;
+  --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72); --track:rgba(255,255,255,.22);
+  --custom:#7A8FA6; --custom-2:#B7C4D2;
+  --good:#2E8276; --danger:#B3261E; --danger-bg:#FBEDEB; --field:#FFFFFF;
+  --mark-bg:#174540; --sup:#174540;
   --font:"IBM Plex Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --mark-bg:#4FB0A1; --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
+    --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
     --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
-    --track:rgba(255,255,255,.18); --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
-    color-scheme:dark;
+    --track:rgba(255,255,255,.18); --custom:#8FA3B8; --custom-2:#4B5A68; --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
+    --mark-bg:#4FB0A1; --sup:#8FCFC2; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --mark-bg:#4FB0A1; --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
+  --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
   --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
-  --track:rgba(255,255,255,.18); --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
-  color-scheme:dark;
+  --track:rgba(255,255,255,.18); --custom:#8FA3B8; --custom-2:#4B5A68; --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
+  --mark-bg:#4FB0A1; --sup:#8FCFC2; color-scheme:dark;
 }
-
 html{background:var(--bg)}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
-  font-family:var(--font);font-size:15px;line-height:1.45;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;
   -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
-  padding-bottom:calc(88px + env(safe-area-inset-bottom,0px));
-}
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 *,*::before,*::after{box-sizing:border-box}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;touch-action:manipulation}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
 h1,h2,h3{margin:0;font-weight:600;text-wrap:balance}
 p{margin:0}
+svg{display:block}
 .num{font-variant-numeric:tabular-nums}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-svg{display:block}
 
 /* Header */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);
-  display:flex;justify-content:space-between;align-items:center;gap:12px;height:56px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);display:flex;justify-content:space-between;align-items:center;gap:12px;height:56px}
 .brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-.01em}
 .brand .mark{width:28px;height:28px;border-radius:8px;background:var(--mark-bg);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand .mark svg{width:16px;height:16px}
 .brand .wordmark b{font-weight:600;color:var(--brand-2);margin-left:4px}
-.top-right{display:flex;align-items:center;gap:6px}
 .today{font-size:14px;color:var(--ink-2)}
-.icon-btn{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2)}
-.icon-btn:active{background:var(--line)}
 
 main[hidden]{display:none}
 .view{display:flex;flex-direction:column;gap:14px;padding-block:8px 12px}
+.view-title{font-size:22px;font-weight:600;letter-spacing:-.01em;padding-top:4px}
+.view-sub{font-size:14px;color:var(--ink-2);margin-top:-8px}
 
 /* Panels */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
-.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
 .panel-head h2{font-size:16px}
-.panel-num{font-size:14px;color:var(--ink-2);font-weight:500}
+.panel-num{font-size:14px;color:var(--ink-2);font-weight:500;white-space:nowrap}
+.collapse{display:flex;align-items:center;gap:8px;text-align:left;min-height:32px;flex:1;min-width:0}
+.collapse .chev{width:18px;height:18px;color:var(--ink-3);transition:transform .18s ease;flex-shrink:0}
+.collapse[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.panel.is-collapsed .panel-head{margin-bottom:0}
+.panel-body[hidden]{display:none}
 
-/* Summary panel */
+/* Summary */
 .summary{background:var(--brand);color:var(--on-brand);border:0;border-radius:16px;padding:20px 18px 18px}
 .summary .label{font-size:14px;color:var(--on-brand-2)}
 .summary .total{font-size:52px;font-weight:600;line-height:1.05;letter-spacing:-.025em;margin-top:4px;font-variant-numeric:tabular-nums}
 .summary .total small{font-size:18px;font-weight:500;color:var(--on-brand-2);margin-left:6px;letter-spacing:0}
 .summary .sub{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--on-brand-2);margin-top:14px}
-.summary .sub b{color:var(--on-brand);font-weight:600}
-.track{position:relative;height:8px;border-radius:4px;background:var(--track);overflow:visible;margin-top:8px}
+.track{position:relative;height:8px;border-radius:4px;background:var(--track);margin-top:8px}
 .track .fill{height:100%;border-radius:4px;background:var(--brand-3);transition:width .35s ease}
 .track .mark{position:absolute;top:-4px;width:2px;height:16px;background:var(--on-brand-2);border-radius:1px}
 .track .mark-label{position:absolute;top:16px;font-size:11px;color:var(--on-brand-2);transform:translateX(-50%);white-space:nowrap}
 .summary .owner{font-size:13px;color:var(--on-brand-2);margin-top:26px;display:flex;justify-content:space-between;gap:12px}
 .summary .owner b{color:var(--on-brand);font-weight:500}
 
-/* Category rows */
+/* Segmented control */
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px;flex-shrink:0}
+.seg button{min-height:28px;padding:0 10px;border-radius:6px;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.seg.lg button{min-height:38px;padding:0 16px;font-size:14px}
+
+/* Category rows (bars) */
 .rows{display:flex;flex-direction:column}
 .crow{padding:12px 0;border-top:1px solid var(--line)}
 .crow:first-child{border-top:0;padding-top:2px}
 .crow:last-child{padding-bottom:2px}
+.crow.sub{padding-left:18px;border-top:0;padding-top:2px;position:relative}
+.crow.sub::before{content:"";position:absolute;left:4px;top:0;bottom:14px;width:1.5px;background:var(--line-strong);border-radius:1px}
 .crow-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.crow-head .name{font-size:15px;font-weight:500}
-.crow-head .val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.crow-head .name{font-size:15px;font-weight:500;min-width:0}
+.crow-head .name small{display:block;font-size:12.5px;color:var(--ink-2);font-weight:400}
+.crow-head .val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 .crow-head .val small{font-size:13px;color:var(--ink-2);font-weight:400;margin-left:3px}
-.bar{height:6px;border-radius:3px;background:var(--brand-4);margin-top:8px;overflow:hidden}
-.bar .fill{height:100%;border-radius:3px;background:var(--brand-2)}
+.bar{height:6px;border-radius:3px;background:var(--brand-4);margin-top:8px;overflow:hidden;display:flex}
+.bar .fill{height:100%;background:var(--brand-2)}
+.bar .fill.sup{background:var(--sup)}
+.bar .fill.cust{background:var(--custom)}
 .crow-sub{font-size:13px;color:var(--ink-2);margin-top:6px}
+.crow-sub .dot{display:inline-block;width:8px;height:8px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+
+/* Rings */
+.rings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ring{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:8px 2px}
+.ring svg{width:84px;height:84px}
+.ring .ring-track{stroke:var(--brand-4);fill:none}
+.ring .ring-fill{stroke:var(--brand-2);fill:none;stroke-linecap:round;transition:stroke-dasharray .35s ease}
+.ring.sup .ring-fill{stroke:var(--sup)}
+.ring.cust .ring-fill{stroke:var(--custom)}
+.ring .pct{font-size:17px;font-weight:600;fill:var(--ink)}
+.ring .ring-name{font-size:12.5px;color:var(--ink-2);line-height:1.2}
+.ring .ring-val{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Pie */
+.pie{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+.pie svg{width:150px;height:150px}
+.pie .pie-center{font-size:20px;font-weight:600;fill:var(--ink)}
+.pie .pie-center-sub{font-size:11px;fill:var(--ink-2)}
+.pie-legend{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pie-legend div{display:flex;align-items:center;gap:8px;font-size:13.5px;min-width:0}
+.pie-legend .sw{flex-shrink:0}
+.pie-legend .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pie-legend .v{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pie-legend .v small{color:var(--ink-2);font-weight:400;margin-left:4px}
+@media (max-width:360px){.pie{grid-template-columns:120px 1fr}.pie svg{width:120px;height:120px}}
 
 /* Week chart */
 .chart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:132px}
 .col{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;min-width:0}
 .col .lbl{text-align:center;font-size:11px;color:var(--ink-2);margin-bottom:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.col .stack{display:flex;flex-direction:column-reverse;border-radius:5px 5px 2px 2px;overflow:hidden;min-height:3px;background:transparent}
-.col .seg{width:100%}
-.seg.direct{background:var(--brand-2)}
-.seg.indirect{background:var(--brand-3)}
-.seg.supervision{background:var(--brand)}
-.seg.other{background:var(--line-strong)}
-:root[data-theme="dark"] .seg.supervision{background:#8FCFC2}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .seg.supervision{background:#8FCFC2} }
+.col .stack{display:flex;flex-direction:column-reverse;border-radius:5px 5px 2px 2px;overflow:hidden;min-height:3px}
+.col .seg-h{width:100%}
+.seg-h.direct,.sw.direct{background:var(--brand-2)}
+.seg-h.indirect,.sw.indirect{background:var(--brand-3)}
+.seg-h.supervision,.sw.supervision{background:var(--sup)}
+.seg-h.custom,.sw.custom{background:var(--custom)}
 .col.empty .stack{background:var(--line);min-height:3px}
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
 .day-lab{text-align:center;font-size:12px;color:var(--ink-2);line-height:1.2}
@@ -149,9 +169,6 @@ main[hidden]{display:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:12px;color:var(--ink-2)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
-.sw.direct{background:var(--brand-2)}.sw.indirect{background:var(--brand-3)}.sw.supervision{background:var(--brand)}.sw.other{background:var(--line-strong)}
-:root[data-theme="dark"] .sw.supervision{background:#8FCFC2}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .sw.supervision{background:#8FCFC2} }
 .week-note{margin-top:12px;font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
 .week-note .dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong);flex-shrink:0}
 .week-note.ok .dot{background:var(--good)}
@@ -160,26 +177,46 @@ main[hidden]{display:none}
 /* Entries */
 .notice{background:var(--brand-4);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;line-height:1.4;color:var(--ink)}
 .notice .btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn-sm{min-height:36px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--line-strong);background:var(--panel)}
+.btn-sm{min-height:36px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink)}
 .btn-sm.fill{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
-.day-group + .day-group{margin-top:14px}
-.day-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-2);padding-bottom:6px}
-.day-head .num{font-weight:500}
-.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-top:1px solid var(--line);min-height:58px}
+.btn-sm:disabled{opacity:.45}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.chip{min-height:36px;padding:0 13px;border:1px solid var(--line-strong);color:var(--ink);border-radius:999px;font-size:13.5px;font-weight:500;background:var(--panel);white-space:nowrap;flex-shrink:0}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.tools{display:flex;justify-content:flex-end;gap:14px;font-size:13.5px;margin-bottom:4px}
+.tools button{color:var(--brand-2);font-weight:500;min-height:32px}
+.day-group + .day-group{margin-top:4px}
+.day-head{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font-size:13.5px;color:var(--ink-2);min-height:40px;border-top:1px solid var(--line)}
+.day-group:first-child .day-head{border-top:0}
+.day-head .chev{width:16px;height:16px;color:var(--ink-3);transition:transform .18s ease;flex-shrink:0}
+.day-head[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.day-head .d{flex:1}
+.day-head .num{font-weight:500;color:var(--ink)}
+.day-head .cnt{font-size:12px;color:var(--ink-3)}
+.day-body[hidden]{display:none}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 0 10px 24px;border-top:1px solid var(--line);min-height:56px}
 .row:active{background:var(--bg)}
 .row.flash{animation:flash 1.4s ease-out}
 @keyframes flash{0%{background:var(--brand-4)}100%{background:transparent}}
+.row.plain{padding-left:0;border-top:0;padding-top:4px;min-height:50px}
+.rec-date{font-size:12.5px;color:var(--ink-2);padding-top:8px;border-top:1px solid var(--line)}
+.rec-date:first-child{border-top:0;padding-top:0}
 .row-main{flex:1;min-width:0}
 .row-title{font-size:15px;font-weight:500;line-height:1.25}
+.row-title small{font-weight:400;color:var(--ink-2)}
 .row-sub{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row-sub span + span::before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--ink-3);margin:0 7px;vertical-align:middle}
 .row-h{font-size:16px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .row-h small{font-size:12px;color:var(--ink-2);margin-left:2px;font-weight:400}
-.chev{color:var(--ink-3);flex-shrink:0}
+.chev-r{color:var(--ink-3);flex-shrink:0}
 .empty{padding:6px 0 2px;color:var(--ink-2);font-size:15px;line-height:1.5}
 .empty b{color:var(--ink);font-weight:600}
+.link-btn{color:var(--brand-2);font-weight:500;font-size:14.5px;min-height:40px;display:inline-flex;align-items:center;gap:4px}
+.link-btn svg{width:16px;height:16px}
+.panel-foot{border-top:1px solid var(--line);margin-top:6px;padding-top:4px;display:flex;justify-content:center}
 
-/* Progress view */
+/* Progress */
 .pace{font-size:15px;line-height:1.5}
 .pace b{font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -187,24 +224,36 @@ th,td{padding:9px 0;text-align:right;border-top:1px solid var(--line);font-varia
 th{font-weight:500;color:var(--ink-2);font-size:12px;border-top:0;padding-top:0}
 th:first-child,td:first-child{text-align:left}
 td:last-child{font-weight:600}
-.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px}
-.wk{aspect-ratio:1;border-radius:6px;background:var(--brand-4);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.wk.ok{background:var(--brand-2);color:#fff;font-weight:500}
+.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px;justify-items:stretch}
+.weeks .wk{max-width:64px;width:100%;justify-self:center}
+.wk{aspect-ratio:1;border-radius:6px;background:var(--panel);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wk.ok{background:var(--brand-2);border-color:var(--brand-2);color:#fff;font-weight:500}
 .wk.cur{box-shadow:inset 0 0 0 1.5px var(--brand-2)}
 .wk-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:6px;font-size:10.5px;color:var(--ink-3);text-align:center}
+.wk-labels div{margin-bottom:6px}
 .note{font-size:13.5px;color:var(--ink-2);line-height:1.45}
 .note button{color:var(--brand-2);font-weight:500}
-.panel .note + .weeks{margin-top:12px}
+.subs-list{display:flex;flex-direction:column;margin-top:8px;border-top:1px solid var(--line)}
+.subs-list div{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--line)}
+.subs-list div span:first-child{color:var(--ink-2);min-width:0}
+.subs-list div span:last-child{font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.subs-list .mini{height:4px;border-radius:2px;background:var(--brand-4);flex:0 0 72px;align-self:center;overflow:hidden}
+.subs-list .mini i{display:block;height:100%;background:var(--brand-2)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.split div{background:var(--bg);border-radius:10px;padding:10px 12px}
+.split .k{font-size:12.5px;color:var(--ink-2)}
+.split .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.split .v small{font-size:12px;color:var(--ink-2);font-weight:400;margin-left:2px}
 
-/* Bottom bar */
-.bar-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.bar-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:74px;gap:8px}
-.tab{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:500;color:var(--ink-3);border-radius:10px}
-.tab svg{width:24px;height:24px}
-.tab[aria-current="page"]{color:var(--brand-2)}
-.log-btn{height:50px;padding:0 22px;background:var(--brand);color:var(--on-brand);border-radius:12px;font-size:16px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
-.log-btn svg{width:20px;height:20px}
-.log-btn:active{opacity:.9}
+/* Settings list */
+.list{display:flex;flex-direction:column}
+.list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;width:100%;text-align:left;border-top:1px solid var(--line);font-size:15px;font-weight:500}
+.list-row:first-child{border-top:0}
+.list-row small{color:var(--ink-2);font-weight:400;font-size:13px;text-align:right;max-width:55%}
+.list-row.danger-row{color:var(--danger)}
+.list-row .chev-r{margin-left:-4px}
+.inline-field{display:flex;flex-direction:column;gap:6px;padding:8px 0 12px}
+.inline-field label{font-size:13px;color:var(--ink-2)}
 
 /* Sheets */
 .sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;
@@ -212,52 +261,122 @@ td:last-child{font-weight:600}
 .sheet[hidden]{display:none}
 .sheet-top{position:sticky;top:0;z-index:2;background:var(--bg);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:56px}
 .sheet-top h2{font-size:16px;text-align:center}
-.link{min-height:44px;font-size:16px;font-weight:500;color:var(--brand-2);justify-self:start;padding:0 2px;border-radius:6px}
+.link{min-height:44px;font-size:16px;font-weight:500;color:var(--brand-2);justify-self:start;padding:0 2px;border-radius:6px;display:inline-flex;align-items:center;gap:2px}
 .link.right{justify-self:end}
+.link svg{width:18px;height:18px}
 .sheet-body{display:flex;flex-direction:column;gap:14px;padding-block:6px 8px}
 .f{border:0;padding:0;margin:0;min-width:0}
 .f legend{padding:0;margin:0 0 8px 2px;font-size:13px;color:var(--ink-2);font-weight:500}
 .group{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.group.fields{padding:12px 14px}
 .cat-opt{display:flex;align-items:center;gap:12px;min-height:50px;width:100%;border-top:1px solid var(--line);text-align:left;font-size:15px;font-weight:500}
 .cat-opt:first-child{border-top:0}
-.cat-opt .radio{width:20px;height:20px;border:1.5px solid var(--line-strong);border-radius:50%;flex-shrink:0;position:relative}
+.cat-opt .radio{width:20px;height:20px;border:1.5px solid var(--line-strong);border-radius:50%;flex-shrink:0}
 .cat-opt[aria-checked="true"] .radio{border-color:var(--brand-2);border-width:6px}
+.cat-opt small{margin-left:auto;color:var(--ink-3);font-weight:400;font-size:12.5px}
+.other-box{padding:4px 0 12px}
 .dur{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px;padding:12px 0 6px}
 .step{height:52px;border:1.5px solid var(--line-strong);border-radius:12px;font-size:26px;font-weight:400;line-height:1;color:var(--brand-2)}
 .step:active{background:var(--brand-4)}
 .dur-val{text-align:center;line-height:1}
 .dur-val .n{font-size:44px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.dur-val input.n{width:120px;max-width:100%;display:inline-block;border:0;background:transparent;padding:0;min-height:0;text-align:right;color:var(--ink);line-height:1;border-bottom:1.5px dashed var(--line-strong);border-radius:0;-moz-appearance:textfield}
+.dur-val input.n::-webkit-outer-spin-button,.dur-val input.n::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.more-dates{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.more-dates:empty{margin-top:0}
+.more-dates div{display:flex;gap:8px;align-items:center}
+.more-dates input{flex:1}
+.more-dates button{width:40px;height:40px;border-radius:50%;background:var(--bg);color:var(--ink-2);font-size:20px;line-height:1;flex-shrink:0}
 .dur-val small{font-size:15px;color:var(--ink-2);margin-left:4px;font-weight:500}
 .dur-h{display:block;font-size:13px;color:var(--ink-2);margin-top:6px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 12px}
-.chip{min-height:38px;padding:0 14px;border:1px solid var(--line-strong);color:var(--ink);border-radius:999px;font-size:14px;font-weight:500;background:var(--panel)}
-.chip[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
-input[type="date"],input[type="text"],input[type="number"],textarea{
+input[type="date"],input[type="text"],input[type="number"],textarea,select{
   width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--line-strong);border-radius:10px;
   padding:12px 12px;min-height:48px;-webkit-appearance:none;appearance:none}
-input[type="date"]{line-height:1.3;margin-bottom:12px}
-textarea{min-height:80px;resize:vertical;margin-top:10px;margin-bottom:10px}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:40px}
+input[type="date"]{line-height:1.3}
+textarea{min-height:80px;resize:vertical}
 input::placeholder,textarea::placeholder{color:var(--ink-3)}
-.group.fields{padding:12px 14px}
-.primary{height:54px;background:var(--brand);color:var(--on-brand);border-radius:12px;font-size:16px;font-weight:600;width:100%;margin-top:6px}
+.stack-fields{display:flex;flex-direction:column;gap:10px}
+.primary{height:54px;background:var(--brand);color:var(--on-brand);border-radius:12px;font-size:16px;font-weight:600;width:100%;margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.primary svg{width:20px;height:20px}
 .primary:active{opacity:.9}
+.primary:disabled{opacity:.5}
+.secondary{height:48px;border:1.5px solid var(--line-strong);background:var(--panel);color:var(--ink);border-radius:12px;font-size:15px;font-weight:500;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.secondary svg{width:18px;height:18px}
 .danger{height:48px;color:var(--danger);font-size:15px;font-weight:500;width:100%;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
 .danger.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
-.menu{display:flex;flex-direction:column}
-.menu-item{display:flex;justify-content:space-between;align-items:center;min-height:56px;width:100%;border-top:1px solid var(--line);text-align:left;font-size:15px;font-weight:500;gap:12px}
-.menu-item:first-child{border-top:0}
-.menu-item small{color:var(--ink-2);font-weight:400;font-size:13px;text-align:right;max-width:55%}
 .fine{font-size:13.5px;color:var(--ink-2);line-height:1.5}
 .fine + .fine{margin-top:8px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .lab{display:block;font-size:13px;color:var(--ink-2)}
-.lab input{margin-top:6px}
-.copybox textarea{min-height:200px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.lab input,.lab select{margin-top:6px}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;min-height:44px;font-size:14.5px;flex-wrap:wrap}
+.switch .seg{margin-left:auto}
+.switch .sw-ctl{width:46px;height:28px;border-radius:14px;background:var(--line-strong);position:relative;flex-shrink:0;transition:background .18s}
+.switch .sw-ctl::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch[aria-checked="true"] .sw-ctl{background:var(--brand-2)}
+.switch[aria-checked="true"] .sw-ctl::after{transform:translateX(18px)}
+
+/* Category editor */
+.cat-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cat-card + .cat-card{margin-top:10px}
+.cat-card .cc-head{display:flex;align-items:center;gap:10px}
+.cat-card .cc-head .nm{flex:1;min-width:0;font-size:15px;font-weight:600}
+.cat-card .cc-head input{flex:1;min-height:42px;padding:8px 10px;font-size:15px;font-weight:600}
+.cat-card .cc-head .tgt{width:96px;flex-shrink:0;display:flex;flex-direction:column;gap:3px}
+.cat-card .cc-head .tgt input{min-height:42px;padding:8px 10px;text-align:right}
+.cat-card .cc-head .tgt span{font-size:11px;color:var(--ink-2);text-align:right}
+.cat-card .cc-meta{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.cc-subs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.cc-subs .tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);border-radius:999px;padding:5px 6px 5px 11px;font-size:13px;max-width:100%}
+.cc-subs .tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-subs .tag button{width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--ink-2);font-size:15px;line-height:1;flex-shrink:0}
+.cc-add{display:flex;gap:8px;margin-top:10px}
+.cc-add input{flex:1;min-height:42px;padding:8px 10px;font-size:14px}
+.cc-add button{min-height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--line-strong);font-weight:500;font-size:14px;flex-shrink:0}
+.cc-actions{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}
+.cc-actions button{color:var(--brand-2);font-weight:500;font-size:14px;min-height:32px}
+.cc-actions button.rm{color:var(--danger)}
+.cc-actions button:disabled{color:var(--ink-3)}
+.sup-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.sup-card + .sup-card{margin-top:10px}
+.sup-card .sc-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sup-card .sc-name{font-size:15px;font-weight:600}
+.sup-card .badge{font-size:11.5px;font-weight:600;color:var(--brand-2);background:var(--brand-4);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.sup-card .sc-meta{font-size:13px;color:var(--ink-2)}
+.sup-card .sc-actions{display:flex;gap:14px;margin-top:4px}
+.sup-card .sc-actions button{color:var(--brand-2);font-weight:500;font-size:14px;min-height:32px}
+.sup-card .sc-actions button.rm{color:var(--danger)}
+.sup-card .sc-actions button:disabled{color:var(--ink-3)}
+.cc-move{margin-top:10px;background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.cc-move select,.cc-move input{min-height:42px;padding:8px 10px;font-size:14px}
+.cc-move .fine{margin:0}
+
+/* Signature pad */
+.sig{border:1px dashed var(--line-strong);border-radius:10px;background:var(--field);position:relative;height:120px;touch-action:none;overflow:hidden}
+.sig canvas{width:100%;height:100%;display:block}
+.sig .sig-line{position:absolute;left:14px;right:14px;bottom:26px;border-bottom:1px solid var(--line-strong);pointer-events:none}
+.sig .sig-hint{position:absolute;left:14px;bottom:6px;font-size:11px;color:var(--ink-3);pointer-events:none}
+.sig-tools{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:13px;color:var(--ink-2)}
+.sig-tools button{color:var(--brand-2);font-weight:500;min-height:32px}
+
+/* Bottom bar */
+.bar-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bar-in{display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr 1fr;align-items:end;height:66px}
+.tab{height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:500;color:var(--ink-3);border-radius:10px;min-width:0}
+.tab svg{width:23px;height:23px}
+.tab[aria-current="page"]{color:var(--brand-2)}
+.fab-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:60px;gap:3px}
+.fab{width:54px;height:54px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:inline-flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 6px 16px rgba(23,69,64,.32),0 0 0 4px var(--panel)}
+.fab svg{width:26px;height:26px}
+.fab:active{transform:scale(.97)}
+.fab-wrap span{font-size:11.5px;font-weight:600;color:var(--brand-2)}
 
 /* Toast */
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:30;
-  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;
-  box-shadow:0 8px 24px rgba(0,0,0,.16);animation:toastin .18s ease-out}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.16);animation:toastin .18s ease-out;max-width:calc(100% - 32px);text-align:center}
 .toast[hidden]{display:none}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -266,15 +385,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 
 <header class="top wrap">
   <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><span class="wordmark">Praxis<b>Plus</b></span></div>
-  <div class="top-right">
-    <div class="today" id="todayLabel"></div>
-    <button class="icon-btn" id="btnMore" aria-label="More options">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-    </button>
-  </div>
+  <div class="today" id="todayLabel"></div>
 </header>
 
-<main id="view-logbook" class="view wrap">
+<!-- DASHBOARD -->
+<main id="view-dashboard" class="view wrap">
   <section class="summary">
     <p class="label">Total clinical hours</p>
     <div class="total"><span id="heroTotal">0</span><small id="heroOf"></small></div>
@@ -283,84 +398,187 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="owner"><span id="ownerLine">Your logbook</span><b id="phaseLine"></b></div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head"><h2>Toward your targets</h2><span class="panel-num" id="catsNote"></span></div>
-    <div class="rows" id="catRows"></div>
+  <section class="panel" id="panel-targets">
+    <div class="panel-head">
+      <button class="collapse" data-collapse="targets" aria-expanded="true" aria-controls="targetsBody"><h2>Targets</h2><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="seg" id="chartSeg" role="group" aria-label="Chart style">
+        <button type="button" data-chart="bars" aria-pressed="true">Bars</button>
+        <button type="button" data-chart="rings" aria-pressed="false">Rings</button>
+        <button type="button" data-chart="pie" aria-pressed="false">Pie</button>
+      </div>
+    </div>
+    <div class="panel-body" id="targetsBody"></div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head"><h2>This week</h2><span class="panel-num num" id="weekTotal"></span></div>
-    <div class="chart" id="chart"></div>
-    <div class="days" id="dayLabels"></div>
-    <div class="legend">
-      <span><i class="sw direct"></i>Direct</span>
-      <span><i class="sw indirect"></i>Indirect</span>
-      <span><i class="sw supervision"></i>Supervision</span>
-      <span><i class="sw other"></i>Other</span>
+  <section class="panel" id="panel-week">
+    <div class="panel-head">
+      <button class="collapse" data-collapse="week" aria-expanded="true" aria-controls="weekBody"><h2>This week</h2><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <span class="panel-num num" id="weekTotal"></span>
     </div>
-    <p class="week-note" id="weekNote"><i class="dot"></i><span></span></p>
+    <div class="panel-body" id="weekBody">
+      <div class="chart" id="chart"></div>
+      <div class="days" id="dayLabels"></div>
+      <div class="legend" id="weekLegend"></div>
+      <p class="week-note" id="weekNote"><i class="dot"></i><span></span></p>
+    </div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head"><h2>Entries</h2><span class="panel-num" id="entryCount"></span></div>
-    <div class="notice" id="banner" hidden>
-      <div>Example entries are loaded so you can see the logbook in use. Clear them whenever you like; anything you log yourself stays.</div>
-      <div class="btns"><button class="btn-sm fill" id="clearExamples">Clear examples</button><button class="btn-sm" id="keepExamples">Keep for now</button></div>
-    </div>
-    <div id="ledger"></div>
-    <div class="empty" id="emptyState" hidden>
-      <b>No entries yet.</b> Use <b>Log hours</b> below to record a session. Each entry takes a few taps.
-    </div>
+  <section class="panel" id="panel-recent">
+    <div class="panel-head"><h2>Recent entries</h2><span class="panel-num" id="recentCount"></span></div>
+    <div id="recentList"></div>
+    <div class="panel-foot"><button class="link-btn" id="goEntries">View all entries <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </section>
 </main>
 
-<main id="view-progress" class="view wrap" hidden>
+<!-- ENTRIES -->
+<main id="view-entries" class="view wrap" hidden>
+  <h1 class="view-title">Entries</h1>
+  <p class="view-sub" id="entryCount"></p>
+  <div class="filters" id="entryFilters"></div>
   <section class="panel">
-    <div class="panel-head"><h2>Targets</h2><span class="panel-num" id="targetNote"></span></div>
+    <div class="tools"><button type="button" id="toggleAllDays">Collapse all</button></div>
+    <div id="ledger"></div>
+    <div class="empty" id="emptyState" hidden><b>No entries yet.</b> Use <b>Log hours</b> below to record a session. Each entry takes a few taps.</div>
+  </section>
+</main>
+
+<!-- PROGRESS -->
+<main id="view-progress" class="view wrap" hidden>
+  <h1 class="view-title">Progress</h1>
+  <section class="panel">
+    <div class="panel-head"><h2>Targets and breakdown</h2><span class="panel-num" id="targetNote"></span></div>
+    <p class="note" style="margin-bottom:10px">Tap a type to see its hours by subcategory.</p>
     <div class="rows" id="cats"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Supervision</h2></div>
+    <div class="split" id="supSplit"></div>
+    <div class="panel-head" style="margin-top:4px;flex-wrap:wrap"><h3 style="font-size:14.5px">Weekly supervision check</h3>
+      <div class="seg" id="supSeg2" role="group" aria-label="Weeks shown"><button type="button" data-span="4">4</button><button type="button" data-span="8">8</button><button type="button" data-span="12">12</button><button type="button" data-span="term">Full term</button></div>
+      <span class="panel-num" id="supWeeksNum" style="flex-basis:100%;color:var(--ink);font-weight:600"></span>
+    </div>
+    <p class="note" id="supWeeksNote"></p>
+    <div class="weeks" id="weeks"></div>
+    <div class="wk-labels" id="weekLabels"></div>
   </section>
   <section class="panel"><p class="pace" id="pace"></p></section>
   <section class="panel">
     <div class="panel-head"><h2>By month</h2><span class="panel-num" id="monthCount"></span></div>
     <div id="monthTable"></div>
   </section>
-  <section class="panel">
-    <div class="panel-head"><h2>Supervision each week</h2><span class="panel-num" id="supWeeksNum"></span></div>
-    <p class="note">Programs commonly expect an hour of individual or triadic supervision every week. Filled weeks have at least one logged hour.</p>
-    <div class="weeks" id="weeks"></div>
-    <div class="wk-labels" id="weekLabels"></div>
-  </section>
   <section class="panel"><p class="note" id="carriedNote"></p></section>
+</main>
+
+<!-- SETTINGS -->
+<main id="view-settings" class="view wrap" hidden>
+  <h1 class="view-title">Settings</h1>
+  <section class="panel">
+    <div class="panel-head"><h2>Profile</h2></div>
+    <div class="inline-field"><label for="setName">Name</label><input type="text" id="setName" placeholder="Your name" autocomplete="name" maxlength="60"></div>
+    <div class="inline-field"><label for="setProgram">University program or practicum site</label><input type="text" id="setProgram" placeholder="Printed with your name on the hours report" maxlength="80"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Hours</h2></div>
+    <div class="list">
+      <button class="list-row" id="openCats">Categories and targets<small id="catsSummary"></small></button>
+      <button class="list-row" id="openSupervisors">Supervisors<small id="supervisorsSummary"></small></button>
+      <button class="list-row" id="openCarried">Hours carried in<small id="carriedSummary"></small></button>
+      <button class="list-row" id="openImport">Import from a spreadsheet<small>CSV saved from Excel</small></button>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Display</h2></div>
+    <div class="switch" role="group" aria-label="Chart style" style="min-height:48px">
+      <span>Chart style</span>
+      <div class="seg" id="chartSeg2">
+        <button type="button" data-chart="bars">Bars</button>
+        <button type="button" data-chart="rings">Rings</button>
+        <button type="button" data-chart="pie">Pie</button>
+      </div>
+    </div>
+    <div class="switch" role="group" aria-label="Duration step" style="min-height:48px;border-top:1px solid var(--line)">
+      <span>Duration buttons move by</span>
+      <div class="seg" id="stepSeg">
+        <button type="button" data-step="1">1 min</button>
+        <button type="button" data-step="5">5 min</button>
+        <button type="button" data-step="15">15 min</button>
+      </div>
+    </div>
+    <p class="fine" style="margin-top:6px">Any exact number of minutes can be typed when logging, whatever the step.</p>
+    <div class="switch" role="group" aria-label="Weekly supervision check span" style="min-height:48px;border-top:1px solid var(--line)">
+      <span>Weekly supervision check shows</span>
+      <div class="seg" id="supSeg">
+        <button type="button" data-span="4">4 weeks</button>
+        <button type="button" data-span="8">8 weeks</button>
+        <button type="button" data-span="12">12 weeks</button>
+        <button type="button" data-span="term">Full term</button>
+      </div>
+    </div>
+    <p class="fine" style="margin-top:6px">Full term runs from the current supervisor's "supervising you since" date, or from the first entry if that date is not set.</p>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Reports and export</h2></div>
+    <div class="list">
+      <button class="list-row" id="openReport">Hours report (PDF)<small>With supervisor sign-off</small></button>
+      <button class="list-row" id="miCopySummary">Copy summary<small>Totals as text</small></button>
+      <button class="list-row" id="miCopyCsv">Copy spreadsheet rows<small>All entries as CSV</small></button>
+      <button class="list-row" id="miDownloadCsv">Download spreadsheet<small>CSV file</small></button>
+    </div>
+    <div class="group fields copybox" id="copyBox" hidden style="margin-top:12px">
+      <p class="fine" style="margin-bottom:8px">Copying was blocked on this phone. Select the text below and copy it yourself.</p>
+      <textarea id="copyText" readonly aria-label="Text to copy" style="margin:0;min-height:160px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace"></textarea>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Data</h2></div>
+    <div class="list">
+      <button class="list-row danger-row" id="wipeAll">Delete every entry on this phone<small id="wipeSub"></small></button>
+    </div>
+    <p class="fine" style="margin-top:10px">Deleting is permanent. Entries are saved on this phone only, in this browser; nothing is sent anywhere.</p>
+  </section>
 </main>
 
 <nav class="bar-nav" aria-label="Main">
   <div class="bar-in wrap">
-    <button class="tab" data-view="logbook" aria-current="page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-      Logbook
+    <button class="tab" data-view="dashboard" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>Dashboard
     </button>
-    <button class="log-btn" id="btnLog">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Log hours
+    <button class="tab" data-view="entries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Entries
     </button>
+    <div class="fab-wrap">
+      <button class="fab" id="btnLog" aria-label="Log hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <span>Log hours</span>
+    </div>
     <button class="tab" data-view="progress">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M7 15V9M12 15V5M17 15v-4"/></svg>
-      Progress
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M7 15V9M12 15V5M17 15v-4"/></svg>Progress
+    </button>
+    <button class="tab" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Settings
     </button>
   </div>
 </nav>
 
-<!-- Log / edit sheet -->
+<!-- LOG / EDIT -->
 <div class="sheet" id="sheet-log" hidden role="dialog" aria-modal="true" aria-labelledby="logTitle">
   <div class="sheet-top wrap"><button class="link" id="logCancel">Cancel</button><h2 id="logTitle">Log hours</h2><span></span></div>
   <div class="sheet-body wrap">
-    <fieldset class="f"><legend>Type of hours</legend><div class="group" id="catList" role="radiogroup"></div></fieldset>
+    <fieldset class="f"><legend>Type of hours</legend>
+      <div class="group" id="catList" role="radiogroup"></div>
+      <div class="other-box" id="otherBox" hidden>
+        <input type="text" id="otherName" placeholder="Name for this type, for example Triadic supervision" maxlength="40" autocomplete="off">
+        <p class="fine" style="margin-top:6px">A new type is tracked on its own. You can set a target for it, or move its entries into another type later, in Settings.</p>
+      </div>
+    </fieldset>
+    <fieldset class="f" id="subField"><legend>Subcategory</legend>
+      <div class="group fields"><select id="subSelect" aria-label="Subcategory"></select></div>
+    </fieldset>
     <fieldset class="f"><legend>Duration</legend>
       <div class="group">
         <div class="dur">
-          <button class="step" id="durMinus" aria-label="Five minutes less">&minus;</button>
-          <div class="dur-val"><span class="n" id="durMin">50</span><small>min</small><span class="dur-h" id="durH"></span></div>
-          <button class="step" id="durPlus" aria-label="Five minutes more">+</button>
+          <button class="step" id="durMinus" aria-label="Less time">&minus;</button>
+          <div class="dur-val"><input class="n" id="durMin" type="number" inputmode="numeric" min="1" max="600" value="50" aria-label="Minutes"><small>min</small><span class="dur-h" id="durH"></span></div>
+          <button class="step" id="durPlus" aria-label="More time">+</button>
         </div>
         <div class="chips" id="durPresets"></div>
       </div>
@@ -368,14 +586,19 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <fieldset class="f"><legend>Date</legend>
       <div class="group fields">
         <div class="chips" id="dateQuick" style="padding-top:0"></div>
-        <input type="date" id="dateInput" aria-label="Session date" style="margin-bottom:0">
+        <input type="date" id="dateInput" aria-label="Session date">
+        <div id="moreDates" class="more-dates"></div>
+        <button type="button" class="link-btn" id="addDate" style="margin-top:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Repeat this entry on another date</button>
       </div>
     </fieldset>
     <fieldset class="f"><legend>Format</legend><div class="group fields"><div class="chips" id="modList" style="padding:0"></div></div></fieldset>
+    <fieldset class="f" id="supField" hidden><legend>Supervisor</legend>
+      <div class="group fields"><select id="supSelect" aria-label="Supervisor"></select></div>
+    </fieldset>
     <fieldset class="f"><legend>Details (optional)</legend>
-      <div class="group fields">
+      <div class="group fields stack-fields">
         <input type="text" id="clientInput" placeholder="Client code, for example A12" autocomplete="off" autocapitalize="characters" maxlength="24">
-        <textarea id="noteInput" placeholder="Note" maxlength="300" style="margin-bottom:0"></textarea>
+        <textarea id="noteInput" placeholder="Note" maxlength="300"></textarea>
       </div>
     </fieldset>
     <button class="primary" id="logSave">Save entry</button>
@@ -383,105 +606,220 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </div>
 </div>
 
-<!-- More sheet -->
-<div class="sheet" id="sheet-more" hidden role="dialog" aria-modal="true" aria-labelledby="moreTitle">
-  <div class="sheet-top wrap"><span></span><h2 id="moreTitle">More</h2><button class="link right" id="moreClose">Done</button></div>
+<!-- CATEGORIES & TARGETS -->
+<div class="sheet" id="sheet-cats" hidden role="dialog" aria-modal="true" aria-labelledby="catsTitle">
+  <div class="sheet-top wrap"><button class="link" id="catsBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="catsTitle">Categories and targets</h2><span></span></div>
   <div class="sheet-body wrap">
-    <div class="group">
-      <div class="menu">
-        <button class="menu-item" id="miSettings">Settings<small>Name, targets, carried-in hours</small></button>
-        <button class="menu-item" id="miCopySummary">Copy summary<small>Totals as text</small></button>
-        <button class="menu-item" id="miCopyCsv">Copy spreadsheet rows<small>All entries as CSV</small></button>
-        <button class="menu-item" id="miExamples">Example entries<small id="miExamplesSub"></small></button>
+    <fieldset class="f"><legend>Overall</legend>
+      <div class="group fields">
+        <label class="lab">Total hours target<input type="number" id="setTotal" min="0" step="1" inputmode="numeric"></label>
+        <p class="fine" style="margin-top:8px">Direct, Indirect and any type marked as counting toward the total add up to this. Supervision is part of Indirect, so it is counted once.</p>
       </div>
-    </div>
-    <div class="group fields copybox" id="copyBox" hidden>
-      <p class="fine" style="margin-bottom:8px">Copying was blocked on this phone. Select the text below and copy it yourself.</p>
-      <textarea id="copyText" readonly aria-label="Text to copy" style="margin:0"></textarea>
-    </div>
+    </fieldset>
+    <fieldset class="f"><legend>Types of hours</legend>
+      <div id="catEditor"></div>
+    </fieldset>
+    <fieldset class="f"><legend>Add a type</legend>
+      <div class="group fields">
+        <div class="cc-add" style="margin-top:0">
+          <input type="text" id="newCatName" placeholder="Name, for example EMDR training" maxlength="40" autocomplete="off">
+          <button type="button" id="newCatAdd">Add</button>
+        </div>
+        <p class="fine" style="margin-top:8px">Use this for anything tracked on its own, such as hours toward a certificate. Set its target and whether it counts toward the total after adding it.</p>
+      </div>
+    </fieldset>
   </div>
 </div>
 
-<!-- Settings sheet -->
-<div class="sheet" id="sheet-settings" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
-  <div class="sheet-top wrap"><button class="link" id="setCancel">Cancel</button><h2 id="setTitle">Settings</h2><button class="link right" id="setSave">Save</button></div>
+<!-- SUPERVISORS -->
+<div class="sheet" id="sheet-supervisors" hidden role="dialog" aria-modal="true" aria-labelledby="supTitle">
+  <div class="sheet-top wrap"><button class="link" id="supBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="supTitle">Supervisors</h2><span></span></div>
   <div class="sheet-body wrap">
-    <fieldset class="f"><legend>Name</legend>
-      <div class="group fields"><input type="text" id="setName" placeholder="Your name" autocomplete="name" maxlength="60"></div>
-    </fieldset>
-    <fieldset class="f"><legend>Hour targets for your program</legend>
-      <div class="group fields">
-        <div class="grid3">
-          <label class="lab">Total<input type="number" id="setTotal" min="0" step="1" inputmode="numeric"></label>
-          <label class="lab">Direct<input type="number" id="setDirect" min="0" step="1" inputmode="numeric"></label>
-          <label class="lab">Supervision<input type="number" id="setSup" min="0" step="1" inputmode="numeric"></label>
-        </div>
-        <p class="fine" style="margin-top:10px">Use the numbers your program gives you. A target of 0 tracks that type without a goal.</p>
+    <p class="fine">The current supervisor is attached to each new entry and is the one who signs the hours report. If your supervisor changes, add the new one and make them current; earlier entries keep the supervisor they were logged under.</p>
+    <div id="supList"></div>
+    <fieldset class="f"><legend>Add a supervisor</legend>
+      <div class="group fields stack-fields">
+        <input type="text" id="newSupName" placeholder="Name" maxlength="60" autocomplete="off">
+        <input type="text" id="newSupCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
+        <label class="lab">Supervising you since<input type="date" id="newSupSince"></label>
+        <button type="button" class="secondary" id="newSupAdd">Add supervisor</button>
       </div>
     </fieldset>
-    <fieldset class="f"><legend>Hours carried in from earlier logs</legend>
-      <div class="group fields">
-        <div class="grid3">
-          <label class="lab">Direct<input type="number" id="carDirect" min="0" step="0.25" inputmode="decimal"></label>
-          <label class="lab">Indirect<input type="number" id="carIndirect" min="0" step="0.25" inputmode="decimal"></label>
-          <label class="lab">Supervision<input type="number" id="carSup" min="0" step="0.25" inputmode="decimal"></label>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div class="sheet" id="sheet-import" hidden role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="sheet-top wrap"><button class="link" id="impBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="impTitle">Import hours</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine">Bring in hours you tracked somewhere else. In Excel, save the sheet as a CSV file, then choose it here. The app reads these columns: Date, Type, Subcategory, Minutes or Hours, Format, Client code, Note and Supervisor. Only Date, Type and Minutes or Hours are required.</p>
+    <button type="button" class="secondary" id="impTemplate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>Download a template (CSV)</button>
+    <p class="fine">The template has two sample rows that show the format. Replace them with your hours.</p>
+    <div class="group fields">
+      <label class="lab">Choose the CSV file<input type="file" id="impFile" accept=".csv,text/csv,text/plain" style="margin-top:6px;padding:10px"></label>
+      <div id="impPreview" class="fine" style="margin-top:10px"></div>
+    </div>
+    <button type="button" class="primary" id="impGo" disabled>Import</button>
+    <p class="fine">Types that are not Direct client hours, Indirect hours, Supervision or one of your own types are added as new types. Subcategories not already in the app are added to the matching type. Nothing already in the app is changed.</p>
+  </div>
+</div>
+
+<!-- CARRIED-IN -->
+<div class="sheet" id="sheet-carried" hidden role="dialog" aria-modal="true" aria-labelledby="carriedTitle">
+  <div class="sheet-top wrap"><button class="link" id="carriedCancel">Cancel</button><h2 id="carriedTitle">Hours carried in</h2><button class="link right" id="carriedSave">Save</button></div>
+  <div class="sheet-body wrap">
+    <p class="fine">Hours you already have on paper or in another system. They count toward each type's total but do not appear as entries.</p>
+    <div class="group fields stack-fields" id="carriedFields"></div>
+  </div>
+</div>
+
+<!-- HOURS REPORT -->
+<div class="sheet" id="sheet-report" hidden role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+  <div class="sheet-top wrap"><button class="link" id="reportBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="reportTitle">Hours report</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine">A formal PDF of your hours for a supervisor or program: totals by type, hours by subcategory, the entries, and signature lines. Signatures drawn below are placed in the PDF.</p>
+    <fieldset class="f"><legend>Period</legend>
+      <div class="group fields stack-fields">
+        <select id="rpPeriod" aria-label="Period">
+          <option value="all">All time</option>
+          <option value="month">This month</option>
+          <option value="last">Last month</option>
+          <option value="custom">Custom dates</option>
+        </select>
+        <div class="grid2" id="rpCustom" hidden>
+          <label class="lab">From<input type="date" id="rpFrom"></label>
+          <label class="lab">To<input type="date" id="rpTo"></label>
         </div>
-        <p class="fine" style="margin-top:10px">Hours you already have on paper or in another system. They count toward your totals.</p>
+        <div class="switch" id="rpEntries" role="switch" aria-checked="true" tabindex="0"><span>Include the list of entries</span><span class="sw-ctl"></span></div>
       </div>
     </fieldset>
-    <fieldset class="f"><legend>Start over</legend>
-      <button class="danger" id="wipeAll">Delete every entry on this phone</button>
+    <fieldset class="f"><legend>Supervisee</legend>
+      <div class="group fields stack-fields">
+        <input type="text" id="rpName" placeholder="Your name" maxlength="60">
+        <input type="text" id="rpProgram" placeholder="University program or practicum site" maxlength="80">
+        <div class="sig" id="sigSupervisee"><canvas></canvas><div class="sig-line"></div><div class="sig-hint">Sign here with your finger</div></div>
+        <div class="sig-tools"><span>Supervisee signature</span><button type="button" data-clear="sigSupervisee">Clear</button></div>
+      </div>
     </fieldset>
+    <fieldset class="f"><legend>Supervisor</legend>
+      <div class="group fields stack-fields">
+        <select id="rpSupervisorSel" aria-label="Supervisor"></select>
+        <div class="stack-fields" id="rpSupOther" hidden>
+          <input type="text" id="rpSupervisor" placeholder="Supervisor name" maxlength="60">
+          <input type="text" id="rpCredential" placeholder="Credentials or license number" maxlength="60">
+        </div>
+        <div class="switch" id="rpOnlySup" role="switch" aria-checked="false" tabindex="0" hidden><span>Only entries logged under this supervisor</span><span class="sw-ctl"></span></div>
+        <div class="sig" id="sigSupervisor"><canvas></canvas><div class="sig-line"></div><div class="sig-hint">Supervisor signs here</div></div>
+        <div class="sig-tools"><span>Supervisor signature</span><button type="button" data-clear="sigSupervisor">Clear</button></div>
+      </div>
+    </fieldset>
+    <button class="primary" id="rpDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>Download PDF</button>
+    <p class="fine" id="rpStatus"></p>
   </div>
 </div>
 
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function () {
   'use strict';
-  var KEY = 'praxisplus.logbook.v1';
-  var CATS = [
-    { id: 'direct',   label: 'Direct client hours',               group: 'direct' },
-    { id: 'indirect', label: 'Indirect hours',                    group: 'indirect' },
-    { id: 'sup_ind',  label: 'Individual or triadic supervision', group: 'supervision' },
-    { id: 'sup_grp',  label: 'Group supervision',                 group: 'supervision' },
-    { id: 'other',    label: 'Other',                             group: 'other' }
-  ];
-  var CAT_BY_ID = {}; CATS.forEach(function (c) { CAT_BY_ID[c.id] = c; });
-  var MODS = [
-    { id: 'in_person', label: 'In person' },
-    { id: 'telehealth', label: 'Telehealth' },
-    { id: 'phone', label: 'Phone' }
-  ];
+  var KEY = 'praxisplus.logbook.v2';
+  var OLDKEY = 'praxisplus.logbook.v1';
+  var DEFAULT_SUBS = {
+    direct: ['Individual counseling sessions', 'Couples counseling', 'Family counseling', 'Group counseling',
+      'Intake interviews and clinical assessments conducted with clients', 'Crisis counseling and intervention',
+      'Career counseling sessions', 'Psychoeducational groups', 'Substance use counseling', 'Telehealth counseling sessions',
+      'Co-facilitating counseling groups', 'Counseling sessions conducted in school settings', 'Clinical interviews with clients',
+      'Treatment planning conducted collaboratively with a client during a session'],
+    indirect: ['Documentation and clinical records', 'Case management and coordination', 'Assessment and preparation',
+      'Administrative and professional activities'],
+    supervision: ['Supervision and professional development', 'Individual supervision', 'Group supervision', 'Case consultation',
+      'Attending clinical staff meetings', 'Participating in professional development', 'Reviewing counseling literature',
+      'Completing continuing education']
+  };
+  var MODS = [{ id: 'in_person', label: 'In person' }, { id: 'telehealth', label: 'Telehealth' }, { id: 'phone', label: 'Phone' }];
   var MOD_BY_ID = {}; MODS.forEach(function (m) { MOD_BY_ID[m.id] = m; });
   var PRESETS = [30, 45, 50, 60, 90];
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  var MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var CHEV_R = '<svg class="chev-r" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  var CHEV_D = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  var $ = function (id) { return document.getElementById(id); };
 
   /* ---------- state ---------- */
+  function builtinCats() {
+    return [
+      { id: 'direct', name: 'Direct client hours', target: 400, builtin: true, inTotal: true, subs: DEFAULT_SUBS.direct.slice() },
+      { id: 'indirect', name: 'Indirect hours', target: 0, builtin: true, inTotal: true, subs: DEFAULT_SUBS.indirect.slice() },
+      { id: 'supervision', name: 'Supervision', target: 175, builtin: true, inTotal: true, subs: DEFAULT_SUBS.supervision.slice() }
+    ];
+  }
   function freshState() {
-    return { v: 1, name: '', targets: { total: 700, direct: 400, supervision: 175 },
-             carried: { direct: 0, indirect: 0, supervision: 0 }, entries: [], examples: false, bannerDismissed: false };
+    return { v: 2, name: '', program: '', totalTarget: 700, categories: builtinCats(), carried: { direct: 0, indirect: 0, supervision: 0 },
+             chart: 'bars', step: 5, entries: [], examples: false, bannerDismissed: false, collapsed: {}, supervisors: [], report: { supervisor: '', credential: '' } };
   }
-  function loadState() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) { var s = JSON.parse(raw); if (s && s.v === 1 && Array.isArray(s.entries)) return s; }
-    } catch (e) { /* storage unavailable */ }
-    return null;
-  }
-  function saveState() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ }
-  }
-  var state = loadState();
-  if (!state) { state = freshState(); loadExamples(state); saveState(); }
-
   function uid() {
     try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
     return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
+  function migrateV1(s1) {
+    var s = freshState();
+    s.name = s1.name || '';
+    if (s1.targets) {
+      s.totalTarget = s1.targets.total || 0;
+      s.categories[0].target = s1.targets.direct || 0;
+      s.categories[2].target = s1.targets.supervision || 0;
+    }
+    var c1 = s1.carried || {};
+    s.carried = { direct: c1.direct || 0, indirect: c1.indirect || 0, supervision: c1.supervision || 0 };
+    var hasOther = false;
+    s.entries = (s1.entries || []).filter(function (e) { return !e.ex; }).map(function (e) {
+      var m = { id: e.id || uid(), date: e.date, minutes: e.minutes, modality: e.modality || '', client: e.client || '', note: e.note || '', created: e.created || 0, sub: '' };
+      if (e.category === 'direct') m.cat = 'direct';
+      else if (e.category === 'indirect') m.cat = 'indirect';
+      else if (e.category === 'sup_ind') { m.cat = 'supervision'; m.sub = 'Individual supervision'; }
+      else if (e.category === 'sup_grp') { m.cat = 'supervision'; m.sub = 'Group supervision'; }
+      else { m.cat = 'other'; hasOther = true; }
+      return m;
+    });
+    if (hasOther) s.categories.push({ id: 'other', name: 'Other', target: 0, builtin: false, inTotal: true, subs: [] });
+    if (s1.examples) s.carried = { direct: 0, indirect: 0, supervision: 0 };
+    return s;
+  }
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var s = JSON.parse(raw); if (s && s.v === 2 && Array.isArray(s.entries) && Array.isArray(s.categories)) return s; }
+      var old = localStorage.getItem(OLDKEY);
+      if (old) { var s1 = JSON.parse(old); if (s1 && Array.isArray(s1.entries)) { var m = migrateV1(s1); try { localStorage.removeItem(OLDKEY); } catch (e2) {} return m; } }
+    } catch (e) { /* storage unavailable or unreadable */ }
+    return null;
+  }
+  function saveState() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } }
+  var state = loadState();
+  if (!state) state = freshState();
+  if (state.entries.some(function (e) { return e.ex; })) { state.entries = state.entries.filter(function (e) { return !e.ex; }); if (state.examples) state.carried = { direct: 0, indirect: 0, supervision: 0 }; }
+  state.examples = false;
+  if (!state.collapsed) state.collapsed = {};
+  if (!state.report) state.report = { supervisor: '', credential: '' };
+  if (!state.step) state.step = 5;
+  if (!state.supWeeks) state.supWeeks = 8;
+  if (!Array.isArray(state.supervisors)) state.supervisors = [];
+  if (!state.supervisors.length && state.report.supervisor) { state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: state.report.supervisor, credential: state.report.credential || '', since: '', current: true }); }
+  saveState();
+
+  /* ---------- categories ---------- */
+  function cat(id) { for (var i = 0; i < state.categories.length; i++) if (state.categories[i].id === id) return state.categories[i]; return null; }
+  function catName(id) { var c = cat(id); return c ? c.name : id; }
+  function kindOf(id) { return (id === 'direct' || id === 'indirect' || id === 'supervision') ? id : 'custom'; }
+  function customCats() { return state.categories.filter(function (c) { return !c.builtin; }); }
+  function entryCount(catId) { var n = 0; state.entries.forEach(function (e) { if (e.cat === catId) n++; }); return n; }
+  function supervisor(id) { for (var i = 0; i < state.supervisors.length; i++) if (state.supervisors[i].id === id) return state.supervisors[i]; return null; }
+  function currentSupervisor() { var c = state.supervisors.filter(function (s) { return s.current; })[0]; return c || state.supervisors[0] || null; }
+  function supLabel(s) { return s ? s.name + (s.credential ? ', ' + s.credential : '') : ''; }
+  function supEntryCount(id) { var n = 0; state.entries.forEach(function (e) { if (e.sup === id) n++; }); return n; }
+  function missingDefaultSubs(c) { var d = DEFAULT_SUBS[c.id]; if (!d) return []; var have = (c.subs || []).map(function (x) { return x.toLowerCase(); }); return d.filter(function (x) { return have.indexOf(x.toLowerCase()) < 0; }); }
 
   /* ---------- dates ---------- */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -491,303 +829,469 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function todayDate() { var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
   function startOfWeek(d) { var x = addDays(d, 0); var dow = (x.getDay() + 6) % 7; return addDays(x, -dow); }
   function fmtDate(d) { return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate(); }
-  function fmtDateLong(d) { return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
+  function fmtDateLong(d) { return MONTHS_LONG[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
+  function fmtIso(s) { return fmtDateLong(fromIso(s)); }
 
   /* ---------- numbers ---------- */
   function hrs(min) { var h = min / 60; var s = (Math.round(h * 100) / 100).toFixed(2); return s.replace(/\.?0+$/, ''); }
   function pct(part, whole) { return whole > 0 ? Math.min(100, Math.round(part / whole * 100)) : 0; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function plural(n, word) { return n + ' ' + (n === 1 ? word : (word.slice(-1) === 'y' ? word.slice(0, -1) + 'ies' : word + 's')); }
 
   /* ---------- totals ---------- */
-  function groupMinutes(entries) {
-    var g = { direct: 0, indirect: 0, supervision: 0, other: 0, sup_ind: 0, sup_grp: 0 };
-    entries.forEach(function (e) {
-      var c = CAT_BY_ID[e.category] || CAT_BY_ID.other;
-      g[c.group] += e.minutes;
-      if (c.id === 'sup_ind') g.sup_ind += e.minutes;
-      if (c.id === 'sup_grp') g.sup_grp += e.minutes;
+  function totals(entries, withCarried) {
+    entries = entries || state.entries; if (withCarried === undefined) withCarried = true;
+    var byCat = {}; entries.forEach(function (e) { byCat[e.cat] = (byCat[e.cat] || 0) + e.minutes; });
+    var out = { cats: {}, carriedMin: 0, custom: [] };
+    state.categories.forEach(function (c) {
+      var car = withCarried ? (state.carried[c.id] || 0) * 60 : 0;
+      out.cats[c.id] = (byCat[c.id] || 0) + car; out.carriedMin += car;
     });
-    return g;
+    out.direct = out.cats.direct || 0; out.supervision = out.cats.supervision || 0;
+    out.indirectOnly = out.cats.indirect || 0; out.indirect = out.indirectOnly + out.supervision;
+    out.total = out.direct + out.indirect;
+    customCats().forEach(function (c) {
+      var inTotal = c.inTotal !== false;
+      out.custom.push({ id: c.id, name: c.name, min: out.cats[c.id] || 0, target: c.target || 0, inTotal: inTotal });
+      if (inTotal) out.total += out.cats[c.id] || 0;
+    });
+    return out;
   }
-  function totals() {
-    var g = groupMinutes(state.entries);
-    var car = state.carried || { direct: 0, indirect: 0, supervision: 0 };
-    var direct = g.direct + (car.direct || 0) * 60;
-    var indirect = g.indirect + (car.indirect || 0) * 60;
-    var sup = g.supervision + (car.supervision || 0) * 60;
-    var other = g.other;
-    return { direct: direct, indirect: indirect, supervision: sup, other: other,
-             sup_ind: g.sup_ind, sup_grp: g.sup_grp, total: direct + indirect + sup + other,
-             carriedMin: ((car.direct || 0) + (car.indirect || 0) + (car.supervision || 0)) * 60 };
+  function subBreakdown(catId, entries) {
+    var m = {}; (entries || state.entries).forEach(function (e) { if (e.cat === catId) { var k = e.sub || ''; m[k] = (m[k] || 0) + e.minutes; } });
+    return m;
   }
+  function subMinutes(catId, sub, entries) { var n = 0; (entries || state.entries).forEach(function (e) { if (e.cat === catId && e.sub === sub) n += e.minutes; }); return n; }
 
-  /* ---------- example entries ---------- */
-  function loadExamples(s) {
-    var today = todayDate();
-    var out = [];
-    var clients = ['A12', 'B07', 'C03', 'D21', 'E15'];
-    var notesDirect = ['Intake', 'Session 4, CBT', 'Session 6, grief work', 'Session 2, anxiety', 'Session 9', 'Couples session', 'Session 3'];
-    var ci = 0, ni = 0;
-    function push(dayOffset, cat, minutes, mod, client, note) {
-      var d = addDays(today, -dayOffset);
-      out.push({ id: uid(), date: iso(d), category: cat, minutes: minutes, modality: mod || '', client: client || '', note: note || '',
-                 created: d.getTime() + out.length, ex: true });
-    }
-    for (var off = 34; off >= 0; off--) {
-      var d = addDays(today, -off); var dow = d.getDay(); var week = Math.floor(off / 7);
-      if (dow === 1) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'direct', 50, 'telehealth', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'indirect', 60, '', '', 'Progress notes'); }
-      if (dow === 2) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week !== 2) push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'indirect', 45, '', '', 'Treatment plan review'); }
-      if (dow === 3) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week % 2 === 1) push(off, 'sup_grp', 90, 'in_person', '', 'Group supervision'); }
-      if (dow === 4) { push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); push(off, 'direct', 50, 'telehealth', clients[ci++ % 5], notesDirect[ni++ % 7]); if (week !== 3) push(off, 'direct', 50, 'in_person', clients[ci++ % 5], notesDirect[ni++ % 7]); }
-      if (dow === 5) { if (week !== 2) push(off, 'sup_ind', 60, 'in_person', '', 'Weekly supervision'); push(off, 'indirect', 60, '', '', 'Case consultation and notes'); }
-    }
-    s.entries = s.entries.filter(function (e) { return !e.ex; }).concat(out);
-    s.carried = { direct: 166.75, indirect: 55.5, supervision: 34 };
-    s.examples = true;
-    s.bannerDismissed = false;
-  }
-  function clearExamples() {
-    state.entries = state.entries.filter(function (e) { return !e.ex; });
-    state.carried = { direct: 0, indirect: 0, supervision: 0 };
-    state.examples = false; state.bannerDismissed = false; saveState(); renderAll();
-  }
+  /* ---------- toast ---------- */
+  var toastTimer = null;
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2000); }
 
-  /* ---------- render: header + summary ---------- */
-  var $ = function (id) { return document.getElementById(id); };
+  /* ---------- dashboard ---------- */
   function renderHeader() {
     $('todayLabel').textContent = fmtDate(todayDate());
     $('ownerLine').textContent = state.name ? state.name : 'Your logbook';
   }
   function renderSummary() {
-    var T = totals(); var target = state.targets.total || 0;
+    var T = totals(); var target = state.totalTarget || 0;
     $('heroTotal').textContent = hrs(T.total);
     $('heroOf').textContent = target ? 'of ' + target : 'hours';
     var left = target * 60 - T.total;
     $('heroRemain').textContent = target ? (left > 0 ? hrs(left) + ' hours to go' : 'Target reached') : 'No total target set';
     $('heroPct').textContent = target ? pct(T.total, target * 60) + '% complete' : '';
-    var track = $('trackTotal');
-    track.hidden = !target;
+    var track = $('trackTotal'); track.hidden = !target;
     $('fillTotal').style.width = pct(T.total, target * 60) + '%';
-    var marks = track.querySelectorAll('.mark, .mark-label'); marks.forEach(function (m) { m.remove(); });
-    if (target >= 300) {
-      track.insertAdjacentHTML('beforeend', '<div class="mark" style="left:50%"></div><div class="mark-label" style="left:50%">halfway</div>');
-      track.style.marginBottom = '18px';
-    } else { track.style.marginBottom = '0'; }
-    $('phaseLine').textContent = state.entries.length ? state.entries.length + (state.entries.length === 1 ? ' entry' : ' entries') : '';
-  }
-  function catRowsHtml(T, withSub) {
-    var tg = state.targets;
-    var rows = [
-      { label: 'Direct client hours', min: T.direct, target: tg.direct || 0 },
-      { label: 'Supervision', min: T.supervision, target: tg.supervision || 0,
-        sub: 'Individual or triadic ' + hrs(T.sup_ind) + ' h' + (T.sup_grp ? ', group ' + hrs(T.sup_grp) + ' h' : '') + (state.carried.supervision ? ', carried in ' + hrs(state.carried.supervision * 60) + ' h' : '') },
-      { label: 'Indirect hours', min: T.indirect, target: 0 },
-      { label: 'Other', min: T.other, target: 0 }
-    ];
-    return rows.map(function (r) {
-      if (!withSub && r.label === 'Other' && !r.min) return '';
-      return '<div class="crow"><div class="crow-head"><span class="name">' + r.label + '</span><span class="val">' + hrs(r.min) +
-             (r.target ? '<small>of ' + r.target + '</small>' : '<small>h</small>') + '</span></div>' +
-             (r.target ? '<div class="bar"><div class="fill" style="width:' + pct(r.min, r.target * 60) + '%"></div></div>' : '') +
-             (withSub && r.sub ? '<div class="crow-sub">' + r.sub + '</div>' : '') +
-             (withSub && !r.target ? '<div class="crow-sub">No target set</div>' : '') + '</div>';
-    }).join('');
-  }
-  function renderCats() {
-    var T = totals();
-    $('catRows').innerHTML = catRowsHtml(T, false);
-    $('catsNote').textContent = '';
+    track.querySelectorAll('.mark, .mark-label').forEach(function (m) { m.remove(); });
+    if (target >= 300) { track.insertAdjacentHTML('beforeend', '<div class="mark" style="left:50%"></div><div class="mark-label" style="left:50%">halfway</div>'); track.style.marginBottom = '18px'; }
+    else track.style.marginBottom = '0';
+    $('phaseLine').textContent = state.entries.length ? plural(state.entries.length, 'entry') : '';
   }
 
-  /* ---------- render: week ---------- */
+  function barsHtml(T) {
+    var d = cat('direct'), i = cat('indirect'), s = cat('supervision');
+    var h = '';
+    h += '<div class="crow"><div class="crow-head"><span class="name">' + esc(d.name) + '</span><span class="val">' + hrs(T.direct) + (d.target ? '<small>of ' + d.target + '</small>' : '<small>h</small>') + '</span></div>' +
+         (d.target ? '<div class="bar"><div class="fill" style="width:' + pct(T.direct, d.target * 60) + '%"></div></div>' : '') + '</div>';
+    var base = i.target ? i.target * 60 : T.indirect;
+    var wOther = base ? Math.min(100, T.indirectOnly / base * 100) : 0, wSup = base ? Math.min(100 - wOther, T.supervision / base * 100) : 0;
+    h += '<div class="crow"><div class="crow-head"><span class="name">' + esc(i.name) + '<small>Includes supervision</small></span><span class="val">' + hrs(T.indirect) + (i.target ? '<small>of ' + i.target + '</small>' : '<small>h</small>') + '</span></div>' +
+         '<div class="bar"><div class="fill" style="width:' + wOther + '%"></div><div class="fill sup" style="width:' + wSup + '%"></div></div>' +
+         '<div class="crow-sub"><i class="dot" style="background:var(--brand-2)"></i>' + hrs(T.indirectOnly) + ' h other indirect &nbsp; <i class="dot" style="background:var(--sup)"></i>' + hrs(T.supervision) + ' h supervision</div></div>';
+    h += '<div class="crow sub"><div class="crow-head"><span class="name">' + esc(s.name) + '<small>Part of indirect, tracked separately</small></span><span class="val">' + hrs(T.supervision) + (s.target ? '<small>of ' + s.target + '</small>' : '<small>h</small>') + '</span></div>' +
+         (s.target ? '<div class="bar"><div class="fill sup" style="width:' + pct(T.supervision, s.target * 60) + '%"></div></div>' : '') + '</div>';
+    T.custom.forEach(function (c) {
+      h += '<div class="crow"><div class="crow-head"><span class="name">' + esc(c.name) + (c.inTotal ? '' : '<small>Tracked separately, not in the total</small>') + '</span><span class="val">' + hrs(c.min) + (c.target ? '<small>of ' + c.target + '</small>' : '<small>h</small>') + '</span></div>' +
+           (c.target ? '<div class="bar"><div class="fill cust" style="width:' + pct(c.min, c.target * 60) + '%"></div></div>' : '') + '</div>';
+    });
+    return '<div class="rows">' + h + '</div>';
+  }
+  function ringSvg(p) {
+    var r = 34, c = 2 * Math.PI * r, dash = c * Math.min(100, p) / 100;
+    return '<svg viewBox="0 0 84 84" aria-hidden="true"><circle class="ring-track" cx="42" cy="42" r="' + r + '" stroke-width="8"/>' +
+           '<circle class="ring-fill" cx="42" cy="42" r="' + r + '" stroke-width="8" stroke-dasharray="' + dash + ' ' + c + '" transform="rotate(-90 42 42)"/>' +
+           '<text class="pct" x="42" y="47" text-anchor="middle">' + p + '%</text></svg>';
+  }
+  function ringsHtml(T) {
+    var items = [];
+    var d = cat('direct'), i = cat('indirect'), s = cat('supervision');
+    if (d.target) items.push({ name: d.name, min: T.direct, target: d.target, cls: '' });
+    if (i.target) items.push({ name: i.name + ' (incl. supervision)', min: T.indirect, target: i.target, cls: '' });
+    if (s.target) items.push({ name: s.name, min: T.supervision, target: s.target, cls: 'sup' });
+    T.custom.forEach(function (c) { if (c.target) items.push({ name: c.name, min: c.min, target: c.target, cls: 'cust' }); });
+    var h = '<div class="rings">' + items.map(function (it) {
+      return '<div class="ring ' + it.cls + '">' + ringSvg(pct(it.min, it.target * 60)) + '<div class="ring-name">' + esc(it.name) + '</div><div class="ring-val">' + hrs(it.min) + ' of ' + it.target + '</div></div>';
+    }).join('') + '</div>';
+    var noTarget = [];
+    if (!i.target) noTarget.push(i.name + ' ' + hrs(T.indirect) + ' h (' + hrs(T.supervision) + ' h of it supervision)');
+    if (!d.target) noTarget.push(d.name + ' ' + hrs(T.direct) + ' h');
+    if (!s.target) noTarget.push(s.name + ' ' + hrs(T.supervision) + ' h');
+    T.custom.forEach(function (c) { if (!c.target) noTarget.push(c.name + ' ' + hrs(c.min) + ' h' + (c.inTotal ? '' : ', not in total')); });
+    if (!items.length) h = '<p class="note">Set targets in Settings to see rings.</p>';
+    if (noTarget.length) h += '<p class="note" style="margin-top:8px">No target: ' + esc(noTarget.join(' · ')) + '</p>';
+    return h;
+  }
+  function pieHtml(T) {
+    var slices = [
+      { name: 'Direct', min: T.direct, color: 'var(--brand-2)' },
+      { name: 'Indirect (other)', min: T.indirectOnly, color: 'var(--brand-3)' },
+      { name: 'Supervision', min: T.supervision, color: 'var(--sup)' }
+    ];
+    T.custom.forEach(function (c, idx) { if (c.inTotal) slices.push({ name: c.name, min: c.min, color: idx % 2 ? 'var(--custom-2)' : 'var(--custom)' }); });
+    var sum = slices.reduce(function (a, s) { return a + s.min; }, 0);
+    if (!sum) return '<p class="note">No hours yet.</p>';
+    var cx = 75, cy = 75, r = 60, ri = 36, a0 = -Math.PI / 2, paths = '';
+    slices.forEach(function (s) {
+      if (!s.min) return;
+      var a1 = a0 + s.min / sum * 2 * Math.PI; var large = (a1 - a0) > Math.PI ? 1 : 0;
+      if (s.min === sum) { paths += '<circle cx="' + cx + '" cy="' + cy + '" r="' + ((r + ri) / 2) + '" fill="none" stroke="' + s.color + '" stroke-width="' + (r - ri) + '"/>'; a0 = a1; return; }
+      var x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+      var xi0 = cx + ri * Math.cos(a1), yi0 = cy + ri * Math.sin(a1), xi1 = cx + ri * Math.cos(a0), yi1 = cy + ri * Math.sin(a0);
+      paths += '<path d="M' + x0 + ' ' + y0 + ' A' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x1 + ' ' + y1 + ' L' + xi0 + ' ' + yi0 + ' A' + ri + ' ' + ri + ' 0 ' + large + ' 0 ' + xi1 + ' ' + yi1 + ' Z" fill="' + s.color + '" stroke="var(--panel)" stroke-width="1.5"/>';
+      a0 = a1;
+    });
+    var svg = '<svg viewBox="0 0 150 150" role="img" aria-label="Hours by type">' + paths +
+              '<text class="pie-center" x="75" y="73" text-anchor="middle">' + hrs(sum) + '</text><text class="pie-center-sub" x="75" y="89" text-anchor="middle">hours</text></svg>';
+    var legend = slices.filter(function (s) { return s.min; }).map(function (s) {
+      return '<div><i class="sw" style="background:' + s.color + '"></i><span class="nm">' + esc(s.name) + '</span><span class="v">' + hrs(s.min) + '<small>' + Math.round(s.min / sum * 100) + '%</small></span></div>';
+    }).join('');
+    return '<div class="pie">' + svg + '<div class="pie-legend">' + legend + '</div></div>';
+  }
+  function renderTargets() {
+    var T = totals();
+    var style = state.chart || 'bars';
+    $('targetsBody').innerHTML = style === 'rings' ? ringsHtml(T) : style === 'pie' ? pieHtml(T) : barsHtml(T);
+    document.querySelectorAll('#chartSeg button, #chartSeg2 button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.chart === style ? 'true' : 'false'); });
+  }
+
   function renderWeek() {
     var today = todayDate(); var mon = startOfWeek(today);
-    var byDay = {}; var weekMin = 0; var supIndMin = 0;
-    for (var i = 0; i < 7; i++) byDay[iso(addDays(mon, i))] = { direct: 0, indirect: 0, supervision: 0, other: 0, total: 0 };
+    var byDay = {}; var weekMin = 0; var supIndMin = 0; var hasCustom = false;
+    for (var i = 0; i < 7; i++) byDay[iso(addDays(mon, i))] = { direct: 0, indirect: 0, supervision: 0, custom: 0, total: 0 };
     state.entries.forEach(function (e) {
       var d = byDay[e.date]; if (!d) return;
-      var g = (CAT_BY_ID[e.category] || CAT_BY_ID.other).group; d[g] += e.minutes; d.total += e.minutes; weekMin += e.minutes;
-      if (e.category === 'sup_ind') supIndMin += e.minutes;
+      var k = kindOf(e.cat); if (k === 'custom') { var c = cat(e.cat); if (c && c.inTotal === false) return; hasCustom = true; }
+      d[k] += e.minutes; d.total += e.minutes; weekMin += e.minutes;
+      if (e.cat === 'supervision' && e.sub === 'Individual supervision') supIndMin += e.minutes;
     });
     var max = 0; Object.keys(byDay).forEach(function (k) { if (byDay[k].total > max) max = byDay[k].total; });
-    var usable = 108; /* px available for the tallest bar, leaves room for the label */
-    var cols = '', labs = '';
-    for (var d = 0; d < 7; d++) {
-      var day = addDays(mon, d); var key = iso(day); var v = byDay[key];
+    var usable = 108, cols = '', labs = '';
+    for (var dd = 0; dd < 7; dd++) {
+      var day = addDays(mon, dd); var key = iso(day); var v = byDay[key];
       var h = max ? Math.round(v.total / max * usable) : 0;
-      var segs = ['direct', 'indirect', 'supervision', 'other'].map(function (g) {
-        if (!v[g]) return ''; var sh = Math.max(2, Math.round(v[g] / v.total * h)); return '<div class="seg ' + g + '" style="height:' + sh + 'px"></div>';
+      var segs = ['direct', 'indirect', 'supervision', 'custom'].map(function (g) {
+        if (!v[g]) return ''; var sh = Math.max(2, Math.round(v[g] / v.total * h)); return '<div class="seg-h ' + g + '" style="height:' + sh + 'px"></div>';
       }).join('');
       cols += '<div class="col' + (v.total ? '' : ' empty') + '"><div class="lbl">' + (v.total ? hrs(v.total) : '') + '</div><div class="stack" style="height:' + (v.total ? h : 3) + 'px">' + segs + '</div></div>';
-      var isToday = key === iso(today);
-      labs += '<div class="day-lab' + (isToday ? ' today' : '') + '">' + DAYS[day.getDay()].charAt(0) + '<b>' + day.getDate() + '</b></div>';
+      labs += '<div class="day-lab' + (key === iso(today) ? ' today' : '') + '">' + DAYS[day.getDay()].charAt(0) + '<b>' + day.getDate() + '</b></div>';
     }
     $('chart').innerHTML = cols; $('dayLabels').innerHTML = labs;
     $('weekTotal').textContent = hrs(weekMin) + ' h';
-    var note = $('weekNote');
-    note.className = 'week-note' + (supIndMin >= 60 ? ' ok' : '');
+    $('weekLegend').innerHTML = '<span><i class="sw direct"></i>Direct</span><span><i class="sw indirect"></i>Indirect</span><span><i class="sw supervision"></i>Supervision</span>' + (hasCustom ? '<span><i class="sw custom"></i>Other types</span>' : '');
+    var note = $('weekNote'); note.className = 'week-note' + (supIndMin >= 60 ? ' ok' : '');
     note.querySelector('span').textContent = supIndMin >= 60 ? 'Individual supervision logged this week' : 'No individual supervision logged this week';
   }
 
-  /* ---------- render: ledger ---------- */
-  function renderLedger(flashId) {
-    var list = state.entries.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (b.created || 0) - (a.created || 0); });
-    $('entryCount').textContent = list.length ? list.length + (list.length === 1 ? ' entry' : ' entries') : '';
-    var hasExamples = list.some(function (e) { return e.ex; });
-    if (state.examples && !hasExamples) { state.examples = false; }
-    $('banner').hidden = !(hasExamples && !state.bannerDismissed);
-    $('emptyState').hidden = list.length > 0;
-    var html = '', cur = null, dayMin = 0, buf = '';
-    function flush() {
-      if (cur === null) return;
-      html += '<div class="day-group"><div class="day-head"><span>' + fmtDate(fromIso(cur)) + '</span><span class="num">' + hrs(dayMin) + ' h</span></div>' + buf + '</div>';
-      buf = ''; dayMin = 0;
-    }
-    list.forEach(function (e) {
-      if (e.date !== cur) { flush(); cur = e.date; }
-      dayMin += e.minutes;
-      var c = CAT_BY_ID[e.category] || CAT_BY_ID.other;
-      var sub = '';
-      if (e.modality && MOD_BY_ID[e.modality]) sub += '<span>' + MOD_BY_ID[e.modality].label + '</span>';
-      if (e.client) sub += '<span>Client ' + esc(e.client) + '</span>';
-      if (e.note) sub += '<span>' + esc(e.note) + '</span>';
-      buf += '<button class="row' + (e.id === flashId ? ' flash' : '') + '" data-id="' + e.id + '" aria-label="Edit entry">' +
-             '<div class="row-main"><div class="row-title">' + c.label + '</div>' + (sub ? '<div class="row-sub">' + sub + '</div>' : '') + '</div>' +
-             '<div class="row-h">' + hrs(e.minutes) + '<small>h</small></div>' + CHEV + '</button>';
-    });
-    flush();
-    $('ledger').innerHTML = html;
+  function sortedEntries() {
+    return state.entries.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (b.created || 0) - (a.created || 0); });
+  }
+  function rowHtml(e, flashId, plain) {
+    var c = cat(e.cat); var sub = '';
+    if (e.sub) sub += '<span>' + esc(e.sub) + '</span>';
+    if (e.modality && MOD_BY_ID[e.modality]) sub += '<span>' + MOD_BY_ID[e.modality].label + '</span>';
+    if (e.client) sub += '<span>Client ' + esc(e.client) + '</span>';
+    if (e.note) sub += '<span>' + esc(e.note) + '</span>';
+    return '<button class="row' + (e.id === flashId ? ' flash' : '') + (plain ? ' plain' : '') + '" data-id="' + e.id + '" aria-label="Edit entry">' +
+           '<div class="row-main"><div class="row-title">' + esc(c ? c.name : e.cat) + '</div>' + (sub ? '<div class="row-sub">' + sub + '</div>' : '') + '</div>' +
+           '<div class="row-h">' + hrs(e.minutes) + '<small>h</small></div>' + CHEV_R + '</button>';
+  }
+  function renderRecent(flashId) {
+    var list = sortedEntries();
+    $('recentCount').textContent = list.length ? plural(list.length, 'entry') + ' in total' : '';
+    var html = '';
+    list.slice(0, 3).forEach(function (e) { html += '<div class="rec-date">' + fmtDate(fromIso(e.date)) + '</div>' + rowHtml(e, flashId, true); });
+    $('recentList').innerHTML = html || '<div class="empty"><b>No entries yet.</b> Tap <b>Log hours</b> below to record your first session.</div>';
   }
 
-  /* ---------- render: progress ---------- */
-  function renderProgress() {
-    var T = totals(); var tg = state.targets;
-    $('cats').innerHTML = catRowsHtml(T, true);
-    $('targetNote').textContent = tg.total ? pct(T.total, tg.total * 60) + '% of ' + tg.total : '';
-
-    var today = todayDate(); var since = addDays(today, -27); var sinceIso = iso(since);
-    var recent = 0; state.entries.forEach(function (e) { if (e.date >= sinceIso) recent += e.minutes; });
-    var perWeek = recent / 4;
-    var paceEl = $('pace');
-    if (tg.total && state.entries.length && perWeek > 0) {
-      var left = tg.total * 60 - T.total;
-      if (left <= 0) { paceEl.innerHTML = 'You have reached your total of <b>' + tg.total + ' hours</b>.'; }
-      else {
-        var weeks = left / perWeek; var eta = addDays(today, Math.round(weeks * 7));
-        paceEl.innerHTML = 'Over the last four weeks you logged <b>' + hrs(perWeek) + ' hours a week</b>. At that pace you reach ' + tg.total + ' hours around <b>' + MONTHS[eta.getMonth()] + ' ' + eta.getFullYear() + '</b>.';
-      }
-    } else if (!state.entries.length) { paceEl.textContent = 'Your weekly pace will appear here after a few weeks of entries.'; }
-    else { paceEl.textContent = 'Set a total target in Settings to see your pace.'; }
-
-    var months = {};
-    state.entries.forEach(function (e) {
-      var k = e.date.slice(0, 7); if (!months[k]) months[k] = { direct: 0, indirect: 0, supervision: 0, other: 0 };
-      months[k][(CAT_BY_ID[e.category] || CAT_BY_ID.other).group] += e.minutes;
-    });
-    var keys = Object.keys(months).sort().reverse();
-    $('monthCount').textContent = keys.length ? keys.length + (keys.length === 1 ? ' month' : ' months') : '';
-    if (!keys.length) { $('monthTable').innerHTML = '<p class="note">No entries yet.</p>'; }
-    else {
-      var t = '<table><thead><tr><th>Month</th><th>Direct</th><th>Indirect</th><th>Superv.</th><th>Total</th></tr></thead><tbody>';
-      keys.forEach(function (k) {
-        var m = months[k]; var p = k.split('-'); var tot = m.direct + m.indirect + m.supervision + m.other;
-        t += '<tr><td>' + MONTHS[+p[1] - 1] + ' ' + p[0] + '</td><td>' + hrs(m.direct) + '</td><td>' + hrs(m.indirect) + '</td><td>' + hrs(m.supervision) + '</td><td>' + hrs(tot) + '</td></tr>';
-      });
-      t += '</tbody></table>';
-      if (T.carriedMin) t += '<p class="note" style="margin-top:10px">Plus ' + hrs(T.carriedMin) + ' hours carried in from earlier logs.</p>';
-      $('monthTable').innerHTML = t;
+  /* ---------- entries view ---------- */
+  var filterCat = 'all';
+  var dayOpen = {};
+  function renderFilters() {
+    var chips = '<button type="button" class="chip" data-f="all" aria-pressed="' + (filterCat === 'all') + '">All</button>';
+    state.categories.forEach(function (c) { chips += '<button type="button" class="chip" data-f="' + c.id + '" aria-pressed="' + (filterCat === c.id) + '">' + esc(c.name) + '</button>'; });
+    $('entryFilters').innerHTML = chips;
+  }
+  function renderLedger(flashId) {
+    var all = sortedEntries();
+    var list = filterCat === 'all' ? all : all.filter(function (e) { return e.cat === filterCat; });
+    $('entryCount').textContent = all.length ? plural(all.length, 'entry') + (filterCat !== 'all' ? ', ' + list.length + ' shown' : '') + ' · ' + hrs(list.reduce(function (a, e) { return a + e.minutes; }, 0)) + ' h' : '';
+    $('emptyState').hidden = all.length > 0;
+    var weekStart = iso(startOfWeek(todayDate()));
+    var html = '', cur = null, dayMin = 0, dayN = 0, buf = '';
+    function flush() {
+      if (cur === null) return;
+      if (!(cur in dayOpen)) dayOpen[cur] = cur >= weekStart;
+      var open = dayOpen[cur] || flashId && buf.indexOf(flashId) >= 0;
+      html += '<div class="day-group"><button class="day-head" type="button" data-day="' + cur + '" aria-expanded="' + open + '">' + CHEV_D + '<span class="d">' + fmtDate(fromIso(cur)) + ' <span class="cnt">\u00b7 ' + dayN + '</span></span><span class="num">' + hrs(dayMin) + ' h</span></button><div class="day-body"' + (open ? '' : ' hidden') + '>' + buf + '</div></div>';
+      buf = ''; dayMin = 0; dayN = 0;
     }
+    list.forEach(function (e) { if (e.date !== cur) { flush(); cur = e.date; } dayMin += e.minutes; dayN++; buf += rowHtml(e, flashId); });
+    flush();
+    $('ledger').innerHTML = html;
+    var anyOpen = Object.keys(dayOpen).some(function (k) { return dayOpen[k]; });
+    $('toggleAllDays').textContent = anyOpen ? 'Collapse all' : 'Expand all';
+    $('toggleAllDays').hidden = !list.length;
+  }
 
-    var thisMon = startOfWeek(today); var boxes = '', labels = '', ok = 0;
-    for (var w = 7; w >= 0; w--) {
+  /* ---------- progress view ---------- */
+  var openCat = null;
+  function subsListHtml(catId) {
+    var m = subBreakdown(catId); var keys = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
+    var entryMin = keys.reduce(function (a, k) { return a + m[k]; }, 0);
+    var h = '';
+    keys.forEach(function (k) { h += '<div><span>' + (k ? esc(k) : 'No subcategory') + '</span><span class="mini"><i style="width:' + (entryMin ? Math.round(m[k] / entryMin * 100) : 0) + '%"></i></span><span>' + hrs(m[k]) + ' h</span></div>'; });
+    if (catId === 'indirect') h += '<div><span>Supervision (tracked separately)</span><span></span><span>' + hrs(totals().supervision) + ' h</span></div>';
+    var car = state.carried[catId] || 0; if (car) h += '<div><span>Carried in from earlier logs</span><span></span><span>' + hrs(car * 60) + ' h</span></div>';
+    if (!h) h = '<div><span>No entries yet</span><span></span><span></span></div>';
+    return '<div class="subs-list">' + h + '</div>';
+  }
+  function renderProgress() {
+    var T = totals(); var tt = state.totalTarget || 0;
+    $('targetNote').textContent = tt ? pct(T.total, tt * 60) + '% of ' + tt : '';
+    var items = [
+      { id: 'direct', name: cat('direct').name, min: T.direct, target: cat('direct').target, cls: '' },
+      { id: 'indirect', name: cat('indirect').name, sub: 'Includes supervision', min: T.indirect, target: cat('indirect').target, cls: '', split: true },
+      { id: 'supervision', name: cat('supervision').name, sub: 'Part of indirect, tracked separately', min: T.supervision, target: cat('supervision').target, cls: 'sup', indent: true }
+    ];
+    T.custom.forEach(function (c) { items.push({ id: c.id, name: c.name, sub: c.inTotal ? '' : 'Not in the total', min: c.min, target: c.target, cls: 'cust' }); });
+    $('cats').innerHTML = items.map(function (it) {
+      var open = openCat === it.id;
+      var bar = '';
+      if (it.split) { var base = it.target ? it.target * 60 : it.min; var wo = base ? Math.min(100, T.indirectOnly / base * 100) : 0, ws = base ? Math.min(100 - wo, T.supervision / base * 100) : 0; bar = '<div class="bar"><div class="fill" style="width:' + wo + '%"></div><div class="fill sup" style="width:' + ws + '%"></div></div>'; }
+      else if (it.target) bar = '<div class="bar"><div class="fill ' + it.cls + '" style="width:' + pct(it.min, it.target * 60) + '%"></div></div>';
+      return '<div class="crow' + (it.indent ? ' sub' : '') + '"><button class="collapse" type="button" data-cat="' + it.id + '" aria-expanded="' + open + '" style="width:100%">' +
+             '<div class="crow-head" style="flex:1"><span class="name">' + esc(it.name) + (it.sub ? '<small>' + esc(it.sub) + '</small>' : '') + '</span><span class="val">' + hrs(it.min) + (it.target ? '<small>of ' + it.target + '</small>' : '<small>h</small>') + '</span></div>' + CHEV_D + '</button>' + bar +
+             (open ? subsListHtml(it.id) : '') + '</div>';
+    }).join('');
+
+    var ind = subMinutes('supervision', 'Individual supervision'), grp = subMinutes('supervision', 'Group supervision');
+    var cs = currentSupervisor();
+    $('supSplit').innerHTML = '<div><div class="k">Individual supervision</div><div class="v">' + hrs(ind) + '<small>h</small></div></div><div><div class="k">Group supervision</div><div class="v">' + hrs(grp) + '<small>h</small></div></div>' +
+      (cs ? '<div style="grid-column:1 / -1"><div class="k">Current supervisor</div><div class="v" style="font-size:15px">' + esc(supLabel(cs)) + (cs.since ? ' <small>since ' + esc(fmtIso(cs.since)) + '</small>' : '') + '</div></div>' : '');
+
+    var today = todayDate(); var thisMon = startOfWeek(today); var boxes = '', labels = '', ok = 0;
+    var span = state.supWeeks || 8; var nWeeks = 8, spanLabel = 'of the last 8 weeks', noteText = '';
+    if (span === 'term') {
+      var startIso = (cs && cs.since) || null;
+      if (!startIso) { state.entries.forEach(function (e) { if (!startIso || e.date < startIso) startIso = e.date; }); }
+      var noTerm = !startIso; if (!startIso) startIso = iso(thisMon);
+      var startMon = startOfWeek(fromIso(startIso));
+      nWeeks = Math.max(1, Math.min(104, Math.round((thisMon - startMon) / (7 * 864e5)) + 1));
+      spanLabel = 'of ' + plural(nWeeks, 'week') + ' since ' + fmtIso(startIso);
+      noteText = noTerm ? 'Full term starts from your supervisor\u2019s \u201csupervising you since\u201d date (Settings, Supervisors) or, until one is set, from your first entry. Nothing is logged yet, so only this week is shown. ' : 'Each square is a week, Monday to Sunday, from ' + ((cs && cs.since) ? cs.name + '\u2019s start date' : 'your first entry') + ' to this week. ';
+    } else { nWeeks = +span; spanLabel = 'of the last ' + nWeeks + ' weeks'; noteText = 'Each square is one of the last ' + nWeeks + ' weeks, Monday to Sunday. '; }
+    for (var w = nWeeks - 1; w >= 0; w--) {
       var ws = addDays(thisMon, -7 * w), we = addDays(ws, 6); var a = iso(ws), b = iso(we); var mins = 0;
-      state.entries.forEach(function (e) { if (e.category === 'sup_ind' && e.date >= a && e.date <= b) mins += e.minutes; });
+      state.entries.forEach(function (e) { if (e.cat === 'supervision' && e.sub === 'Individual supervision' && e.date >= a && e.date <= b) mins += e.minutes; });
       var good = mins >= 60; if (good) ok++;
       boxes += '<div class="wk' + (good ? ' ok' : '') + (w === 0 ? ' cur' : '') + '" title="Week of ' + fmtDateLong(ws) + '">' + (mins ? hrs(mins) : '') + '</div>';
       labels += '<div>' + MONTHS[ws.getMonth()] + ' ' + ws.getDate() + '</div>';
     }
+    var colsN = Math.min(nWeeks, 8);
+    $('weeks').style.gridTemplateColumns = 'repeat(' + colsN + ', 1fr)'; $('weekLabels').style.gridTemplateColumns = 'repeat(' + colsN + ', 1fr)';
     $('weeks').innerHTML = boxes; $('weekLabels').innerHTML = labels;
-    $('supWeeksNum').textContent = ok + ' of 8 weeks';
+    $('supWeeksNum').textContent = ok + ' ' + spanLabel;
+    $('supWeeksNote').textContent = noteText + 'A square turns green when that week has at least one hour of Individual supervision logged; an empty square is a week without one. Programs commonly expect one every week.' + (nWeeks > 8 ? ' Earliest week first; the bold outline is this week.' : '');
+    document.querySelectorAll('#supSeg button, #supSeg2 button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.span) === String(span) ? 'true' : 'false'); });
 
+    var since = iso(addDays(today, -27)); var recent = 0;
+    state.entries.forEach(function (e) { var c = cat(e.cat); if (e.date >= since && (!c || c.inTotal !== false)) recent += e.minutes; });
+    var perWeek = recent / 4; var paceEl = $('pace');
+    if (tt && state.entries.length && perWeek > 0) {
+      var left = tt * 60 - T.total;
+      if (left <= 0) paceEl.innerHTML = 'You have reached your total of <b>' + tt + ' hours</b>.';
+      else { var eta = addDays(today, Math.round(left / perWeek * 7)); paceEl.innerHTML = 'Over the last four weeks you logged <b>' + hrs(perWeek) + ' hours a week</b>. At that pace you reach ' + tt + ' hours around <b>' + MONTHS[eta.getMonth()] + ' ' + eta.getFullYear() + '</b>.'; }
+    } else if (!state.entries.length) paceEl.textContent = 'Your weekly pace will appear here after a few weeks of entries.';
+    else paceEl.textContent = 'Set a total target in Settings to see your pace.';
+
+    var months = {};
+    state.entries.forEach(function (e) {
+      var k = e.date.slice(0, 7); if (!months[k]) months[k] = { direct: 0, indirect: 0, supervision: 0, custom: 0, total: 0 };
+      var kind = kindOf(e.cat); var c = cat(e.cat); months[k][kind] += e.minutes; if (!(kind === 'custom' && c && c.inTotal === false)) months[k].total += e.minutes;
+    });
+    var keys = Object.keys(months).sort().reverse();
+    $('monthCount').textContent = keys.length ? plural(keys.length, 'month') : '';
+    if (!keys.length) $('monthTable').innerHTML = '<p class="note">No entries yet.</p>';
+    else {
+      var hasC = keys.some(function (k) { return months[k].custom; });
+      var t = '<table><thead><tr><th>Month</th><th>Direct</th><th>Indirect</th><th>Superv.</th>' + (hasC ? '<th>Other</th>' : '') + '<th>Total</th></tr></thead><tbody>';
+      keys.forEach(function (k) { var m = months[k]; var p = k.split('-'); t += '<tr><td>' + MONTHS[+p[1] - 1] + ' ' + p[0] + '</td><td>' + hrs(m.direct) + '</td><td>' + hrs(m.indirect) + '</td><td>' + hrs(m.supervision) + '</td>' + (hasC ? '<td>' + hrs(m.custom) + '</td>' : '') + '<td>' + hrs(m.total) + '</td></tr>'; });
+      t += '</tbody></table>';
+      if (T.carriedMin) t += '<p class="note" style="margin-top:10px">Plus ' + hrs(T.carriedMin) + ' hours carried in from earlier logs. Indirect here is indirect other than supervision.</p>';
+      $('monthTable').innerHTML = t;
+    }
     $('carriedNote').innerHTML = T.carriedMin
-      ? 'Totals include ' + hrs(T.carriedMin) + ' hours carried in from earlier logs. <button type="button" id="openSettingsFromNote">Change in Settings</button>'
-      : 'Already have hours on paper? <button type="button" id="openSettingsFromNote">Add them in Settings</button> and they count toward your totals.';
-    $('openSettingsFromNote').addEventListener('click', function () { openSettings(); });
+      ? 'Totals include ' + hrs(T.carriedMin) + ' hours carried in from earlier logs. <button type="button" id="openCarriedFromNote">Change in Settings</button>'
+      : 'Already have hours on paper? <button type="button" id="openCarriedFromNote">Add them in Settings</button> and they count toward your totals.';
+    $('openCarriedFromNote').addEventListener('click', function () { openCarried(); });
+  }
+
+  /* ---------- settings view ---------- */
+  function renderSettings() {
+    $('setName').value = state.name || ''; $('setProgram').value = state.program || '';
+    var T = totals();
+    $('catsSummary').textContent = plural(state.categories.length, 'type') + (state.totalTarget ? ' · ' + state.totalTarget + ' h total' : '');
+    $('carriedSummary').textContent = T.carriedMin ? hrs(T.carriedMin) + ' h' : 'None';
+    var cs = currentSupervisor(); $('supervisorsSummary').textContent = cs ? cs.name + (state.supervisors.length > 1 ? ' (current)' : '') : 'None yet';
+    $('wipeSub').textContent = state.entries.length ? plural(state.entries.length, 'entry') : 'Nothing to delete';
+    document.querySelectorAll('#stepSeg button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.step === state.step ? 'true' : 'false'); });
+    document.querySelectorAll('#supSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.span) === String(state.supWeeks || 8) ? 'true' : 'false'); });
+    renderTargets();
   }
 
   function renderAll(flashId) {
-    renderHeader(); renderSummary(); renderCats(); renderWeek(); renderLedger(flashId);
+    renderHeader(); renderSummary(); renderTargets(); renderWeek(); renderRecent(flashId);
+    renderFilters(); renderLedger(flashId);
     if (!$('view-progress').hidden) renderProgress();
-    $('miExamplesSub').textContent = state.examples ? 'Loaded. Tap to clear them' : 'Load a sample month';
+    if (!$('view-settings').hidden) renderSettings();
   }
 
   /* ---------- views ---------- */
+  var VIEWS = ['dashboard', 'entries', 'progress', 'settings'];
   function showView(name) {
-    var v = name === 'progress' ? 'progress' : 'logbook';
-    $('view-logbook').hidden = v !== 'logbook';
-    $('view-progress').hidden = v !== 'progress';
+    var v = VIEWS.indexOf(name) >= 0 ? name : 'dashboard';
+    VIEWS.forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(function (b) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     if (v === 'progress') renderProgress();
+    if (v === 'settings') renderSettings();
+    if (v === 'entries') renderLedger();
     window.scrollTo(0, 0);
   }
-  document.querySelectorAll('.tab').forEach(function (b) {
-    b.addEventListener('click', function () { var v = b.dataset.view; if (location.hash !== '#' + v) location.hash = v; else showView(v); });
-  });
+  function go(v) { if (location.hash !== '#' + v) location.hash = v; else showView(v); }
+  document.querySelectorAll('.tab').forEach(function (b) { b.addEventListener('click', function () { go(b.dataset.view); }); });
   window.addEventListener('hashchange', function () { showView(location.hash.replace('#', '')); });
+  $('goEntries').addEventListener('click', function () { go('entries'); });
+
+  /* collapsible dashboard panels */
+  document.querySelectorAll('[data-collapse]').forEach(function (b) {
+    var key = b.dataset.collapse; var body = $(b.getAttribute('aria-controls')); var panel = b.closest('.panel');
+    function apply() { var open = !state.collapsed[key]; b.setAttribute('aria-expanded', open); body.hidden = !open; panel.classList.toggle('is-collapsed', !open); }
+    apply();
+    b.addEventListener('click', function () { state.collapsed[key] = !state.collapsed[key]; saveState(); apply(); });
+  });
+  document.querySelectorAll('#chartSeg button, #chartSeg2 button').forEach(function (b) { b.addEventListener('click', function () { state.chart = b.dataset.chart; saveState(); renderTargets(); }); });
+  document.querySelectorAll('#stepSeg button').forEach(function (b) { b.addEventListener('click', function () { state.step = +b.dataset.step; saveState(); renderSettings(); }); });
+  document.querySelectorAll('#supSeg button, #supSeg2 button').forEach(function (b) { b.addEventListener('click', function () { state.supWeeks = b.dataset.span === 'term' ? 'term' : +b.dataset.span; saveState(); if (!$('view-progress').hidden) renderProgress(); else renderSettings(); }); });
+
+  /* entries interactions */
+  $('entryFilters').addEventListener('click', function (ev) { var b = ev.target.closest('[data-f]'); if (!b) return; filterCat = b.dataset.f; renderFilters(); renderLedger(); });
+  $('ledger').addEventListener('click', function (ev) {
+    var dh = ev.target.closest('.day-head'); if (dh) { var k = dh.dataset.day; dayOpen[k] = !dayOpen[k]; renderLedger(); return; }
+    var b = ev.target.closest('.row'); if (!b) return;
+    var e = state.entries.filter(function (x) { return x.id === b.dataset.id; })[0]; if (e) openLog(e);
+  });
+  $('recentList').addEventListener('click', function (ev) { var b = ev.target.closest('.row'); if (!b) return; var e = state.entries.filter(function (x) { return x.id === b.dataset.id; })[0]; if (e) openLog(e); });
+  $('toggleAllDays').addEventListener('click', function () {
+    var anyOpen = Object.keys(dayOpen).some(function (k) { return dayOpen[k]; });
+    var dates = {}; state.entries.forEach(function (e) { dates[e.date] = true; });
+    Object.keys(dates).forEach(function (k) { dayOpen[k] = !anyOpen; });
+    renderLedger();
+  });
+  $('cats').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; openCat = openCat === b.dataset.cat ? null : b.dataset.cat; renderProgress(); });
 
   /* ---------- sheets ---------- */
-  var openSheetId = null;
-  function openSheet(id) { closeSheet(); openSheetId = id; $(id).hidden = false; document.body.style.overflow = 'hidden'; $(id).scrollTop = 0; }
-  function closeSheet() { if (openSheetId) { $(openSheetId).hidden = true; openSheetId = null; } document.body.style.overflow = ''; }
+  var sheetStack = [];
+  function openSheet(id) { var el = $(id); el.hidden = false; el.scrollTop = 0; document.body.style.overflow = 'hidden'; if (sheetStack.indexOf(id) < 0) sheetStack.push(id); }
+  function closeSheet(id) {
+    if (!id) id = sheetStack[sheetStack.length - 1];
+    if (!id) return;
+    $(id).hidden = true; sheetStack = sheetStack.filter(function (s) { return s !== id; });
+    if (!sheetStack.length) document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && sheetStack.length) closeSheet(); });
 
-  /* ---------- toast ---------- */
-  var toastTimer = null;
-  function toast(msg) { var t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 1800); }
-
-  /* ---------- log form ---------- */
+  /* ---------- log / edit form ---------- */
   var form = null;
   function openLog(entry) {
-    form = entry ? { id: entry.id, date: entry.date, category: entry.category, minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '' }
-                 : { id: null, date: iso(todayDate()), category: 'direct', minutes: 50, modality: 'in_person', client: '', note: '' };
+    form = entry
+      ? { id: entry.id, date: entry.date, cat: entry.cat, sub: entry.sub || '', otherName: '', minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '', sup: entry.sup || '', extraDates: [] }
+      : { id: null, date: iso(todayDate()), cat: 'direct', sub: '', otherName: '', minutes: 50, modality: 'in_person', client: '', note: '', sup: (currentSupervisor() || {}).id || '', extraDates: [] };
     $('logTitle').textContent = entry ? 'Edit entry' : 'Log hours';
-    $('logSave').textContent = entry ? 'Save changes' : 'Save entry';
     $('logDelete').hidden = !entry; disarmDelete();
-    $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date;
+    $('addDate').hidden = !!entry;
+    $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date; $('otherName').value = '';
     renderForm(); openSheet('sheet-log');
   }
   function renderForm() {
-    $('catList').innerHTML = CATS.map(function (c) {
-      return '<button type="button" class="cat-opt" role="radio" data-cat="' + c.id + '" aria-checked="' + (form.category === c.id) + '"><span class="radio"></span>' + c.label + '</button>';
+    var opts = state.categories.map(function (c) {
+      return '<button type="button" class="cat-opt" role="radio" data-cat="' + c.id + '" aria-checked="' + (form.cat === c.id) + '"><span class="radio"></span>' + esc(c.name) + (c.builtin ? '' : '<small>Your type</small>') + '</button>';
     }).join('');
-    $('durMin').textContent = form.minutes; $('durH').textContent = hrs(form.minutes) + ' h';
+    opts += '<button type="button" class="cat-opt" role="radio" data-cat="__other" aria-checked="' + (form.cat === '__other') + '"><span class="radio"></span>Other<small>Add a new type</small></button>';
+    $('catList').innerHTML = opts;
+    $('otherBox').hidden = form.cat !== '__other';
+    var c = cat(form.cat);
+    var subs = c ? c.subs || [] : [];
+    $('subField').hidden = !(c && subs.length);
+    if (c && subs.length) {
+      var sel = '<option value="">No subcategory</option>' + subs.map(function (s) { return '<option value="' + esc(s) + '"' + (form.sub === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
+      if (form.sub && subs.indexOf(form.sub) < 0) sel += '<option value="' + esc(form.sub) + '" selected>' + esc(form.sub) + '</option>';
+      $('subSelect').innerHTML = sel;
+    }
+    $('durMin').value = form.minutes; $('durH').textContent = hrs(form.minutes) + ' h';
     $('durPresets').innerHTML = PRESETS.map(function (m) { return '<button type="button" class="chip" data-min="' + m + '" aria-pressed="' + (form.minutes === m) + '">' + m + ' min</button>'; }).join('');
     var t = iso(todayDate()), y = iso(addDays(todayDate(), -1));
-    $('dateQuick').innerHTML = '<button type="button" class="chip" data-date="' + t + '" aria-pressed="' + (form.date === t) + '">Today</button>' +
-                               '<button type="button" class="chip" data-date="' + y + '" aria-pressed="' + (form.date === y) + '">Yesterday</button>';
+    $('dateQuick').innerHTML = '<button type="button" class="chip" data-date="' + t + '" aria-pressed="' + (form.date === t) + '">Today</button><button type="button" class="chip" data-date="' + y + '" aria-pressed="' + (form.date === y) + '">Yesterday</button>';
     $('modList').innerHTML = MODS.map(function (m) { return '<button type="button" class="chip" data-mod="' + m.id + '" aria-pressed="' + (form.modality === m.id) + '">' + m.label + '</button>'; }).join('');
+    $('supField').hidden = !state.supervisors.length;
+    if (state.supervisors.length) {
+      $('supSelect').innerHTML = '<option value="">No supervisor</option>' + state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (form.sup === s.id ? ' selected' : '') + '>' + esc(supLabel(s)) + (s.current ? ' (current)' : '') + '</option>'; }).join('');
+    }
+    $('moreDates').innerHTML = form.extraDates.map(function (d, i) { return '<div><input type="date" data-extra="' + i + '" value="' + esc(d) + '" aria-label="Additional date"><button type="button" data-remove="' + i + '" aria-label="Remove this date">&times;</button></div>'; }).join('');
+    var n = 1 + form.extraDates.filter(function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); }).length;
+    $('logSave').textContent = form.id ? 'Save changes' : (n > 1 ? 'Save ' + n + ' entries' : 'Save entry');
   }
-  $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.category = b.dataset.cat; renderForm(); });
-  $('durPresets').addEventListener('click', function (ev) { var b = ev.target.closest('[data-min]'); if (!b) return; form.minutes = +b.dataset.min; renderForm(); });
+  function setMinutes(m) { m = Math.round(m); if (!isFinite(m)) m = form.minutes; form.minutes = Math.min(600, Math.max(1, m)); renderForm(); }
+  $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.cat = b.dataset.cat; form.sub = ''; renderForm(); if (form.cat === '__other') $('otherName').focus(); });
+  $('subSelect').addEventListener('change', function () { form.sub = this.value; });
+  $('supSelect').addEventListener('change', function () { form.sup = this.value; });
+  $('otherName').addEventListener('input', function () { form.otherName = this.value; });
+  $('durPresets').addEventListener('click', function (ev) { var b = ev.target.closest('[data-min]'); if (!b) return; setMinutes(+b.dataset.min); });
+  $('durMinus').addEventListener('click', function () { var s = state.step || 5; setMinutes(form.minutes - s > 0 ? Math.ceil((form.minutes - s) / s) * s : 1); });
+  $('durPlus').addEventListener('click', function () { var s = state.step || 5; setMinutes(Math.floor((form.minutes + s) / s) * s); });
+  $('durMin').addEventListener('change', function () { setMinutes(parseInt(this.value, 10)); });
+  $('durMin').addEventListener('input', function () { var v = parseInt(this.value, 10); if (isFinite(v) && v > 0) { form.minutes = Math.min(600, v); $('durH').textContent = hrs(form.minutes) + ' h'; } });
   $('dateQuick').addEventListener('click', function (ev) { var b = ev.target.closest('[data-date]'); if (!b) return; form.date = b.dataset.date; $('dateInput').value = form.date; renderForm(); });
-  $('modList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-mod]'); if (!b) return; form.modality = form.modality === b.dataset.mod ? '' : b.dataset.mod; renderForm(); });
-  $('durMinus').addEventListener('click', function () { form.minutes = Math.max(5, form.minutes - 5); renderForm(); });
-  $('durPlus').addEventListener('click', function () { form.minutes = Math.min(600, form.minutes + 5); renderForm(); });
   $('dateInput').addEventListener('change', function () { if (/^\d{4}-\d{2}-\d{2}$/.test(this.value)) { form.date = this.value; renderForm(); } });
-  $('logCancel').addEventListener('click', closeSheet);
+  $('modList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-mod]'); if (!b) return; form.modality = form.modality === b.dataset.mod ? '' : b.dataset.mod; renderForm(); });
+  $('addDate').addEventListener('click', function () { var last = form.extraDates.length ? form.extraDates[form.extraDates.length - 1] : form.date; var next = /^\d{4}-\d{2}-\d{2}$/.test(last) ? iso(addDays(fromIso(last), -7)) : form.date; form.extraDates.push(next); renderForm(); });
+  $('moreDates').addEventListener('click', function (ev) { var b = ev.target.closest('[data-remove]'); if (!b) return; form.extraDates.splice(+b.dataset.remove, 1); renderForm(); });
+  $('moreDates').addEventListener('change', function (ev) { var i = ev.target.closest('[data-extra]'); if (!i) return; form.extraDates[+i.dataset.extra] = i.value; renderForm(); });
+  $('logCancel').addEventListener('click', function () { closeSheet('sheet-log'); });
+
+  function ensureCategory(name) {
+    var n = name.trim(); if (!n) return null;
+    var existing = state.categories.filter(function (c) { return c.name.toLowerCase() === n.toLowerCase(); })[0];
+    if (existing) return existing.id;
+    var id = 'c' + uid().replace(/-/g, '').slice(0, 10);
+    state.categories.push({ id: id, name: n.slice(0, 40), target: 0, builtin: false, inTotal: true, subs: [] });
+    return id;
+  }
   $('logSave').addEventListener('click', function () {
-    form.client = $('clientInput').value.trim(); form.note = $('noteInput').value.trim();
+    form.client = $('clientInput').value.trim(); form.note = $('noteInput').value.trim(); form.minutes = Math.min(600, Math.max(1, Math.round(parseInt($('durMin').value, 10) || form.minutes)));
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date)) { toast('Choose a date first'); return; }
-    var id = form.id;
+    var catId = form.cat;
+    if (catId === '__other') { catId = ensureCategory($('otherName').value); if (!catId) { toast('Type a name for the new type'); $('otherName').focus(); return; } }
+    var id = form.id, made = 0;
     if (id) {
       var e = state.entries.filter(function (x) { return x.id === id; })[0];
-      if (e) { e.date = form.date; e.category = form.category; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; }
+      if (e) { e.date = form.date; e.cat = catId; e.sub = form.sub; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; e.sup = form.sup || ''; }
     } else {
-      id = uid();
-      state.entries.push({ id: id, date: form.date, category: form.category, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, created: Date.now() });
+      var dates = [form.date].concat(form.extraDates).filter(function (d, i, a) { return /^\d{4}-\d{2}-\d{2}$/.test(d) && a.indexOf(d) === i; });
+      dates.forEach(function (d) { var nid = uid(); if (!made) id = nid; state.entries.push({ id: nid, date: d, cat: catId, sub: form.sub, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, sup: form.sup || '', created: Date.now() + made }); made++; });
     }
-    saveState(); closeSheet();
-    if (location.hash === '#progress') { location.hash = 'logbook'; }
-    renderAll(id); toast(form.id ? 'Changes saved' : 'Entry saved');
+    saveState(); closeSheet('sheet-log');
+    if (!$('view-entries').hidden) { dayOpen[form.date] = true; }
+    renderAll(id);
+    toast(form.id ? 'Changes saved' : (made > 1 ? made + ' entries saved' : 'Entry saved'));
   });
   var armTimer = null;
   function disarmDelete() { var b = $('logDelete'); b.classList.remove('armed'); b.textContent = 'Delete entry'; clearTimeout(armTimer); }
@@ -795,83 +1299,405 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var b = this;
     if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; armTimer = setTimeout(disarmDelete, 3500); return; }
     state.entries = state.entries.filter(function (x) { return x.id !== form.id; });
-    saveState(); closeSheet(); renderAll(); toast('Entry deleted');
-  });
-  $('ledger').addEventListener('click', function (ev) {
-    var b = ev.target.closest('.row'); if (!b) return;
-    var e = state.entries.filter(function (x) { return x.id === b.dataset.id; })[0]; if (e) openLog(e);
+    saveState(); closeSheet('sheet-log'); renderAll(); toast('Entry deleted');
   });
   $('btnLog').addEventListener('click', function () { openLog(null); });
 
-  /* ---------- banner ---------- */
-  $('clearExamples').addEventListener('click', function () { clearExamples(); toast('Examples cleared'); });
-  $('keepExamples').addEventListener('click', function () { state.bannerDismissed = true; saveState(); renderLedger(); });
+  /* ---------- settings: profile, display ---------- */
+  $('setName').addEventListener('change', function () { state.name = this.value.trim().slice(0, 60); saveState(); renderHeader(); toast('Name saved'); });
+  $('setProgram').addEventListener('change', function () { state.program = this.value.trim().slice(0, 80); saveState(); toast('Saved'); });
 
-  /* ---------- more sheet ---------- */
-  $('btnMore').addEventListener('click', function () { $('copyBox').hidden = true; openSheet('sheet-more'); });
-  $('moreClose').addEventListener('click', closeSheet);
+  /* ---------- categories & targets editor ---------- */
+  var moveOpen = null;
+  function renderCatEditor() {
+    $('setTotal').value = state.totalTarget || 0;
+    $('catEditor').innerHTML = state.categories.map(function (c) {
+      var n = entryCount(c.id); var min = totals().cats[c.id] || 0;
+      var meta = plural(n, 'entry') + ' · ' + hrs(min) + ' h' + (c.id === 'supervision' ? ' · counted inside Indirect' : '') + (c.builtin || c.inTotal !== false ? '' : ' · not in the total');
+      var subs = (c.subs || []).map(function (s, i) { return '<span class="tag"><span>' + esc(s) + '</span><button type="button" data-rmsub="' + c.id + '" data-i="' + i + '" aria-label="Remove ' + esc(s) + '">&times;</button></span>'; }).join('');
+      var move = moveOpen === c.id ? moveHtml(c, n) : '';
+      return '<div class="cat-card" data-card="' + c.id + '">' +
+        '<div class="cc-head">' + (c.builtin ? '<span class="nm">' + esc(c.name) + '</span>' : '<input type="text" value="' + esc(c.name) + '" data-rename="' + c.id + '" maxlength="40" aria-label="Type name">') +
+        '<div class="tgt"><input type="number" min="0" step="1" inputmode="numeric" value="' + (c.target || 0) + '" data-target="' + c.id + '" aria-label="Target hours"><span>target hours</span></div></div>' +
+        '<div class="cc-meta">' + esc(meta) + '</div>' +
+        (c.builtin ? '' : '<div class="switch" role="switch" aria-checked="' + (c.inTotal !== false) + '" data-intotal="' + c.id + '" tabindex="0"><span>Counts toward the total</span><span class="sw-ctl"></span></div>') +
+        '<div class="cc-subs">' + (subs || '<span class="fine">No subcategories yet.</span>') + '</div>' +
+        '<div class="cc-add"><input type="text" placeholder="Add a subcategory" maxlength="80" data-newsub="' + c.id + '" autocomplete="off"><button type="button" data-addsub="' + c.id + '">Add</button></div>' +
+        '<div class="cc-actions"><button type="button" data-move="' + c.id + '"' + (n ? '' : ' disabled') + '>Move all entries to another type</button>' +
+        (missingDefaultSubs(c).length ? '<button type="button" data-restore="' + c.id + '">Restore default subcategories</button>' : '') +
+        (c.builtin ? '' : '<button type="button" class="rm" data-rmcat="' + c.id + '"' + (n || state.carried[c.id] ? ' disabled' : '') + '>Remove type</button>') + '</div>' + move + '</div>';
+    }).join('');
+  }
+  function moveHtml(c, n) {
+    var targets = state.categories.filter(function (x) { return x.id !== c.id; });
+    return '<div class="cc-move"><p class="fine">Move all ' + plural(n, 'entry') + ' logged as ' + esc(c.name) + ' into another type. Use this if, for example, hours logged under a type you created turn out to belong under Group supervision.</p>' +
+      '<select data-moveto="' + c.id + '" aria-label="Move to type">' + targets.map(function (t) { return '<option value="' + t.id + '">' + esc(t.name) + '</option>'; }).join('') + '</select>' +
+      '<select data-movesub="' + c.id + '" aria-label="Subcategory"></select>' +
+      '<button type="button" class="btn-sm fill" data-domove="' + c.id + '">Move ' + plural(n, 'entry') + '</button></div>';
+  }
+  function fillMoveSubs(fromId) {
+    var to = document.querySelector('[data-moveto="' + fromId + '"]'); var subSel = document.querySelector('[data-movesub="' + fromId + '"]'); if (!to || !subSel) return;
+    var t = cat(to.value); var subs = t ? t.subs || [] : [];
+    subSel.innerHTML = '<option value="__keep">Keep each entry’s subcategory</option><option value="">No subcategory</option>' + subs.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+  }
+  $('setTotal').addEventListener('change', function () { var v = parseInt(this.value, 10); state.totalTarget = isFinite(v) && v >= 0 ? v : 0; saveState(); });
+  $('catEditor').addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t.dataset.target) { var c = cat(t.dataset.target); var v = parseInt(t.value, 10); c.target = isFinite(v) && v >= 0 ? v : 0; saveState(); }
+    if (t.dataset.rename) { var c2 = cat(t.dataset.rename); var nm = t.value.trim().slice(0, 40); if (nm) { c2.name = nm; saveState(); } else t.value = c2.name; }
+    if (t.dataset.moveto) fillMoveSubs(t.dataset.moveto);
+  });
+  $('catEditor').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button, [role="switch"]'); if (!b) return;
+    if (b.dataset.intotal) { var c = cat(b.dataset.intotal); c.inTotal = c.inTotal === false; saveState(); renderCatEditor(); return; }
+    if (b.dataset.rmsub) { var c1 = cat(b.dataset.rmsub); c1.subs.splice(+b.dataset.i, 1); saveState(); renderCatEditor(); return; }
+    if (b.dataset.addsub) { var inp = document.querySelector('[data-newsub="' + b.dataset.addsub + '"]'); var v = (inp.value || '').trim().slice(0, 80); if (!v) { inp.focus(); return; } var c3 = cat(b.dataset.addsub); if (c3.subs.map(function (s) { return s.toLowerCase(); }).indexOf(v.toLowerCase()) < 0) c3.subs.push(v); saveState(); renderCatEditor(); return; }
+    if (b.dataset.restore) { var cr = cat(b.dataset.restore); var miss = missingDefaultSubs(cr); cr.subs = DEFAULT_SUBS[cr.id].slice().concat(cr.subs.filter(function (x) { return DEFAULT_SUBS[cr.id].map(function (y) { return y.toLowerCase(); }).indexOf(x.toLowerCase()) < 0; })); saveState(); renderCatEditor(); toast(plural(miss.length, 'subcategory') + ' restored'); return; }
+    if (b.dataset.move) { moveOpen = moveOpen === b.dataset.move ? null : b.dataset.move; renderCatEditor(); if (moveOpen) fillMoveSubs(moveOpen); return; }
+    if (b.dataset.domove) {
+      var from = b.dataset.domove; var toSel = document.querySelector('[data-moveto="' + from + '"]'); var subSel = document.querySelector('[data-movesub="' + from + '"]');
+      var toId = toSel.value; var subChoice = subSel.value; var moved = 0;
+      state.entries.forEach(function (e) { if (e.cat === from) { e.cat = toId; if (subChoice !== '__keep') e.sub = subChoice; moved++; } });
+      if (state.carried[from]) { state.carried[toId] = (state.carried[toId] || 0) + state.carried[from]; state.carried[from] = 0; }
+      moveOpen = null; saveState(); renderCatEditor(); toast(plural(moved, 'entry') + ' moved to ' + catName(toId)); return;
+    }
+    if (b.dataset.rmcat) { var id = b.dataset.rmcat; if (entryCount(id) || state.carried[id]) return; state.categories = state.categories.filter(function (c) { return c.id !== id; }); delete state.carried[id]; saveState(); renderCatEditor(); toast('Type removed'); return; }
+  });
+  $('catEditor').addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.target.dataset && ev.target.dataset.newsub) { ev.preventDefault(); document.querySelector('[data-addsub="' + ev.target.dataset.newsub + '"]').click(); } });
+  $('newCatAdd').addEventListener('click', function () { var v = $('newCatName').value.trim(); if (!v) { $('newCatName').focus(); return; } ensureCategory(v); $('newCatName').value = ''; saveState(); renderCatEditor(); toast('Type added'); });
+  $('newCatName').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('newCatAdd').click(); } });
+  $('openCats').addEventListener('click', function () { moveOpen = null; renderCatEditor(); openSheet('sheet-cats'); });
+  $('catsBack').addEventListener('click', function () { closeSheet('sheet-cats'); renderAll(); });
+
+  /* ---------- supervisors ---------- */
+  function renderSupervisors() {
+    if (!state.supervisors.length) { $('supList').innerHTML = '<div class="empty"><b>No supervisor yet.</b> Add the person who supervises your hours below.</div>'; return; }
+    $('supList').innerHTML = state.supervisors.map(function (s) {
+      var n = supEntryCount(s.id);
+      return '<div class="sup-card"><div class="sc-head"><span class="sc-name">' + esc(s.name) + '</span>' + (s.current ? '<span class="badge">Current</span>' : '') + '</div>' +
+        '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' +
+        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') +
+        '<button type="button" class="rm" data-rmsup="' + s.id + '"' + (n ? ' disabled' : '') + '>' + (n ? 'In use' : 'Remove') + '</button></div></div>';
+    }).join('');
+  }
+  function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; renderSupervisors(); openSheet('sheet-supervisors'); }
+  $('openSupervisors').addEventListener('click', openSupervisors);
+  $('supBack').addEventListener('click', function () { closeSheet('sheet-supervisors'); renderSettings(); });
+  $('newSupAdd').addEventListener('click', function () {
+    var name = $('newSupName').value.trim().slice(0, 60); if (!name) { $('newSupName').focus(); return; }
+    var since = $('newSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
+    state.supervisors.forEach(function (s) { s.current = false; });
+    state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: name, credential: $('newSupCred').value.trim().slice(0, 60), since: since, current: true });
+    saveState(); openSupervisors(); toast(name + ' is now your current supervisor');
+  });
+  $('supList').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.makecur) { state.supervisors.forEach(function (s) { s.current = s.id === b.dataset.makecur; }); saveState(); renderSupervisors(); toast('Current supervisor updated'); }
+    if (b.dataset.rmsup) { if (supEntryCount(b.dataset.rmsup)) return; var wasCur = (supervisor(b.dataset.rmsup) || {}).current; state.supervisors = state.supervisors.filter(function (s) { return s.id !== b.dataset.rmsup; }); if (wasCur && state.supervisors.length) state.supervisors[state.supervisors.length - 1].current = true; saveState(); renderSupervisors(); toast('Supervisor removed'); }
+  });
+
+  /* ---------- import from a spreadsheet ---------- */
+  var importResult = null;
+  function parseCsv(text) {
+    var rows = [], row = [], field = '', inQ = false; text = text.replace(/^﻿/, '');
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (inQ) { if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; } else field += ch; }
+      else if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(field); rows.push(row); row = []; field = ''; }
+      else field += ch;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (c) { return String(c).trim() !== ''; }); });
+  }
+  function normHeader(h) { return String(h).toLowerCase().replace(/[^a-z]/g, ''); }
+  function parseDate(v) {
+    var s = String(v).trim(), m;
+    if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]);
+    if ((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) { var y = +m[3]; if (y < 100) y += 2000; return y + '-' + pad(+m[1]) + '-' + pad(+m[2]); }
+    return null;
+  }
+  function matchCategory(name) {
+    var n = String(name || '').trim(); if (!n) return null;
+    var lower = n.toLowerCase();
+    var exact = state.categories.filter(function (c) { return c.name.toLowerCase() === lower; })[0]; if (exact) return { id: exact.id };
+    if (/^direct/.test(lower)) return { id: 'direct' };
+    if (/^indirect/.test(lower)) return { id: 'indirect' };
+    if (/supervision/.test(lower)) return { id: 'supervision' };
+    return { id: null, name: n.slice(0, 40) };
+  }
+  function analyzeCsv(text) {
+    var rows = parseCsv(text); if (rows.length < 2) return { error: 'The file has no rows under the heading row.' };
+    var head = rows[0].map(normHeader);
+    function col(names) { for (var i = 0; i < names.length; i++) { var k = head.indexOf(names[i]); if (k >= 0) return k; } return -1; }
+    var ci = { date: col(['date', 'sessiondate']), type: col(['type', 'category', 'typeofhours']), sub: col(['subcategory', 'sub']), minutes: col(['minutes', 'min', 'duration']), hours: col(['hours', 'hrs']), format: col(['format', 'modality']), client: col(['clientcode', 'client', 'clientid']), note: col(['note', 'notes']), supervisor: col(['supervisor']) };
+    if (ci.date < 0) return { error: 'No Date column was found. The heading row needs Date, Type and Minutes or Hours.' };
+    if (ci.type < 0) return { error: 'No Type column was found. The heading row needs Date, Type and Minutes or Hours.' };
+    if (ci.minutes < 0 && ci.hours < 0) return { error: 'No Minutes or Hours column was found.' };
+    var out = [], skipped = 0, newTypes = {}, byType = {};
+    rows.slice(1).forEach(function (r) {
+      var date = parseDate(r[ci.date] || ''); var mins = ci.minutes >= 0 ? parseFloat(r[ci.minutes]) : parseFloat(r[ci.hours]) * 60;
+      var m = matchCategory(r[ci.type]);
+      if (!date || !isFinite(mins) || mins <= 0 || !m) { skipped++; return; }
+      if (!m.id) newTypes[m.name.toLowerCase()] = m.name;
+      var label = m.id ? catName(m.id) : m.name; byType[label] = (byType[label] || 0) + Math.round(mins);
+      var fmtRaw = ci.format >= 0 ? String(r[ci.format] || '').toLowerCase() : '';
+      out.push({ date: date, catId: m.id, catName: m.name, sub: ci.sub >= 0 ? String(r[ci.sub] || '').trim().slice(0, 80) : '', minutes: Math.round(mins),
+                 modality: /tele|video/.test(fmtRaw) ? 'telehealth' : /phone/.test(fmtRaw) ? 'phone' : /person/.test(fmtRaw) ? 'in_person' : '',
+                 client: ci.client >= 0 ? String(r[ci.client] || '').trim().slice(0, 24) : '', note: ci.note >= 0 ? String(r[ci.note] || '').trim().slice(0, 300) : '',
+                 supName: ci.supervisor >= 0 ? String(r[ci.supervisor] || '').trim() : '' });
+    });
+    return { rows: out, skipped: skipped, newTypes: Object.keys(newTypes).map(function (k) { return newTypes[k]; }), byType: byType };
+  }
+  function doImport(a) {
+    var made = 0;
+    a.rows.forEach(function (r) {
+      var catId = r.catId || ensureCategory(r.catName); var c = cat(catId); var sub = r.sub;
+      if (sub) { var known = (c.subs || []).filter(function (x) { return x.toLowerCase() === sub.toLowerCase(); })[0]; if (known) sub = known; else c.subs.push(sub); }
+      var sup = ''; if (r.supName) { var sm = state.supervisors.filter(function (x) { return x.name.toLowerCase() === r.supName.toLowerCase(); })[0]; if (sm) sup = sm.id; }
+      state.entries.push({ id: uid(), date: r.date, cat: catId, sub: sub, minutes: r.minutes, modality: r.modality, client: r.client, note: r.note, sup: sup, created: Date.now() + made });
+      made++;
+    });
+    saveState(); return made;
+  }
+  function openImport() { importResult = null; $('impFile').value = ''; $('impPreview').textContent = ''; $('impGo').disabled = true; openSheet('sheet-import'); }
+  $('openImport').addEventListener('click', openImport);
+  $('impBack').addEventListener('click', function () { closeSheet('sheet-import'); renderSettings(); });
+  $('impTemplate').addEventListener('click', function () {
+    var t = 'date,type,subcategory,minutes,format,client_code,note,supervisor\n' +
+            iso(addDays(todayDate(), -7)) + ',Direct client hours,Individual counseling sessions,50,In person,A12,Session 4,\n' +
+            iso(addDays(todayDate(), -6)) + ',Supervision,Individual supervision,60,In person,,Weekly supervision,\n';
+    if (downloadBlob(new Blob([t], { type: 'text/csv' }), 'praxis-plus-import-template.csv')) toast('Template downloaded'); else toast('Download is not available here');
+  });
+  $('impFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; importResult = null; $('impGo').disabled = true; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var a = analyzeCsv(String(rd.result || ''));
+      if (a.error) { $('impPreview').textContent = a.error; return; }
+      importResult = a;
+      var lines = [plural(a.rows.length, 'entry') + ' ready to import' + (a.skipped ? ', ' + plural(a.skipped, 'row') + ' skipped (missing date, type or time)' : '') + '.'];
+      Object.keys(a.byType).forEach(function (k) { lines.push(k + ': ' + hrs(a.byType[k]) + ' h'); });
+      if (a.newTypes.length) lines.push('New types to be added: ' + a.newTypes.join(', '));
+      $('impPreview').innerHTML = lines.map(function (l) { return '<div>' + esc(l) + '</div>'; }).join('');
+      $('impGo').disabled = !a.rows.length; $('impGo').textContent = a.rows.length ? 'Import ' + plural(a.rows.length, 'entry') : 'Import';
+    };
+    rd.onerror = function () { $('impPreview').textContent = 'The file could not be read.'; };
+    rd.readAsText(f);
+  });
+  $('impGo').addEventListener('click', function () {
+    if (!importResult || !importResult.rows.length) return;
+    var n = doImport(importResult); importResult = null; closeSheet('sheet-import'); dayOpen = {}; renderAll(); renderSettings(); go('entries'); toast(plural(n, 'entry') + ' imported');
+  });
+
+  /* ---------- carried-in ---------- */
+  function openCarried() {
+    $('carriedFields').innerHTML = state.categories.map(function (c) { return '<label class="lab">' + esc(c.name) + '<input type="number" min="0" step="0.25" inputmode="decimal" data-carried="' + c.id + '" value="' + (state.carried[c.id] || 0) + '"></label>'; }).join('');
+    openSheet('sheet-carried');
+  }
+  $('openCarried').addEventListener('click', openCarried);
+  $('carriedCancel').addEventListener('click', function () { closeSheet('sheet-carried'); });
+  $('carriedSave').addEventListener('click', function () {
+    document.querySelectorAll('[data-carried]').forEach(function (i) { var v = parseFloat(i.value); state.carried[i.dataset.carried] = isFinite(v) && v >= 0 ? v : 0; });
+    saveState(); closeSheet('sheet-carried'); renderAll(); toast('Carried-in hours saved');
+  });
+
+  /* ---------- copy / csv ---------- */
   function copyText(text, label) {
     var done = function () { toast(label + ' copied'); };
     var fail = function () { var box = $('copyBox'); box.hidden = false; var ta = $('copyText'); ta.value = text; ta.focus(); ta.select(); };
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail); else fail();
-    } catch (e) { fail(); }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail); else fail(); } catch (e) { fail(); }
   }
   function summaryText() {
-    var T = totals(); var tg = state.targets; var lines = [];
-    lines.push('Praxis Plus logbook' + (state.name ? ' for ' + state.name : ''));
-    lines.push('As of ' + fmtDateLong(todayDate()));
-    lines.push('Total: ' + hrs(T.total) + (tg.total ? ' of ' + tg.total : '') + ' hours');
-    lines.push('Direct client: ' + hrs(T.direct) + (tg.direct ? ' of ' + tg.direct : ''));
-    lines.push('Supervision: ' + hrs(T.supervision) + (tg.supervision ? ' of ' + tg.supervision : ''));
-    lines.push('Indirect: ' + hrs(T.indirect));
-    if (T.other) lines.push('Other: ' + hrs(T.other));
+    var T = totals(); var lines = [];
+    lines.push('Praxis Plus logbook' + (state.name ? ' for ' + state.name : '')); lines.push('As of ' + fmtDateLong(todayDate()));
+    lines.push('Total: ' + hrs(T.total) + (state.totalTarget ? ' of ' + state.totalTarget : '') + ' hours');
+    lines.push(cat('direct').name + ': ' + hrs(T.direct) + (cat('direct').target ? ' of ' + cat('direct').target : ''));
+    lines.push(cat('indirect').name + ' (including supervision): ' + hrs(T.indirect) + (cat('indirect').target ? ' of ' + cat('indirect').target : ''));
+    lines.push(cat('supervision').name + ': ' + hrs(T.supervision) + (cat('supervision').target ? ' of ' + cat('supervision').target : ''));
+    T.custom.forEach(function (c) { lines.push(c.name + ': ' + hrs(c.min) + (c.target ? ' of ' + c.target : '') + (c.inTotal ? '' : ' (not in total)')); });
     if (T.carriedMin) lines.push('Includes ' + hrs(T.carriedMin) + ' hours carried in from earlier logs');
     lines.push('Entries: ' + state.entries.length);
     return lines.join('\n');
   }
-  function csvText() {
+  function csvText(entries) {
     function q(v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-    var rows = [['date', 'category', 'minutes', 'hours', 'format', 'client_code', 'note']];
-    state.entries.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); }).forEach(function (e) {
-      rows.push([e.date, (CAT_BY_ID[e.category] || CAT_BY_ID.other).label, e.minutes, hrs(e.minutes), e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.client || '', e.note || '']);
+    var rows = [['date', 'type', 'subcategory', 'minutes', 'hours', 'format', 'client_code', 'note']];
+    (entries || state.entries).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); }).forEach(function (e) {
+      rows.push([e.date, catName(e.cat), e.sub || '', e.minutes, hrs(e.minutes), e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.client || '', e.note || '']);
     });
     return rows.map(function (r) { return r.map(q).join(','); }).join('\n');
   }
+  function downloadBlob(blob, name) {
+    try { var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000); return true; } catch (e) { return false; }
+  }
+  function safeName() { return (state.name || 'logbook').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-'); }
   $('miCopySummary').addEventListener('click', function () { copyText(summaryText(), 'Summary'); });
   $('miCopyCsv').addEventListener('click', function () { copyText(csvText(), 'Spreadsheet rows'); });
-  $('miExamples').addEventListener('click', function () {
-    if (state.examples) { clearExamples(); toast('Examples cleared'); }
-    else { loadExamples(state); saveState(); renderAll(); toast('Example entries loaded'); }
-    $('miExamplesSub').textContent = state.examples ? 'Loaded. Tap to clear them' : 'Load a sample month';
-  });
+  $('miDownloadCsv').addEventListener('click', function () { if (downloadBlob(new Blob([csvText()], { type: 'text/csv' }), 'praxis-plus-entries-' + safeName() + '-' + iso(todayDate()) + '.csv')) toast('Spreadsheet downloaded'); else toast('Download is not available here'); });
 
-  /* ---------- settings ---------- */
-  function openSettings() {
-    $('setName').value = state.name || '';
-    $('setTotal').value = state.targets.total || 0; $('setDirect').value = state.targets.direct || 0; $('setSup').value = state.targets.supervision || 0;
-    $('carDirect').value = state.carried.direct || 0; $('carIndirect').value = state.carried.indirect || 0; $('carSup').value = state.carried.supervision || 0;
-    var w = $('wipeAll'); w.classList.remove('armed'); w.textContent = 'Delete every entry on this phone';
-    openSheet('sheet-settings');
-  }
-  function num(id) { var v = parseFloat($(id).value); return isFinite(v) && v >= 0 ? v : 0; }
-  $('miSettings').addEventListener('click', openSettings);
-  $('setCancel').addEventListener('click', function () { closeSheet(); });
-  $('setSave').addEventListener('click', function () {
-    state.name = $('setName').value.trim().slice(0, 60);
-    state.targets = { total: Math.round(num('setTotal')), direct: Math.round(num('setDirect')), supervision: Math.round(num('setSup')) };
-    state.carried = { direct: num('carDirect'), indirect: num('carIndirect'), supervision: num('carSup') };
-    saveState(); closeSheet(); renderAll(); toast('Settings saved');
-  });
+  /* ---------- delete everything ---------- */
   var wipeTimer = null;
   $('wipeAll').addEventListener('click', function () {
-    var b = this;
-    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete everything'; wipeTimer = setTimeout(function () { b.classList.remove('armed'); b.textContent = 'Delete every entry on this phone'; }, 3500); return; }
-    clearTimeout(wipeTimer);
-    var name = state.name; var tg = state.targets; state = freshState(); state.name = name; state.targets = tg; saveState(); closeSheet(); renderAll(); toast('Logbook emptied');
+    var b = this; if (!state.entries.length && !totals().carriedMin) return;
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.style.background = 'var(--danger-bg)'; b.style.borderRadius = '10px'; b.style.padding = '0 10px'; b.querySelector('small').textContent = 'Tap again to delete permanently'; wipeTimer = setTimeout(function () { b.classList.remove('armed'); b.style.background = ''; b.style.padding = ''; renderSettings(); }, 4000); return; }
+    clearTimeout(wipeTimer); b.classList.remove('armed'); b.style.background = ''; b.style.padding = '';
+    state.entries = []; state.categories.forEach(function (c) { state.carried[c.id] = 0; });
+    saveState(); renderAll(); renderSettings(); toast('All entries deleted');
   });
 
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && openSheetId) closeSheet(); });
+  /* ---------- signature pads ---------- */
+  function makePad(id) {
+    var box = $(id), cv = box.querySelector('canvas'), ctx = null, drawing = false, strokes = 0, last = null;
+    function resize() {
+      var r = box.getBoundingClientRect(); if (!r.width) return;
+      var dpr = window.devicePixelRatio || 1; var snap = strokes ? cv.toDataURL() : null;
+      cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+      ctx = cv.getContext('2d'); ctx.scale(dpr, dpr); ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#172029';
+      if (snap) { var im = new Image(); im.onload = function () { ctx.drawImage(im, 0, 0, r.width, r.height); }; im.src = snap; }
+    }
+    function pos(ev) { var r = cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    cv.addEventListener('pointerdown', function (ev) { ev.preventDefault(); drawing = true; last = pos(ev); try { cv.setPointerCapture(ev.pointerId); } catch (e) {} ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(last.x + 0.1, last.y + 0.1); ctx.stroke(); strokes++; box.classList.add('signed'); });
+    cv.addEventListener('pointermove', function (ev) { if (!drawing) return; ev.preventDefault(); var p = pos(ev); ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke(); last = p; });
+    function end() { drawing = false; }
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end); cv.addEventListener('pointerleave', end);
+    return {
+      resize: resize,
+      clear: function () { strokes = 0; box.classList.remove('signed'); var r = box.getBoundingClientRect(); if (ctx) ctx.clearRect(0, 0, r.width, r.height); },
+      isEmpty: function () { return !strokes; },
+      image: function () { return strokes ? cv.toDataURL('image/png') : null; },
+      ratio: function () { return cv.height ? cv.width / cv.height : 3; }
+    };
+  }
+  var pads = { sigSupervisee: makePad('sigSupervisee'), sigSupervisor: makePad('sigSupervisor') };
+  document.querySelectorAll('[data-clear]').forEach(function (b) { b.addEventListener('click', function () { pads[b.dataset.clear].clear(); }); });
+  var styleSig = document.createElement('style'); styleSig.textContent = '.sig{background:#FFFFFF}.sig.signed .sig-hint{display:none}'; document.head.appendChild(styleSig);
+
+  /* ---------- hours report (PDF) ---------- */
+  function openReport() {
+    $('rpName').value = state.name || ''; $('rpProgram').value = state.program || '';
+    var cs = currentSupervisor();
+    $('rpSupervisorSel').innerHTML = state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (cs && cs.id === s.id ? ' selected' : '') + '>' + esc(supLabel(s)) + (s.current ? ' (current)' : '') + '</option>'; }).join('') + '<option value="__other"' + (state.supervisors.length ? '' : ' selected') + '>' + (state.supervisors.length ? 'Someone else' : 'Enter a name') + '</option>';
+    $('rpSupervisor').value = state.report.supervisor || ''; $('rpCredential').value = state.report.credential || '';
+    syncReportSupervisor(); $('rpStatus').textContent = '';
+    openSheet('sheet-report');
+    setTimeout(function () { pads.sigSupervisee.resize(); pads.sigSupervisor.resize(); }, 50);
+  }
+  $('openReport').addEventListener('click', openReport);
+  $('reportBack').addEventListener('click', function () { closeSheet('sheet-report'); });
+  $('rpPeriod').addEventListener('change', function () { $('rpCustom').hidden = this.value !== 'custom'; });
+  function syncReportSupervisor() { var v = $('rpSupervisorSel').value; $('rpSupOther').hidden = v !== '__other'; $('rpOnlySup').hidden = v === '__other' || state.supervisors.length < 2; }
+  $('rpSupervisorSel').addEventListener('change', syncReportSupervisor);
+  $('rpOnlySup').addEventListener('click', function () { this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); });
+  $('rpOnlySup').addEventListener('keydown', function (ev) { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); this.click(); } });
+  $('rpEntries').addEventListener('click', function () { this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); });
+  $('rpEntries').addEventListener('keydown', function (ev) { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); this.click(); } });
+  window.addEventListener('resize', function () { if (!$('sheet-report').hidden) { pads.sigSupervisee.resize(); pads.sigSupervisor.resize(); } });
+
+  function reportPeriod() {
+    var v = $('rpPeriod').value; var t = todayDate(); var from = null, to = null, label = 'All time';
+    if (v === 'month') { from = iso(new Date(t.getFullYear(), t.getMonth(), 1)); to = iso(t); label = MONTHS_LONG[t.getMonth()] + ' ' + t.getFullYear(); }
+    else if (v === 'last') { var f = new Date(t.getFullYear(), t.getMonth() - 1, 1); var l = new Date(t.getFullYear(), t.getMonth(), 0); from = iso(f); to = iso(l); label = MONTHS_LONG[f.getMonth()] + ' ' + f.getFullYear(); }
+    else if (v === 'custom') { from = $('rpFrom').value || null; to = $('rpTo').value || null; label = (from ? fmtIso(from) : 'Start') + ' to ' + (to ? fmtIso(to) : fmtDateLong(t)); }
+    return { from: from, to: to, label: label, all: v === 'all' };
+  }
+  $('rpDownload').addEventListener('click', function () {
+    state.name = $('rpName').value.trim().slice(0, 60); state.program = $('rpProgram').value.trim().slice(0, 80);
+    var selId = $('rpSupervisorSel').value; var selSup = supervisor(selId);
+    state.report = selSup ? { supervisor: selSup.name, credential: selSup.credential || '' } : { supervisor: $('rpSupervisor').value.trim().slice(0, 60), credential: $('rpCredential').value.trim().slice(0, 60) };
+    saveState(); renderHeader();
+    if (!window.jspdf || !window.jspdf.jsPDF) { $('rpStatus').textContent = 'The PDF tool did not load. Check the connection and open the app again.'; return; }
+    var period = reportPeriod();
+    if (period.from && period.to && period.from > period.to) { $('rpStatus').textContent = 'The From date is after the To date.'; return; }
+    period.supId = (!$('rpOnlySup').hidden && $('rpOnlySup').getAttribute('aria-checked') === 'true' && supervisor($('rpSupervisorSel').value)) ? $('rpSupervisorSel').value : null;
+    try { buildPdf(period); $('rpStatus').textContent = 'PDF created. It opens or saves through your phone’s download or share sheet.'; }
+    catch (err) { $('rpStatus').textContent = 'The PDF could not be created on this phone.'; }
+  });
+
+  function buildPdf(period) {
+    var jsPDF = window.jspdf.jsPDF; var doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    var W = 612, H = 792, M = 54, y = M, INK = [23, 32, 41], GRAY = [91, 103, 112], LINE = [217, 224, 228], PINE = [23, 69, 64], TINT = [238, 244, 242];
+    var entries = state.entries.filter(function (e) { return (!period.from || e.date >= period.from) && (!period.to || e.date <= period.to) && (!period.supId || e.sup === period.supId); })
+                               .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); });
+    var T = totals(entries, period.all);
+    function text(s, x, yy, o) { doc.text(String(s), x, yy, o || {}); }
+    function font(style, size, color) { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(size || 10); var c = color || INK; doc.setTextColor(c[0], c[1], c[2]); }
+    function ensure(h) { if (y + h > H - M - 20) { doc.addPage(); y = M; return true; } return false; }
+    function section(title) { ensure(40); y += 10; font('bold', 12, PINE); text(title, M, y); y += 8; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, y, W - M, y); y += 14; }
+    function table(cols, rows, opts) {
+      opts = opts || {}; var x0 = M, tw = W - 2 * M; var lh = 12;
+      function header() { doc.setFillColor(TINT[0], TINT[1], TINT[2]); doc.rect(x0, y - 9, tw, 16, 'F'); font('bold', 8.5, GRAY); var x = x0; cols.forEach(function (c) { text(c.label, c.align === 'right' ? x + c.w - 4 : x + 4, y + 2, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; }); y += 14; }
+      header();
+      rows.forEach(function (r) {
+        var cells = cols.map(function (c, i) { return doc.splitTextToSize(String(r[i] == null ? '' : r[i]), c.w - 8); });
+        var h = Math.max.apply(null, cells.map(function (c) { return c.length; })) * lh + 6;
+        if (ensure(h)) header();
+        font(r.bold ? 'bold' : 'normal', 9, r.muted ? GRAY : INK);
+        var x = x0; cols.forEach(function (c, i) { text(cells[i], c.align === 'right' ? x + c.w - 4 : x + 4, y + 3, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; });
+        y += h; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x0, y - 2, x0 + tw, y - 2);
+      });
+      y += 6;
+    }
+    /* header */
+    font('bold', 9, GRAY); text('PRAXIS PLUS', M, y); font('normal', 9, GRAY); text('Generated ' + fmtDateLong(todayDate()), W - M, y, { align: 'right' }); y += 22;
+    font('bold', 20, INK); text('Clinical Hours Report', M, y); y += 10;
+    doc.setDrawColor(PINE[0], PINE[1], PINE[2]); doc.setLineWidth(1.2); doc.line(M, y, W - M, y); doc.setLineWidth(0.6); y += 18;
+    var meta = [['Supervisee', state.name || '—'], ['Program or site', state.program || '—'], ['Period', period.label + (period.supId ? ', entries under ' + supLabel(supervisor(period.supId)) : '')], ['Supervisor', state.report.supervisor ? state.report.supervisor + (state.report.credential ? ', ' + state.report.credential : '') : '—']];
+    meta.forEach(function (m) { font('normal', 9.5, GRAY); text(m[0], M, y); font('normal', 10, INK); text(m[1], M + 110, y); y += 15; });
+
+    section('Summary by type');
+    var sum = [];
+    var d = cat('direct'), ind = cat('indirect'), sup = cat('supervision');
+    sum.push([d.name, d.target ? d.target : '—', hrs(T.direct), d.target ? pct(T.direct, d.target * 60) + '%' : '—']);
+    sum.push([ind.name + ' (includes supervision)', ind.target ? ind.target : '—', hrs(T.indirect), ind.target ? pct(T.indirect, ind.target * 60) + '%' : '—']);
+    var supRow = ['    ' + sup.name + ' (part of indirect)', sup.target ? sup.target : '—', hrs(T.supervision), sup.target ? pct(T.supervision, sup.target * 60) + '%' : '—']; supRow.muted = true; sum.push(supRow);
+    T.custom.forEach(function (c) { sum.push([c.name + (c.inTotal ? '' : ' (not in total)'), c.target ? c.target : '—', hrs(c.min), c.target ? pct(c.min, c.target * 60) + '%' : '—']); });
+    var totRow = ['Total clinical hours', state.totalTarget || '—', hrs(T.total), state.totalTarget ? pct(T.total, state.totalTarget * 60) + '%' : '—']; totRow.bold = true; sum.push(totRow);
+    table([{ label: 'Type', w: 264 }, { label: 'Target', w: 80, align: 'right' }, { label: 'Hours', w: 80, align: 'right' }, { label: 'Complete', w: 80, align: 'right' }], sum);
+    if (T.carriedMin) { font('normal', 8.5, GRAY); text('Includes ' + hrs(T.carriedMin) + ' hours carried in from earlier logs, which are not itemized below.', M, y); y += 14; }
+    if (!period.all) { font('normal', 8.5, GRAY); text('Hours carried in from earlier logs are not included for a dated period.', M, y); y += 14; }
+
+    section('Hours by subcategory');
+    var rows = [];
+    state.categories.forEach(function (c) {
+      var m = subBreakdown(c.id, entries); var keys = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; }); if (!keys.length) return;
+      var hr = [c.name, '', hrs(keys.reduce(function (a, k) { return a + m[k]; }, 0))]; hr.bold = true; rows.push(hr);
+      keys.forEach(function (k) { rows.push(['', k || 'No subcategory', hrs(m[k])]); });
+    });
+    if (rows.length) table([{ label: 'Type', w: 160 }, { label: 'Subcategory', w: 264 }, { label: 'Hours', w: 80, align: 'right' }], rows);
+    else { font('normal', 9.5, GRAY); text('No entries in this period.', M, y); y += 14; }
+
+    if ($('rpEntries').getAttribute('aria-checked') === 'true' && entries.length) {
+      section('Entries (' + entries.length + ')');
+      var multiSup = !period.supId && state.supervisors.length > 1;
+      var cols = [{ label: 'Date', w: 66 }, { label: 'Type', w: multiSup ? 92 : 112 }, { label: 'Subcategory', w: multiSup ? 122 : 150 }, { label: 'Format', w: 52 }, { label: 'Client', w: 44 }];
+      if (multiSup) cols.push({ label: 'Supervisor', w: 72 });
+      cols.push({ label: 'Hours', w: multiSup ? 56 : 80, align: 'right' });
+      table(cols, entries.map(function (e) { var r = [e.date, catName(e.cat), e.sub || '', e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.client || '']; if (multiSup) r.push((supervisor(e.sup) || {}).name || ''); r.push(hrs(e.minutes)); return r; }));
+    }
+
+    ensure(190); section('Attestation');
+    font('normal', 9.5, INK);
+    var att = doc.splitTextToSize('I attest that the hours recorded in this report are accurate and were completed as described. The supervisor’s signature confirms that these hours were reviewed.', W - 2 * M);
+    text(att, M, y); y += att.length * 13 + 16;
+    var colW = (W - 2 * M - 30) / 2; var bx = [M, M + colW + 30]; var by = y;
+    [{ who: 'Supervisee', name: state.name, pad: pads.sigSupervisee }, { who: 'Supervisor', name: state.report.supervisor + (state.report.credential ? '\n' + state.report.credential : ''), pad: pads.sigSupervisor }].forEach(function (s, i) {
+      var x = bx[i]; var yy = by;
+      font('bold', 9, GRAY); text(s.who.toUpperCase(), x, yy); yy += 8;
+      var img = s.pad.image();
+      if (img) { var ih = 46, iw = Math.min(colW, ih * s.pad.ratio()); doc.addImage(img, 'PNG', x, yy + 2, iw, ih); }
+      yy += 52; doc.setDrawColor(INK[0], INK[1], INK[2]); doc.line(x, yy, x + colW, yy); yy += 11;
+      font('normal', 8.5, GRAY); text('Signature', x, yy); yy += 16;
+      font('normal', 10, INK); var nm = doc.splitTextToSize(s.name || ' ', colW); text(nm, x, yy); yy += nm.length * 12 + 2;
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x, yy, x + colW, yy); yy += 11; font('normal', 8.5, GRAY); text('Printed name' + (i ? ' and credentials' : ''), x, yy); yy += 22;
+      doc.line(x, yy, x + colW * 0.6, yy); yy += 11; text('Date', x, yy);
+    });
+
+    var n = doc.getNumberOfPages();
+    for (var p = 1; p <= n; p++) { doc.setPage(p); font('normal', 8, GRAY); text('Praxis Plus · Clinical Hours Report' + (state.name ? ' · ' + state.name : ''), M, H - 30); text('Page ' + p + ' of ' + n, W - M, H - 30, { align: 'right' }); }
+    doc.save('Praxis-Plus-hours-report-' + safeName() + '-' + iso(todayDate()) + '.pdf');
+  }
 
   /* ---------- boot ---------- */
   renderAll();
