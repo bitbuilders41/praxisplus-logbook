@@ -22,10 +22,12 @@ img{max-width:100%}
 </style>
 </head>
 <body>
+<script>(function(){try{var s=JSON.parse(localStorage.getItem('praxisplus.logbook.v2'));if(s&&s.palette)document.documentElement.setAttribute('data-palette',s.palette);}catch(e){}})();</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: clinical phone app. Pine summary panel, white panels on a cool ground, hairline dividers.
-   Five-slot bottom bar with a raised Log hours button. Bars, rings or pie for targets, chosen by the user. */
+/* Layout: clinical phone app. Colored summary panel, white panels on a cool ground, hairline dividers.
+   Five-slot bottom bar with a raised Log hours button. Bars, rings or pie for targets, chosen by the user.
+   The color scheme is chosen in Settings (data-palette on <html>); the Praxis Plus mark keeps its own green in every scheme. */
 :root{
   --bg:#F3F5F6; --panel:#FFFFFF; --line:#E3E8EB; --line-strong:#C9D2D7;
   --ink:#172029; --ink-2:#5B6770; --ink-3:#8C979F;
@@ -33,7 +35,8 @@ img{max-width:100%}
   --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72); --track:rgba(255,255,255,.22);
   --custom:#7A8FA6; --custom-2:#B7C4D2;
   --good:#2E8276; --danger:#B3261E; --danger-bg:#FBEDEB; --field:#FFFFFF;
-  --mark-bg:#174540; --sup:#174540;
+  --sup:#174540; --fab-shadow:rgba(23,69,64,.32);
+  --logo:#174540; --logo-2:#2E8276; --on-logo:#FFFFFF;
   --font:"IBM Plex Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
@@ -41,15 +44,33 @@ img{max-width:100%}
     --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
     --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
     --track:rgba(255,255,255,.18); --custom:#8FA3B8; --custom-2:#4B5A68; --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
-    --mark-bg:#4FB0A1; --sup:#8FCFC2; color-scheme:dark;
+    --sup:#8FCFC2; --fab-shadow:rgba(0,0,0,.45); --logo:#4FB0A1; --logo-2:#4FB0A1; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0F1416; --panel:#171D20; --line:#262E33; --line-strong:#3A454B; --ink:#E9EFEF; --ink-2:#A6B1B7; --ink-3:#717D84;
   --brand:#17403B; --brand-2:#4FB0A1; --brand-3:#2E7A70; --brand-4:#1A2D2B; --on-brand:#FFFFFF; --on-brand-2:rgba(255,255,255,.72);
   --track:rgba(255,255,255,.18); --custom:#8FA3B8; --custom-2:#4B5A68; --good:#5CC4B3; --danger:#F08A80; --danger-bg:#2E1B19; --field:#1E2528;
-  --mark-bg:#4FB0A1; --sup:#8FCFC2; color-scheme:dark;
+  --sup:#8FCFC2; --fab-shadow:rgba(0,0,0,.45); --logo:#4FB0A1; --logo-2:#4FB0A1; color-scheme:dark;
 }
+/* Color schemes. Pine is the default above; each of the others overrides the same tokens, light then dark. */
+:root[data-palette="navy"]{--brand:#1E3A5F;--brand-2:#3C6E9F;--brand-3:#A3C1E0;--brand-4:#E7EFF7;--sup:#1E3A5F;--good:#3C6E9F;--custom:#9C8A6E;--custom-2:#D3C7B3;--fab-shadow:rgba(30,58,95,.32)}
+:root[data-palette="indigo"]{--brand:#2A2D45;--brand-2:#5460A8;--brand-3:#B0B6E0;--brand-4:#ECEEF8;--sup:#2A2D45;--good:#5460A8;--custom:#8E9A8B;--custom-2:#C9D1C6;--fab-shadow:rgba(42,45,69,.32)}
+:root[data-palette="slate"]{--brand:#2E3A44;--brand-2:#4F6D80;--brand-3:#ABBFCB;--brand-4:#EAF0F3;--sup:#2E3A44;--good:#4F6D80;--custom:#A08C73;--custom-2:#D6C9B8;--fab-shadow:rgba(46,58,68,.32)}
+:root[data-palette="burgundy"]{--brand:#4A1F2E;--brand-2:#8E3B52;--brand-3:#D9A9B6;--brand-4:#F6ECEF;--sup:#4A1F2E;--good:#8E3B52;--custom:#7F8C7A;--custom-2:#C3CCBF;--fab-shadow:rgba(74,31,46,.32)}
+:root[data-palette="plum"]{--brand:#3B2A4D;--brand-2:#6F4F93;--brand-3:#C6B3DB;--brand-4:#F1ECF6;--sup:#3B2A4D;--good:#6F4F93;--custom:#879A7F;--custom-2:#C5D1C0;--fab-shadow:rgba(59,42,77,.32)}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="navy"]:not([data-theme="light"]){--brand:#1C3453;--brand-2:#6FA3DA;--brand-3:#3B6391;--brand-4:#192636;--sup:#A3C1E0;--good:#7FB2E6;--custom:#B5A383;--custom-2:#564C3C;--fab-shadow:rgba(0,0,0,.45)}
+  :root[data-palette="indigo"]:not([data-theme="light"]){--brand:#272A47;--brand-2:#8B95DC;--brand-3:#4B5597;--brand-4:#1E2034;--sup:#B0B6E0;--good:#9AA3E3;--custom:#A3B0A0;--custom-2:#4B574A;--fab-shadow:rgba(0,0,0,.45)}
+  :root[data-palette="slate"]:not([data-theme="light"]){--brand:#2A353E;--brand-2:#86A7BC;--brand-3:#45606F;--brand-4:#1C2429;--sup:#ABBFCB;--good:#93B3C7;--custom:#B8A48C;--custom-2:#54493D;--fab-shadow:rgba(0,0,0,.45)}
+  :root[data-palette="burgundy"]:not([data-theme="light"]){--brand:#401C2A;--brand-2:#D47F96;--brand-3:#83364B;--brand-4:#2A1A20;--sup:#D9A9B6;--good:#DB8FA4;--custom:#9DAA99;--custom-2:#485248;--fab-shadow:rgba(0,0,0,.45)}
+  :root[data-palette="plum"]:not([data-theme="light"]){--brand:#362846;--brand-2:#B393D8;--brand-3:#64478A;--brand-4:#241C2E;--sup:#C6B3DB;--good:#BDA0E0;--custom:#A1B29B;--custom-2:#4B5648;--fab-shadow:rgba(0,0,0,.45)}
+}
+:root[data-palette="navy"][data-theme="dark"]{--brand:#1C3453;--brand-2:#6FA3DA;--brand-3:#3B6391;--brand-4:#192636;--sup:#A3C1E0;--good:#7FB2E6;--custom:#B5A383;--custom-2:#564C3C;--fab-shadow:rgba(0,0,0,.45)}
+:root[data-palette="indigo"][data-theme="dark"]{--brand:#272A47;--brand-2:#8B95DC;--brand-3:#4B5597;--brand-4:#1E2034;--sup:#B0B6E0;--good:#9AA3E3;--custom:#A3B0A0;--custom-2:#4B574A;--fab-shadow:rgba(0,0,0,.45)}
+:root[data-palette="slate"][data-theme="dark"]{--brand:#2A353E;--brand-2:#86A7BC;--brand-3:#45606F;--brand-4:#1C2429;--sup:#ABBFCB;--good:#93B3C7;--custom:#B8A48C;--custom-2:#54493D;--fab-shadow:rgba(0,0,0,.45)}
+:root[data-palette="burgundy"][data-theme="dark"]{--brand:#401C2A;--brand-2:#D47F96;--brand-3:#83364B;--brand-4:#2A1A20;--sup:#D9A9B6;--good:#DB8FA4;--custom:#9DAA99;--custom-2:#485248;--fab-shadow:rgba(0,0,0,.45)}
+:root[data-palette="plum"][data-theme="dark"]{--brand:#362846;--brand-2:#B393D8;--brand-3:#64478A;--brand-4:#241C2E;--sup:#C6B3DB;--good:#BDA0E0;--custom:#A1B29B;--custom-2:#4B5648;--fab-shadow:rgba(0,0,0,.45)}
 html{background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;
   -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
@@ -67,9 +88,9 @@ svg{display:block}
 /* Header */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);display:flex;justify-content:space-between;align-items:center;gap:12px;height:56px}
 .brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-.01em}
-.brand .mark{width:28px;height:28px;border-radius:8px;background:var(--mark-bg);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand .mark{width:28px;height:28px;border-radius:8px;background:var(--logo);color:var(--on-logo);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand .mark svg{width:16px;height:16px}
-.brand .wordmark b{font-weight:600;color:var(--brand-2);margin-left:4px}
+.brand .wordmark b{font-weight:600;color:var(--logo-2);margin-left:4px}
 .today{font-size:14px;color:var(--ink-2)}
 
 main[hidden]{display:none}
@@ -135,6 +156,8 @@ main[hidden]{display:none}
 .ring.sup .ring-fill{stroke:var(--sup)}
 .ring.cust .ring-fill{stroke:var(--custom)}
 .ring .pct{font-size:17px;font-weight:600;fill:var(--ink)}
+.ring .pct.hrs{font-size:12.5px;font-weight:600}
+.ring.nt .ring-track{stroke-dasharray:3 3}
 .ring .ring-name{font-size:12.5px;color:var(--ink-2);line-height:1.2}
 .ring .ring-val{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
 
@@ -224,13 +247,15 @@ th,td{padding:9px 0;text-align:right;border-top:1px solid var(--line);font-varia
 th{font-weight:500;color:var(--ink-2);font-size:12px;border-top:0;padding-top:0}
 th:first-child,td:first-child{text-align:left}
 td:last-child{font-weight:600}
-.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:4px;justify-items:stretch}
-.weeks .wk{max-width:64px;width:100%;justify-self:center}
-.wk{aspect-ratio:1;border-radius:6px;background:var(--panel);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:10px 4px;margin-top:4px}
+.wkc{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.wk{width:100%;max-width:64px;aspect-ratio:1;border-radius:6px;background:var(--panel);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .wk.ok{background:var(--brand-2);border-color:var(--brand-2);color:#fff;font-weight:500}
+.wk small{font-size:9.5px;font-weight:400;opacity:.85;margin-left:1px}
+.wk .z{color:var(--ink-3);font-size:11px}
 .wk.cur{box-shadow:inset 0 0 0 1.5px var(--brand-2)}
-.wk-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:6px;font-size:10.5px;color:var(--ink-3);text-align:center}
-.wk-labels div{margin-bottom:6px}
+.wkl{font-size:10.5px;color:var(--ink-3);text-align:center;white-space:nowrap;line-height:1.2}
+.wkc.cur .wkl{color:var(--brand-2);font-weight:600}
 .note{font-size:13.5px;color:var(--ink-2);line-height:1.45}
 .note button{color:var(--brand-2);font-weight:500}
 .subs-list{display:flex;flex-direction:column;margin-top:8px;border-top:1px solid var(--line)}
@@ -313,12 +338,24 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .lab{display:block;font-size:13px;color:var(--ink-2)}
 .lab input,.lab select{margin-top:6px}
-.switch{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;min-height:44px;font-size:14.5px;flex-wrap:wrap}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;min-height:44px;font-size:14.5px;flex-wrap:wrap;position:relative;cursor:pointer}
 .switch .seg{margin-left:auto}
+.switch input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px;margin:0;min-height:0;padding:0;pointer-events:none}
 .switch .sw-ctl{width:46px;height:28px;border-radius:14px;background:var(--line-strong);position:relative;flex-shrink:0;transition:background .18s}
 .switch .sw-ctl::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
-.switch[aria-checked="true"] .sw-ctl{background:var(--brand-2)}
-.switch[aria-checked="true"] .sw-ctl::after{transform:translateX(18px)}
+.switch input:checked + .sw-ctl{background:var(--brand-2)}
+.switch input:checked + .sw-ctl::after{transform:translateX(18px)}
+.switch input:focus-visible + .sw-ctl{outline:2px solid var(--brand-2);outline-offset:2px}
+.switch .sw-state{font-size:12.5px;color:var(--ink-2);margin-left:auto;min-width:0}
+
+/* Color scheme picker */
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:8px 4px;padding:6px 0 10px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;font-size:10.5px;letter-spacing:-.01em;color:var(--ink-2);padding:4px 0;border-radius:8px}
+.swatch i{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--sw1) 0 50%,var(--sw2) 50% 100%);box-shadow:0 0 0 1px var(--line-strong);position:relative;flex-shrink:0}
+.swatch[aria-pressed="true"]{color:var(--ink);font-weight:600}
+.swatch[aria-pressed="true"] i{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--ink)}
+.swatch[aria-pressed="true"] i::after{content:"";position:absolute;left:13px;top:8px;width:7px;height:13px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.swatch span{white-space:nowrap}
 
 /* Category editor */
 .cat-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
@@ -370,7 +407,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .tab svg{width:23px;height:23px}
 .tab[aria-current="page"]{color:var(--brand-2)}
 .fab-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:60px;gap:3px}
-.fab{width:54px;height:54px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:inline-flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 6px 16px rgba(23,69,64,.32),0 0 0 4px var(--panel)}
+.fab{width:54px;height:54px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:inline-flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 6px 16px var(--fab-shadow),0 0 0 4px var(--panel)}
 .fab svg{width:26px;height:26px}
 .fab:active{transform:scale(.97)}
 .fab-wrap span{font-size:11.5px;font-weight:600;color:var(--brand-2)}
@@ -380,7 +417,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .toast[hidden]{display:none}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-@media (min-width:600px){body{max-width:480px;margin:0 auto}.bar-nav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}}
+@media (min-width:600px){body{max-width:480px;margin:0 auto}.bar-nav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}.sheet{max-width:480px;margin:0 auto;box-shadow:0 0 0 1px var(--line)}}
 </style>
 
 <header class="top wrap">
@@ -397,6 +434,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="track" id="trackTotal"><div class="fill" id="fillTotal" style="width:0%"></div></div>
     <div class="owner"><span id="ownerLine">Your logbook</span><b id="phaseLine"></b></div>
   </section>
+  <section class="notice" id="supNotice" hidden style="margin-bottom:0"><b>No supervisor on file.</b> Add the person who supervises your hours so supervision sessions and the hours report are attributed to them.<div class="btns"><button type="button" class="btn-sm fill" id="supNoticeAdd">Add supervisor</button></div></section>
 
   <section class="panel" id="panel-targets">
     <div class="panel-head">
@@ -459,7 +497,6 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </div>
     <p class="note" id="supWeeksNote"></p>
     <div class="weeks" id="weeks"></div>
-    <div class="wk-labels" id="weekLabels"></div>
   </section>
   <section class="panel"><p class="pace" id="pace"></p></section>
   <section class="panel">
@@ -488,7 +525,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </section>
   <section class="panel">
     <div class="panel-head"><h2>Display</h2></div>
-    <div class="switch" role="group" aria-label="Chart style" style="min-height:48px">
+    <div class="switch" role="group" aria-label="Color scheme" style="min-height:40px"><span>Color scheme</span><span class="panel-num" id="paletteName"></span></div>
+    <div class="swatches" id="paletteSeg" role="radiogroup" aria-label="Color scheme"></div>
+    <div class="switch" role="group" aria-label="Chart style" style="min-height:48px;border-top:1px solid var(--line)">
       <span>Chart style</span>
       <div class="seg" id="chartSeg2">
         <button type="button" data-chart="bars">Bars</button>
@@ -525,16 +564,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       <button class="list-row" id="miDownloadCsv">Download spreadsheet<small>CSV file</small></button>
     </div>
     <div class="group fields copybox" id="copyBox" hidden style="margin-top:12px">
-      <p class="fine" style="margin-bottom:8px">Copying was blocked on this phone. Select the text below and copy it yourself.</p>
+      <p class="fine" style="margin-bottom:8px">Copying was blocked here. Select the text below and copy it yourself.</p>
       <textarea id="copyText" readonly aria-label="Text to copy" style="margin:0;min-height:160px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace"></textarea>
     </div>
   </section>
   <section class="panel">
     <div class="panel-head"><h2>Data</h2></div>
     <div class="list">
-      <button class="list-row danger-row" id="wipeAll">Delete every entry on this phone<small id="wipeSub"></small></button>
+      <button class="list-row danger-row" id="wipeAll">Delete every entry<small id="wipeSub"></small></button>
     </div>
-    <p class="fine" style="margin-top:10px">Deleting is permanent. Entries are saved on this phone only, in this browser; nothing is sent anywhere.</p>
+    <p class="fine" style="margin-top:10px">Deleting is permanent and cannot be undone.</p>
   </section>
 </main>
 
@@ -592,8 +631,15 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       </div>
     </fieldset>
     <fieldset class="f"><legend>Format</legend><div class="group fields"><div class="chips" id="modList" style="padding:0"></div></div></fieldset>
-    <fieldset class="f" id="supField" hidden><legend>Supervisor</legend>
-      <div class="group fields"><select id="supSelect" aria-label="Supervisor"></select></div>
+    <fieldset class="f" id="supField"><legend>Supervisor</legend>
+      <div class="group fields stack-fields">
+        <select id="supSelect" aria-label="Supervisor"></select>
+        <div class="stack-fields" id="supNewBox" hidden>
+          <input type="text" id="supNewName" placeholder="Supervisor's name" maxlength="60" autocomplete="off">
+          <input type="text" id="supNewCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
+          <p class="fine">Saved to your supervisor list and made current. Each entry keeps the supervisor it was logged under.</p>
+        </div>
+      </div>
     </fieldset>
     <fieldset class="f"><legend>Details (optional)</legend>
       <div class="group fields stack-fields">
@@ -664,11 +710,37 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </div>
 </div>
 
+<!-- FIRST-RUN SETUP -->
+<div class="sheet" id="sheet-setup" hidden role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="sheet-top wrap"><span></span><h2 id="setupTitle">Set up your logbook</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine">A minute of setup so your hours and the hours report are attributed correctly. Everything here can be changed later in Settings.</p>
+    <fieldset class="f"><legend>You</legend>
+      <div class="group fields stack-fields">
+        <input type="text" id="suName" placeholder="Your name" maxlength="60" autocomplete="name">
+        <input type="text" id="suProgram" placeholder="University program or practicum site" maxlength="80">
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Your supervisor</legend>
+      <div class="group fields stack-fields">
+        <input type="text" id="suSupName" placeholder="Supervisor's name" maxlength="60" autocomplete="off">
+        <input type="text" id="suSupCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
+        <label class="lab">Supervising you since<input type="date" id="suSupSince"></label>
+        <p class="fine">Every entry is logged under your current supervisor, and they sign the hours report. If your supervisor changes later, add the new one in Settings.</p>
+      </div>
+    </fieldset>
+    <button class="primary" id="suStart">Save and start</button>
+    <p class="fine" id="suStatus" style="text-align:center"></p>
+  </div>
+</div>
+
 <!-- CARRIED-IN -->
 <div class="sheet" id="sheet-carried" hidden role="dialog" aria-modal="true" aria-labelledby="carriedTitle">
   <div class="sheet-top wrap"><button class="link" id="carriedCancel">Cancel</button><h2 id="carriedTitle">Hours carried in</h2><button class="link right" id="carriedSave">Save</button></div>
   <div class="sheet-body wrap">
-    <p class="fine">Hours you already have on paper or in another system. They count toward each type's total but do not appear as entries.</p>
+    <p class="fine">Totals from before you started this logbook, one number per type. They count toward your targets but carry no dates, subcategories, format, client codes or supervisor, and they are not listed as entries.</p>
+    <p class="fine">If you want those details kept, import the hours from a spreadsheet instead: each row becomes a full entry.</p>
+    <button type="button" class="secondary" id="carriedToImport">Import from a spreadsheet instead</button>
     <div class="group fields stack-fields" id="carriedFields"></div>
   </div>
 </div>
@@ -690,7 +762,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
           <label class="lab">From<input type="date" id="rpFrom"></label>
           <label class="lab">To<input type="date" id="rpTo"></label>
         </div>
-        <div class="switch" id="rpEntries" role="switch" aria-checked="true" tabindex="0"><span>Include the list of entries</span><span class="sw-ctl"></span></div>
+        <label class="switch"><span>Include the list of entries</span><input type="checkbox" id="rpEntries" checked><i class="sw-ctl"></i></label>
       </div>
     </fieldset>
     <fieldset class="f"><legend>Supervisee</legend>
@@ -708,7 +780,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
           <input type="text" id="rpSupervisor" placeholder="Supervisor name" maxlength="60">
           <input type="text" id="rpCredential" placeholder="Credentials or license number" maxlength="60">
         </div>
-        <div class="switch" id="rpOnlySup" role="switch" aria-checked="false" tabindex="0" hidden><span>Only entries logged under this supervisor</span><span class="sw-ctl"></span></div>
+        <label class="switch" id="rpOnlySupRow" hidden><span>Only entries logged under this supervisor</span><input type="checkbox" id="rpOnlySup"><i class="sw-ctl"></i></label>
         <div class="sig" id="sigSupervisor"><canvas></canvas><div class="sig-line"></div><div class="sig-hint">Supervisor signs here</div></div>
         <div class="sig-tools"><span>Supervisor signature</span><button type="button" data-clear="sigSupervisor">Clear</button></div>
       </div>
@@ -740,6 +812,17 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   var MODS = [{ id: 'in_person', label: 'In person' }, { id: 'telehealth', label: 'Telehealth' }, { id: 'phone', label: 'Phone' }];
   var MOD_BY_ID = {}; MODS.forEach(function (m) { MOD_BY_ID[m.id] = m; });
   var PRESETS = [30, 45, 50, 60, 90];
+  /* Color schemes. a/b are the two main tones (used for the swatch), pdf/tint color the hours report. The CSS carries the full token sets. */
+  var THEMES = [
+    { id: 'pine', name: 'Pine', a: '#174540', b: '#2E8276', pdf: [23, 69, 64], tint: [238, 244, 242] },
+    { id: 'navy', name: 'Navy', a: '#1E3A5F', b: '#3C6E9F', pdf: [30, 58, 95], tint: [231, 239, 247] },
+    { id: 'indigo', name: 'Indigo', a: '#2A2D45', b: '#5460A8', pdf: [42, 45, 69], tint: [236, 238, 248] },
+    { id: 'slate', name: 'Slate', a: '#2E3A44', b: '#4F6D80', pdf: [46, 58, 68], tint: [234, 240, 243] },
+    { id: 'burgundy', name: 'Burgundy', a: '#4A1F2E', b: '#8E3B52', pdf: [74, 31, 46], tint: [246, 236, 239] },
+    { id: 'plum', name: 'Plum', a: '#3B2A4D', b: '#6F4F93', pdf: [59, 42, 77], tint: [241, 236, 246] }
+  ];
+  var THEME_BY_ID = {}; THEMES.forEach(function (t) { THEME_BY_ID[t.id] = t; });
+  var LOGO_RGB = [23, 69, 64], LOGO2_RGB = [46, 130, 118]; /* the Praxis Plus green: mark, then the 'Plus' wordmark */
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -805,6 +888,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   if (!state.report) state.report = { supervisor: '', credential: '' };
   if (!state.step) state.step = 5;
   if (!state.supWeeks) state.supWeeks = 8;
+  if (!THEME_BY_ID[state.palette]) state.palette = 'pine';
   if (!Array.isArray(state.supervisors)) state.supervisors = [];
   if (!state.supervisors.length && state.report.supervisor) { state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: state.report.supervisor, credential: state.report.credential || '', since: '', current: true }); }
   saveState();
@@ -885,6 +969,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (target >= 300) { track.insertAdjacentHTML('beforeend', '<div class="mark" style="left:50%"></div><div class="mark-label" style="left:50%">halfway</div>'); track.style.marginBottom = '18px'; }
     else track.style.marginBottom = '0';
     $('phaseLine').textContent = state.entries.length ? plural(state.entries.length, 'entry') : '';
+    $('supNotice').hidden = state.supervisors.length > 0;
   }
 
   function barsHtml(T) {
@@ -905,30 +990,27 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     });
     return '<div class="rows">' + h + '</div>';
   }
-  function ringSvg(p) {
+  function ringSvg(p, label, cls) {
     var r = 34, c = 2 * Math.PI * r, dash = c * Math.min(100, p) / 100;
     return '<svg viewBox="0 0 84 84" aria-hidden="true"><circle class="ring-track" cx="42" cy="42" r="' + r + '" stroke-width="8"/>' +
            '<circle class="ring-fill" cx="42" cy="42" r="' + r + '" stroke-width="8" stroke-dasharray="' + dash + ' ' + c + '" transform="rotate(-90 42 42)"/>' +
-           '<text class="pct" x="42" y="47" text-anchor="middle">' + p + '%</text></svg>';
+           '<text class="pct' + (cls ? ' ' + cls : '') + '" x="42" y="47" text-anchor="middle">' + esc(label) + '</text></svg>';
   }
   function ringsHtml(T) {
-    var items = [];
+    /* Every type gets a ring. With a target the ring fills and shows a percentage; without one it shows the hours on a dashed track. */
     var d = cat('direct'), i = cat('indirect'), s = cat('supervision');
-    if (d.target) items.push({ name: d.name, min: T.direct, target: d.target, cls: '' });
-    if (i.target) items.push({ name: i.name + ' (incl. supervision)', min: T.indirect, target: i.target, cls: '' });
-    if (s.target) items.push({ name: s.name, min: T.supervision, target: s.target, cls: 'sup' });
-    T.custom.forEach(function (c) { if (c.target) items.push({ name: c.name, min: c.min, target: c.target, cls: 'cust' }); });
-    var h = '<div class="rings">' + items.map(function (it) {
-      return '<div class="ring ' + it.cls + '">' + ringSvg(pct(it.min, it.target * 60)) + '<div class="ring-name">' + esc(it.name) + '</div><div class="ring-val">' + hrs(it.min) + ' of ' + it.target + '</div></div>';
+    var items = [
+      { name: d.name, min: T.direct, target: d.target, cls: '' },
+      { name: i.name, min: T.indirect, target: i.target, cls: '', sub: 'includes supervision' },
+      { name: s.name, min: T.supervision, target: s.target, cls: 'sup', sub: 'part of indirect' }
+    ];
+    T.custom.forEach(function (c) { items.push({ name: c.name, min: c.min, target: c.target, cls: 'cust', sub: c.inTotal ? '' : 'not in the total' }); });
+    return '<div class="rings">' + items.map(function (it) {
+      var has = it.target > 0; var p = has ? pct(it.min, it.target * 60) : 0;
+      return '<div class="ring ' + it.cls + (has ? '' : ' nt') + '">' + ringSvg(p, has ? p + '%' : hrs(it.min) + ' h', has ? '' : 'hrs') +
+             '<div class="ring-name">' + esc(it.name) + (it.sub ? '<br><span style="opacity:.75">' + esc(it.sub) + '</span>' : '') + '</div>' +
+             '<div class="ring-val">' + (has ? hrs(it.min) + ' of ' + it.target : 'No target set') + '</div></div>';
     }).join('') + '</div>';
-    var noTarget = [];
-    if (!i.target) noTarget.push(i.name + ' ' + hrs(T.indirect) + ' h (' + hrs(T.supervision) + ' h of it supervision)');
-    if (!d.target) noTarget.push(d.name + ' ' + hrs(T.direct) + ' h');
-    if (!s.target) noTarget.push(s.name + ' ' + hrs(T.supervision) + ' h');
-    T.custom.forEach(function (c) { if (!c.target) noTarget.push(c.name + ' ' + hrs(c.min) + ' h' + (c.inTotal ? '' : ', not in total')); });
-    if (!items.length) h = '<p class="note">Set targets in Settings to see rings.</p>';
-    if (noTarget.length) h += '<p class="note" style="margin-top:8px">No target: ' + esc(noTarget.join(' · ')) + '</p>';
-    return h;
   }
   function pieHtml(T) {
     var slices = [
@@ -951,8 +1033,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     });
     var svg = '<svg viewBox="0 0 150 150" role="img" aria-label="Hours by type">' + paths +
               '<text class="pie-center" x="75" y="73" text-anchor="middle">' + hrs(sum) + '</text><text class="pie-center-sub" x="75" y="89" text-anchor="middle">hours</text></svg>';
-    var legend = slices.filter(function (s) { return s.min; }).map(function (s) {
-      return '<div><i class="sw" style="background:' + s.color + '"></i><span class="nm">' + esc(s.name) + '</span><span class="v">' + hrs(s.min) + '<small>' + Math.round(s.min / sum * 100) + '%</small></span></div>';
+    var legend = slices.map(function (s) {
+      return '<div' + (s.min ? '' : ' style="opacity:.6"') + '><i class="sw" style="background:' + s.color + '"></i><span class="nm">' + esc(s.name) + '</span><span class="v">' + hrs(s.min) + '<small>' + Math.round(s.min / sum * 100) + '%</small></span></div>';
     }).join('');
     return '<div class="pie">' + svg + '<div class="pie-legend">' + legend + '</div></div>';
   }
@@ -1078,7 +1160,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('supSplit').innerHTML = '<div><div class="k">Individual supervision</div><div class="v">' + hrs(ind) + '<small>h</small></div></div><div><div class="k">Group supervision</div><div class="v">' + hrs(grp) + '<small>h</small></div></div>' +
       (cs ? '<div style="grid-column:1 / -1"><div class="k">Current supervisor</div><div class="v" style="font-size:15px">' + esc(supLabel(cs)) + (cs.since ? ' <small>since ' + esc(fmtIso(cs.since)) + '</small>' : '') + '</div></div>' : '');
 
-    var today = todayDate(); var thisMon = startOfWeek(today); var boxes = '', labels = '', ok = 0;
+    var today = todayDate(); var thisMon = startOfWeek(today); var boxes = '', ok = 0;
     var span = state.supWeeks || 8; var nWeeks = 8, spanLabel = 'of the last 8 weeks', noteText = '';
     if (span === 'term') {
       var startIso = (cs && cs.since) || null;
@@ -1093,14 +1175,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       var ws = addDays(thisMon, -7 * w), we = addDays(ws, 6); var a = iso(ws), b = iso(we); var mins = 0;
       state.entries.forEach(function (e) { if (e.cat === 'supervision' && e.sub === 'Individual supervision' && e.date >= a && e.date <= b) mins += e.minutes; });
       var good = mins >= 60; if (good) ok++;
-      boxes += '<div class="wk' + (good ? ' ok' : '') + (w === 0 ? ' cur' : '') + '" title="Week of ' + fmtDateLong(ws) + '">' + (mins ? hrs(mins) : '') + '</div>';
-      labels += '<div>' + MONTHS[ws.getMonth()] + ' ' + ws.getDate() + '</div>';
+      boxes += '<div class="wkc' + (w === 0 ? ' cur' : '') + '"><div class="wk' + (good ? ' ok' : '') + (w === 0 ? ' cur' : '') + '" title="Week of ' + fmtDateLong(ws) + '">' + (mins ? hrs(mins) + '<small>h</small>' : '<span class="z">0</span>') + '</div><div class="wkl">' + MONTHS[ws.getMonth()] + ' ' + ws.getDate() + '</div></div>';
     }
-    var colsN = Math.min(nWeeks, 8);
-    $('weeks').style.gridTemplateColumns = 'repeat(' + colsN + ', 1fr)'; $('weekLabels').style.gridTemplateColumns = 'repeat(' + colsN + ', 1fr)';
-    $('weeks').innerHTML = boxes; $('weekLabels').innerHTML = labels;
+    var colsN = nWeeks <= 8 ? nWeeks : (nWeeks % 6 === 0 ? 6 : nWeeks % 7 === 0 ? 7 : 8);
+    $('weeks').style.gridTemplateColumns = 'repeat(' + colsN + ', 1fr)';
+    $('weeks').innerHTML = boxes;
     $('supWeeksNum').textContent = ok + ' ' + spanLabel;
-    $('supWeeksNote').textContent = noteText + 'A square turns green when that week has at least one hour of Individual supervision logged; an empty square is a week without one. Programs commonly expect one every week.' + (nWeeks > 8 ? ' Earliest week first; the bold outline is this week.' : '');
+    $('supWeeksNote').textContent = noteText + 'A square fills in when that week has at least one hour of Individual supervision logged; 0 marks a week without one. Programs commonly expect one every week. The outlined square is this week.';
     document.querySelectorAll('#supSeg button, #supSeg2 button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.span) === String(span) ? 'true' : 'false'); });
 
     var since = iso(addDays(today, -27)); var recent = 0;
@@ -1145,7 +1226,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('wipeSub').textContent = state.entries.length ? plural(state.entries.length, 'entry') : 'Nothing to delete';
     document.querySelectorAll('#stepSeg button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.step === state.step ? 'true' : 'false'); });
     document.querySelectorAll('#supSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.span) === String(state.supWeeks || 8) ? 'true' : 'false'); });
+    renderPalettes();
     renderTargets();
+  }
+  function applyPalette() { document.documentElement.setAttribute('data-palette', state.palette || 'pine'); }
+  function renderPalettes() {
+    $('paletteSeg').innerHTML = THEMES.map(function (t) {
+      var on = (state.palette || 'pine') === t.id;
+      return '<button type="button" class="swatch" role="radio" data-palette="' + t.id + '" aria-checked="' + on + '" aria-pressed="' + on + '" aria-label="' + t.name + '"><i style="--sw1:' + t.a + ';--sw2:' + t.b + '"></i><span>' + t.name + '</span></button>';
+    }).join('');
+    $('paletteName').textContent = (THEME_BY_ID[state.palette] || THEMES[0]).name;
   }
 
   function renderAll(flashId) {
@@ -1181,6 +1271,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   document.querySelectorAll('#chartSeg button, #chartSeg2 button').forEach(function (b) { b.addEventListener('click', function () { state.chart = b.dataset.chart; saveState(); renderTargets(); }); });
   document.querySelectorAll('#stepSeg button').forEach(function (b) { b.addEventListener('click', function () { state.step = +b.dataset.step; saveState(); renderSettings(); }); });
   document.querySelectorAll('#supSeg button, #supSeg2 button').forEach(function (b) { b.addEventListener('click', function () { state.supWeeks = b.dataset.span === 'term' ? 'term' : +b.dataset.span; saveState(); if (!$('view-progress').hidden) renderProgress(); else renderSettings(); }); });
+  $('paletteSeg').addEventListener('click', function (ev) { var b = ev.target.closest('[data-palette]'); if (!b || !THEME_BY_ID[b.dataset.palette]) return; state.palette = b.dataset.palette; saveState(); applyPalette(); renderPalettes(); });
 
   /* entries interactions */
   $('entryFilters').addEventListener('click', function (ev) { var b = ev.target.closest('[data-f]'); if (!b) return; filterCat = b.dataset.f; renderFilters(); renderLedger(); });
@@ -1214,11 +1305,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function openLog(entry) {
     form = entry
       ? { id: entry.id, date: entry.date, cat: entry.cat, sub: entry.sub || '', otherName: '', minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '', sup: entry.sup || '', extraDates: [] }
-      : { id: null, date: iso(todayDate()), cat: 'direct', sub: '', otherName: '', minutes: 50, modality: 'in_person', client: '', note: '', sup: (currentSupervisor() || {}).id || '', extraDates: [] };
+      : { id: null, date: iso(todayDate()), cat: 'direct', sub: '', otherName: '', minutes: 50, modality: 'in_person', client: '', note: '', sup: '', extraDates: [] };
+    if (!supervisor(form.sup)) form.sup = (currentSupervisor() || {}).id || '__new';
     $('logTitle').textContent = entry ? 'Edit entry' : 'Log hours';
     $('logDelete').hidden = !entry; disarmDelete();
     $('addDate').hidden = !!entry;
-    $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date; $('otherName').value = '';
+    $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date; $('otherName').value = ''; $('supNewName').value = ''; $('supNewCred').value = '';
     renderForm(); openSheet('sheet-log');
   }
   function renderForm() {
@@ -1241,10 +1333,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var t = iso(todayDate()), y = iso(addDays(todayDate(), -1));
     $('dateQuick').innerHTML = '<button type="button" class="chip" data-date="' + t + '" aria-pressed="' + (form.date === t) + '">Today</button><button type="button" class="chip" data-date="' + y + '" aria-pressed="' + (form.date === y) + '">Yesterday</button>';
     $('modList').innerHTML = MODS.map(function (m) { return '<button type="button" class="chip" data-mod="' + m.id + '" aria-pressed="' + (form.modality === m.id) + '">' + m.label + '</button>'; }).join('');
-    $('supField').hidden = !state.supervisors.length;
-    if (state.supervisors.length) {
-      $('supSelect').innerHTML = '<option value="">No supervisor</option>' + state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (form.sup === s.id ? ' selected' : '') + '>' + esc(supLabel(s)) + (s.current ? ' (current)' : '') + '</option>'; }).join('');
-    }
+    if (!state.supervisors.length) form.sup = '__new';
+    $('supSelect').innerHTML = state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (form.sup === s.id ? ' selected' : '') + '>' + esc(supLabel(s)) + (s.current ? ' (current)' : '') + '</option>'; }).join('') +
+      '<option value="__new"' + (form.sup === '__new' ? ' selected' : '') + '>' + (state.supervisors.length ? 'Add a new supervisor\u2026' : 'Add your supervisor') + '</option>';
+    $('supNewBox').hidden = form.sup !== '__new';
     $('moreDates').innerHTML = form.extraDates.map(function (d, i) { return '<div><input type="date" data-extra="' + i + '" value="' + esc(d) + '" aria-label="Additional date"><button type="button" data-remove="' + i + '" aria-label="Remove this date">&times;</button></div>'; }).join('');
     var n = 1 + form.extraDates.filter(function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); }).length;
     $('logSave').textContent = form.id ? 'Save changes' : (n > 1 ? 'Save ' + n + ' entries' : 'Save entry');
@@ -1252,7 +1344,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function setMinutes(m) { m = Math.round(m); if (!isFinite(m)) m = form.minutes; form.minutes = Math.min(600, Math.max(1, m)); renderForm(); }
   $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.cat = b.dataset.cat; form.sub = ''; renderForm(); if (form.cat === '__other') $('otherName').focus(); });
   $('subSelect').addEventListener('change', function () { form.sub = this.value; });
-  $('supSelect').addEventListener('change', function () { form.sup = this.value; });
+  $('supSelect').addEventListener('change', function () { form.sup = this.value; $('supNewBox').hidden = form.sup !== '__new'; if (form.sup === '__new') $('supNewName').focus(); });
   $('otherName').addEventListener('input', function () { form.otherName = this.value; });
   $('durPresets').addEventListener('click', function (ev) { var b = ev.target.closest('[data-min]'); if (!b) return; setMinutes(+b.dataset.min); });
   $('durMinus').addEventListener('click', function () { var s = state.step || 5; setMinutes(form.minutes - s > 0 ? Math.ceil((form.minutes - s) / s) * s : 1); });
@@ -1280,13 +1372,22 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date)) { toast('Choose a date first'); return; }
     var catId = form.cat;
     if (catId === '__other') { catId = ensureCategory($('otherName').value); if (!catId) { toast('Type a name for the new type'); $('otherName').focus(); return; } }
+    var supId = form.sup;
+    if (supId === '__new') {
+      var supName = $('supNewName').value.trim().slice(0, 60);
+      if (!supName) { toast('Enter your supervisor\u2019s name'); $('supNewName').focus(); return; }
+      state.supervisors.forEach(function (x) { x.current = false; });
+      supId = 's' + uid().replace(/-/g, '').slice(0, 10);
+      state.supervisors.push({ id: supId, name: supName, credential: $('supNewCred').value.trim().slice(0, 60), since: '', current: true });
+    }
+    if (!supervisor(supId)) { toast('Choose a supervisor'); $('supSelect').focus(); return; }
     var id = form.id, made = 0;
     if (id) {
       var e = state.entries.filter(function (x) { return x.id === id; })[0];
-      if (e) { e.date = form.date; e.cat = catId; e.sub = form.sub; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; e.sup = form.sup || ''; }
+      if (e) { e.date = form.date; e.cat = catId; e.sub = form.sub; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; e.sup = supId; }
     } else {
       var dates = [form.date].concat(form.extraDates).filter(function (d, i, a) { return /^\d{4}-\d{2}-\d{2}$/.test(d) && a.indexOf(d) === i; });
-      dates.forEach(function (d) { var nid = uid(); if (!made) id = nid; state.entries.push({ id: nid, date: d, cat: catId, sub: form.sub, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, sup: form.sup || '', created: Date.now() + made }); made++; });
+      dates.forEach(function (d) { var nid = uid(); if (!made) id = nid; state.entries.push({ id: nid, date: d, cat: catId, sub: form.sub, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, sup: supId, created: Date.now() + made }); made++; });
     }
     saveState(); closeSheet('sheet-log');
     if (!$('view-entries').hidden) { dayOpen[form.date] = true; }
@@ -1320,7 +1421,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         '<div class="cc-head">' + (c.builtin ? '<span class="nm">' + esc(c.name) + '</span>' : '<input type="text" value="' + esc(c.name) + '" data-rename="' + c.id + '" maxlength="40" aria-label="Type name">') +
         '<div class="tgt"><input type="number" min="0" step="1" inputmode="numeric" value="' + (c.target || 0) + '" data-target="' + c.id + '" aria-label="Target hours"><span>target hours</span></div></div>' +
         '<div class="cc-meta">' + esc(meta) + '</div>' +
-        (c.builtin ? '' : '<div class="switch" role="switch" aria-checked="' + (c.inTotal !== false) + '" data-intotal="' + c.id + '" tabindex="0"><span>Counts toward the total</span><span class="sw-ctl"></span></div>') +
+        (c.builtin ? '' : '<label class="switch"><span>Counts toward the total</span><input type="checkbox" data-intotal="' + c.id + '"' + (c.inTotal !== false ? ' checked' : '') + '><i class="sw-ctl"></i></label>') +
         '<div class="cc-subs">' + (subs || '<span class="fine">No subcategories yet.</span>') + '</div>' +
         '<div class="cc-add"><input type="text" placeholder="Add a subcategory" maxlength="80" data-newsub="' + c.id + '" autocomplete="off"><button type="button" data-addsub="' + c.id + '">Add</button></div>' +
         '<div class="cc-actions"><button type="button" data-move="' + c.id + '"' + (n ? '' : ' disabled') + '>Move all entries to another type</button>' +
@@ -1346,10 +1447,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (t.dataset.target) { var c = cat(t.dataset.target); var v = parseInt(t.value, 10); c.target = isFinite(v) && v >= 0 ? v : 0; saveState(); }
     if (t.dataset.rename) { var c2 = cat(t.dataset.rename); var nm = t.value.trim().slice(0, 40); if (nm) { c2.name = nm; saveState(); } else t.value = c2.name; }
     if (t.dataset.moveto) fillMoveSubs(t.dataset.moveto);
+    if (t.dataset.intotal) { var ci = cat(t.dataset.intotal); ci.inTotal = !!t.checked; saveState(); renderCatEditor(); }
   });
   $('catEditor').addEventListener('click', function (ev) {
-    var b = ev.target.closest('button, [role="switch"]'); if (!b) return;
-    if (b.dataset.intotal) { var c = cat(b.dataset.intotal); c.inTotal = c.inTotal === false; saveState(); renderCatEditor(); return; }
+    var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.rmsub) { var c1 = cat(b.dataset.rmsub); c1.subs.splice(+b.dataset.i, 1); saveState(); renderCatEditor(); return; }
     if (b.dataset.addsub) { var inp = document.querySelector('[data-newsub="' + b.dataset.addsub + '"]'); var v = (inp.value || '').trim().slice(0, 80); if (!v) { inp.focus(); return; } var c3 = cat(b.dataset.addsub); if (c3.subs.map(function (s) { return s.toLowerCase(); }).indexOf(v.toLowerCase()) < 0) c3.subs.push(v); saveState(); renderCatEditor(); return; }
     if (b.dataset.restore) { var cr = cat(b.dataset.restore); var miss = missingDefaultSubs(cr); cr.subs = DEFAULT_SUBS[cr.id].slice().concat(cr.subs.filter(function (x) { return DEFAULT_SUBS[cr.id].map(function (y) { return y.toLowerCase(); }).indexOf(x.toLowerCase()) < 0; })); saveState(); renderCatEditor(); toast(plural(miss.length, 'subcategory') + ' restored'); return; }
@@ -1382,6 +1483,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
   function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; renderSupervisors(); openSheet('sheet-supervisors'); }
   $('openSupervisors').addEventListener('click', openSupervisors);
+  $('supNoticeAdd').addEventListener('click', openSupervisors);
   $('supBack').addEventListener('click', function () { closeSheet('sheet-supervisors'); renderSettings(); });
   $('newSupAdd').addEventListener('click', function () {
     var name = $('newSupName').value.trim().slice(0, 60); if (!name) { $('newSupName').focus(); return; }
@@ -1497,6 +1599,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     openSheet('sheet-carried');
   }
   $('openCarried').addEventListener('click', openCarried);
+  $('carriedToImport').addEventListener('click', function () { closeSheet('sheet-carried'); openImport(); });
   $('carriedCancel').addEventListener('click', function () { closeSheet('sheet-carried'); });
   $('carriedSave').addEventListener('click', function () {
     document.querySelectorAll('[data-carried]').forEach(function (i) { var v = parseFloat(i.value); state.carried[i.dataset.carried] = isFinite(v) && v >= 0 ? v : 0; });
@@ -1587,12 +1690,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('openReport').addEventListener('click', openReport);
   $('reportBack').addEventListener('click', function () { closeSheet('sheet-report'); });
   $('rpPeriod').addEventListener('change', function () { $('rpCustom').hidden = this.value !== 'custom'; });
-  function syncReportSupervisor() { var v = $('rpSupervisorSel').value; $('rpSupOther').hidden = v !== '__other'; $('rpOnlySup').hidden = v === '__other' || state.supervisors.length < 2; }
+  function syncReportSupervisor() { var v = $('rpSupervisorSel').value; $('rpSupOther').hidden = v !== '__other'; $('rpOnlySupRow').hidden = v === '__other' || state.supervisors.length < 2; }
   $('rpSupervisorSel').addEventListener('change', syncReportSupervisor);
-  $('rpOnlySup').addEventListener('click', function () { this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); });
-  $('rpOnlySup').addEventListener('keydown', function (ev) { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); this.click(); } });
-  $('rpEntries').addEventListener('click', function () { this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); });
-  $('rpEntries').addEventListener('keydown', function (ev) { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); this.click(); } });
   window.addEventListener('resize', function () { if (!$('sheet-report').hidden) { pads.sigSupervisee.resize(); pads.sigSupervisor.resize(); } });
 
   function reportPeriod() {
@@ -1610,39 +1709,47 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!window.jspdf || !window.jspdf.jsPDF) { $('rpStatus').textContent = 'The PDF tool did not load. Check the connection and open the app again.'; return; }
     var period = reportPeriod();
     if (period.from && period.to && period.from > period.to) { $('rpStatus').textContent = 'The From date is after the To date.'; return; }
-    period.supId = (!$('rpOnlySup').hidden && $('rpOnlySup').getAttribute('aria-checked') === 'true' && supervisor($('rpSupervisorSel').value)) ? $('rpSupervisorSel').value : null;
-    try { buildPdf(period); $('rpStatus').textContent = 'PDF created. It opens or saves through your phone’s download or share sheet.'; }
-    catch (err) { $('rpStatus').textContent = 'The PDF could not be created on this phone.'; }
+    period.supId = (!$('rpOnlySupRow').hidden && $('rpOnlySup').checked && supervisor($('rpSupervisorSel').value)) ? $('rpSupervisorSel').value : null;
+    try { buildPdf(period); $('rpStatus').textContent = 'PDF created. It opens or saves through your download or share sheet.'; }
+    catch (err) { $('rpStatus').textContent = 'The PDF could not be created. Try again.'; }
   });
 
   function buildPdf(period) {
     var jsPDF = window.jspdf.jsPDF; var doc = new jsPDF({ unit: 'pt', format: 'letter' });
-    var W = 612, H = 792, M = 54, y = M, INK = [23, 32, 41], GRAY = [91, 103, 112], LINE = [217, 224, 228], PINE = [23, 69, 64], TINT = [238, 244, 242];
+    var W = 612, H = 792, M = 54, y = M, INK = [23, 32, 41], GRAY = [91, 103, 112], LINE = [217, 224, 228], TH = THEME_BY_ID[state.palette] || THEMES[0], ACCENT = TH.pdf, TINT = TH.tint;
     var entries = state.entries.filter(function (e) { return (!period.from || e.date >= period.from) && (!period.to || e.date <= period.to) && (!period.supId || e.sup === period.supId); })
                                .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); });
     var T = totals(entries, period.all);
     function text(s, x, yy, o) { doc.text(String(s), x, yy, o || {}); }
     function font(style, size, color) { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(size || 10); var c = color || INK; doc.setTextColor(c[0], c[1], c[2]); }
     function ensure(h) { if (y + h > H - M - 20) { doc.addPage(); y = M; return true; } return false; }
-    function section(title) { ensure(40); y += 10; font('bold', 12, PINE); text(title, M, y); y += 8; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, y, W - M, y); y += 14; }
-    function table(cols, rows, opts) {
-      opts = opts || {}; var x0 = M, tw = W - 2 * M; var lh = 12;
-      function header() { doc.setFillColor(TINT[0], TINT[1], TINT[2]); doc.rect(x0, y - 9, tw, 16, 'F'); font('bold', 8.5, GRAY); var x = x0; cols.forEach(function (c) { text(c.label, c.align === 'right' ? x + c.w - 4 : x + 4, y + 2, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; }); y += 14; }
+    function section(title) { ensure(40); y += 10; font('bold', 12, ACCENT); text(title, M, y); y += 8; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, y, W - M, y); y += 14; }
+    function table(cols, rows) {
+      var x0 = M, tw = W - 2 * M, lh = 12, padY = 5, hdrH = 18;
+      function header() {
+        doc.setFillColor(TINT[0], TINT[1], TINT[2]); doc.rect(x0, y, tw, hdrH, 'F'); font('bold', 8.5, GRAY);
+        var x = x0; cols.forEach(function (c) { text(c.label, c.align === 'right' ? x + c.w - 4 : x + 4, y + 12, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; });
+        y += hdrH;
+      }
       header();
       rows.forEach(function (r) {
         var cells = cols.map(function (c, i) { return doc.splitTextToSize(String(r[i] == null ? '' : r[i]), c.w - 8); });
-        var h = Math.max.apply(null, cells.map(function (c) { return c.length; })) * lh + 6;
+        var n = Math.max.apply(null, cells.map(function (c) { return c.length; })); var h = n * lh + 2 * padY;
         if (ensure(h)) header();
         font(r.bold ? 'bold' : 'normal', 9, r.muted ? GRAY : INK);
-        var x = x0; cols.forEach(function (c, i) { text(cells[i], c.align === 'right' ? x + c.w - 4 : x + 4, y + 3, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; });
-        y += h; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x0, y - 2, x0 + tw, y - 2);
+        var x = x0; cols.forEach(function (c, i) { text(cells[i], c.align === 'right' ? x + c.w - 4 : x + 4, y + padY + 9, { align: c.align === 'right' ? 'right' : 'left', lineHeightFactor: 1.33 }); x += c.w; });
+        y += h; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x0, y, x0 + tw, y);
       });
-      y += 6;
+      y += 8;
     }
-    /* header */
-    font('bold', 9, GRAY); text('PRAXIS PLUS', M, y); font('normal', 9, GRAY); text('Generated ' + fmtDateLong(todayDate()), W - M, y, { align: 'right' }); y += 22;
+    /* header: the mark and wordmark, then the title */
+    doc.setFillColor(LOGO_RGB[0], LOGO_RGB[1], LOGO_RGB[2]); doc.roundedRect(M, y - 15, 20, 20, 5, 5, 'F');
+    doc.setDrawColor(255, 255, 255); doc.setLineWidth(2.4); try { doc.setLineCap('round'); } catch (e) {}
+    doc.line(M + 10, y - 10.5, M + 10, y + 0.5); doc.line(M + 4.5, y - 5, M + 15.5, y - 5); doc.setLineWidth(0.6);
+    font('bold', 13, INK); text('Praxis', M + 27, y); var wP = doc.getTextWidth('Praxis'); font('bold', 13, LOGO2_RGB); text('Plus', M + 27 + wP + 3, y);
+    font('normal', 9, GRAY); text('Generated ' + fmtDateLong(todayDate()), W - M, y, { align: 'right' }); y += 26;
     font('bold', 20, INK); text('Clinical Hours Report', M, y); y += 10;
-    doc.setDrawColor(PINE[0], PINE[1], PINE[2]); doc.setLineWidth(1.2); doc.line(M, y, W - M, y); doc.setLineWidth(0.6); y += 18;
+    doc.setDrawColor(ACCENT[0], ACCENT[1], ACCENT[2]); doc.setLineWidth(1.2); doc.line(M, y, W - M, y); doc.setLineWidth(0.6); y += 18;
     var meta = [['Supervisee', state.name || '—'], ['Program or site', state.program || '—'], ['Period', period.label + (period.supId ? ', entries under ' + supLabel(supervisor(period.supId)) : '')], ['Supervisor', state.report.supervisor ? state.report.supervisor + (state.report.credential ? ', ' + state.report.credential : '') : '—']];
     meta.forEach(function (m) { font('normal', 9.5, GRAY); text(m[0], M, y); font('normal', 10, INK); text(m[1], M + 110, y); y += 15; });
 
@@ -1668,7 +1775,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (rows.length) table([{ label: 'Type', w: 160 }, { label: 'Subcategory', w: 264 }, { label: 'Hours', w: 80, align: 'right' }], rows);
     else { font('normal', 9.5, GRAY); text('No entries in this period.', M, y); y += 14; }
 
-    if ($('rpEntries').getAttribute('aria-checked') === 'true' && entries.length) {
+    if ($('rpEntries').checked && entries.length) {
       section('Entries (' + entries.length + ')');
       var multiSup = !period.supId && state.supervisors.length > 1;
       var cols = [{ label: 'Date', w: 66 }, { label: 'Type', w: multiSup ? 92 : 112 }, { label: 'Subcategory', w: multiSup ? 122 : 150 }, { label: 'Format', w: 52 }, { label: 'Client', w: 44 }];
@@ -1699,9 +1806,25 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     doc.save('Praxis-Plus-hours-report-' + safeName() + '-' + iso(todayDate()) + '.pdf');
   }
 
+  /* ---------- first-run setup ---------- */
+  function needsSetup() { return !state.supervisors.length && !state.entries.length && !state.name; }
+  function openSetup() { $('suName').value = state.name || ''; $('suProgram').value = state.program || ''; $('suStatus').textContent = ''; openSheet('sheet-setup'); }
+  $('suStart').addEventListener('click', function () {
+    var name = $('suName').value.trim().slice(0, 60); var supName = $('suSupName').value.trim().slice(0, 60);
+    if (!name) { $('suStatus').textContent = 'Enter your name to continue.'; $('suName').focus(); return; }
+    if (!supName) { $('suStatus').textContent = 'Enter your supervisor\u2019s name to continue.'; $('suSupName').focus(); return; }
+    var since = $('suSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
+    state.name = name; state.program = $('suProgram').value.trim().slice(0, 80);
+    state.supervisors.forEach(function (x) { x.current = false; });
+    state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: supName, credential: $('suSupCred').value.trim().slice(0, 60), since: since, current: true });
+    saveState(); closeSheet('sheet-setup'); renderAll(); toast('Set up. Tap Log hours to record a session.');
+  });
+
   /* ---------- boot ---------- */
+  applyPalette();
   renderAll();
   showView(location.hash.replace('#', ''));
+  if (needsSetup()) openSetup();
 })();
 </script>
 
