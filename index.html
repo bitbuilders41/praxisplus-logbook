@@ -384,10 +384,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .sup-card .sc-name{font-size:15px;font-weight:600}
 .sup-card .badge{font-size:11.5px;font-weight:600;color:var(--brand-2);background:var(--brand-4);border-radius:999px;padding:3px 9px;white-space:nowrap}
 .sup-card .sc-meta{font-size:13px;color:var(--ink-2)}
-.sup-card .sc-actions{display:flex;gap:14px;margin-top:4px}
+.sup-card .sc-actions{display:flex;gap:14px;margin-top:4px;flex-wrap:wrap}
 .sup-card .sc-actions button{color:var(--brand-2);font-weight:500;font-size:14px;min-height:32px}
 .sup-card .sc-actions button.rm{color:var(--danger)}
 .sup-card .sc-actions button:disabled{color:var(--ink-3)}
+.sup-card .fine{margin:0}
+.cc-actions button.rm.armed{background:var(--danger);color:#fff;border-radius:8px;padding:0 10px}
 .cc-move{margin-top:10px;background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .cc-move select,.cc-move input{min-height:42px;padding:8px 10px;font-size:14px}
 .cc-move .fine{margin:0}
@@ -572,8 +574,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="panel-head"><h2>Data</h2></div>
     <div class="list">
       <button class="list-row danger-row" id="wipeAll">Delete every entry<small id="wipeSub"></small></button>
+      <button class="list-row danger-row" id="resetAll">Start over<small>Erase everything and go back to setup</small></button>
     </div>
-    <p class="fine" style="margin-top:10px">Deleting is permanent and cannot be undone.</p>
+    <p class="fine" style="margin-top:10px">Delete every entry keeps your types, targets and supervisors. Start over also removes those, along with your name and program. Both are permanent and cannot be undone.</p>
   </section>
 </main>
 
@@ -889,8 +892,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   if (!state.step) state.step = 5;
   if (!state.supWeeks) state.supWeeks = 8;
   if (!THEME_BY_ID[state.palette]) state.palette = 'pine';
-  if (!Array.isArray(state.supervisors)) state.supervisors = [];
-  if (!state.supervisors.length && state.report.supervisor) { state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: state.report.supervisor, credential: state.report.credential || '', since: '', current: true }); }
+  /* Logbooks saved before the supervisor list existed only had a name on the report sheet. Carry it over once; after that the list is the record, so a removed supervisor stays removed. */
+  var hadSupList = Array.isArray(state.supervisors);
+  if (!hadSupList) state.supervisors = [];
+  if (!hadSupList && state.report.supervisor) { state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: state.report.supervisor, credential: state.report.credential || '', since: '', current: true }); }
   saveState();
 
   /* ---------- categories ---------- */
@@ -1098,8 +1103,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   var filterCat = 'all';
   var dayOpen = {};
   function renderFilters() {
+    /* The three built-in types always get a chip; a type the user added only shows while it has entries. */
+    function shown(c) { return c.builtin || entryCount(c.id) > 0; }
+    var f = cat(filterCat); if (filterCat !== 'all' && (!f || !shown(f))) filterCat = 'all';
     var chips = '<button type="button" class="chip" data-f="all" aria-pressed="' + (filterCat === 'all') + '">All</button>';
-    state.categories.forEach(function (c) { chips += '<button type="button" class="chip" data-f="' + c.id + '" aria-pressed="' + (filterCat === c.id) + '">' + esc(c.name) + '</button>'; });
+    state.categories.forEach(function (c) { if (!shown(c)) return; chips += '<button type="button" class="chip" data-f="' + c.id + '" aria-pressed="' + (filterCat === c.id) + '">' + esc(c.name) + '</button>'; });
     $('entryFilters').innerHTML = chips;
   }
   function renderLedger(flashId) {
@@ -1409,7 +1417,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('setProgram').addEventListener('change', function () { state.program = this.value.trim().slice(0, 80); saveState(); toast('Saved'); });
 
   /* ---------- categories & targets editor ---------- */
-  var moveOpen = null;
+  var moveOpen = null, rmArm = null, rmArmTimer = null;
+  function rmLabel(c, n) {
+    if (rmArm !== c.id) return 'Remove type';
+    var what = n ? plural(n, 'entry') : 'its carried-in hours';
+    return 'Tap again to remove it and delete ' + what;
+  }
   function renderCatEditor() {
     $('setTotal').value = state.totalTarget || 0;
     $('catEditor').innerHTML = state.categories.map(function (c) {
@@ -1426,12 +1439,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         '<div class="cc-add"><input type="text" placeholder="Add a subcategory" maxlength="80" data-newsub="' + c.id + '" autocomplete="off"><button type="button" data-addsub="' + c.id + '">Add</button></div>' +
         '<div class="cc-actions"><button type="button" data-move="' + c.id + '"' + (n ? '' : ' disabled') + '>Move all entries to another type</button>' +
         (missingDefaultSubs(c).length ? '<button type="button" data-restore="' + c.id + '">Restore default subcategories</button>' : '') +
-        (c.builtin ? '' : '<button type="button" class="rm" data-rmcat="' + c.id + '"' + (n || state.carried[c.id] ? ' disabled' : '') + '>Remove type</button>') + '</div>' + move + '</div>';
+        (c.builtin ? '' : '<button type="button" class="rm' + (rmArm === c.id ? ' armed' : '') + '" data-rmcat="' + c.id + '">' + rmLabel(c, n) + '</button>') + '</div>' + move + '</div>';
     }).join('');
   }
   function moveHtml(c, n) {
     var targets = state.categories.filter(function (x) { return x.id !== c.id; });
-    return '<div class="cc-move"><p class="fine">Move all ' + plural(n, 'entry') + ' logged as ' + esc(c.name) + ' into another type. Use this if, for example, hours logged under a type you created turn out to belong under Group supervision.</p>' +
+    return '<div class="cc-move"><p class="fine">Move ' + (n === 1 ? 'the entry' : 'all ' + n + ' entries') + ' logged as ' + esc(c.name) + ' into another type. Use this if, for example, hours logged under a type you created turn out to belong under Group supervision.</p>' +
       '<select data-moveto="' + c.id + '" aria-label="Move to type">' + targets.map(function (t) { return '<option value="' + t.id + '">' + esc(t.name) + '</option>'; }).join('') + '</select>' +
       '<select data-movesub="' + c.id + '" aria-label="Subcategory"></select>' +
       '<button type="button" class="btn-sm fill" data-domove="' + c.id + '">Move ' + plural(n, 'entry') + '</button></div>';
@@ -1462,29 +1475,48 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       if (state.carried[from]) { state.carried[toId] = (state.carried[toId] || 0) + state.carried[from]; state.carried[from] = 0; }
       moveOpen = null; saveState(); renderCatEditor(); toast(plural(moved, 'entry') + ' moved to ' + catName(toId)); return;
     }
-    if (b.dataset.rmcat) { var id = b.dataset.rmcat; if (entryCount(id) || state.carried[id]) return; state.categories = state.categories.filter(function (c) { return c.id !== id; }); delete state.carried[id]; saveState(); renderCatEditor(); toast('Type removed'); return; }
+    if (b.dataset.rmcat) {
+      var id = b.dataset.rmcat; if (!cat(id) || cat(id).builtin) return;
+      var nE = entryCount(id), hasData = nE > 0 || (state.carried[id] || 0) > 0;
+      /* A type with hours behind it takes two taps: the first shows what goes with it. */
+      if (hasData && rmArm !== id) { rmArm = id; clearTimeout(rmArmTimer); rmArmTimer = setTimeout(function () { rmArm = null; renderCatEditor(); }, 4000); renderCatEditor(); return; }
+      clearTimeout(rmArmTimer); rmArm = null; if (moveOpen === id) moveOpen = null;
+      state.entries = state.entries.filter(function (e) { return e.cat !== id; });
+      state.categories = state.categories.filter(function (c) { return c.id !== id; }); delete state.carried[id];
+      saveState(); renderCatEditor(); toast(nE ? 'Type removed, ' + plural(nE, 'entry') + ' deleted' : 'Type removed'); return;
+    }
   });
   $('catEditor').addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.target.dataset && ev.target.dataset.newsub) { ev.preventDefault(); document.querySelector('[data-addsub="' + ev.target.dataset.newsub + '"]').click(); } });
   $('newCatAdd').addEventListener('click', function () { var v = $('newCatName').value.trim(); if (!v) { $('newCatName').focus(); return; } ensureCategory(v); $('newCatName').value = ''; saveState(); renderCatEditor(); toast('Type added'); });
   $('newCatName').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('newCatAdd').click(); } });
-  $('openCats').addEventListener('click', function () { moveOpen = null; renderCatEditor(); openSheet('sheet-cats'); });
-  $('catsBack').addEventListener('click', function () { closeSheet('sheet-cats'); renderAll(); });
+  $('openCats').addEventListener('click', function () { moveOpen = null; rmArm = null; renderCatEditor(); openSheet('sheet-cats'); });
+  $('catsBack').addEventListener('click', function () { closeSheet('sheet-cats'); rmArm = null; renderAll(); });
 
   /* ---------- supervisors ---------- */
+  var supMoveOpen = null;
   function renderSupervisors() {
     if (!state.supervisors.length) { $('supList').innerHTML = '<div class="empty"><b>No supervisor yet.</b> Add the person who supervises your hours below.</div>'; return; }
     $('supList').innerHTML = state.supervisors.map(function (s) {
       var n = supEntryCount(s.id);
+      var others = state.supervisors.filter(function (x) { return x.id !== s.id; });
+      /* Entries always keep a supervisor, so someone with entries is moved off first, then removed. */
+      var moveBtn = n && others.length ? '<button type="button" data-supmove="' + s.id + '">Move entries</button>' : '';
+      var moveBox = supMoveOpen === s.id && n && others.length
+        ? '<div class="cc-move"><p class="fine">Move ' + (n === 1 ? 'the entry' : 'all ' + n + ' entries') + ' logged under ' + esc(s.name) + ' to another supervisor. After that this person can be removed.</p>' +
+          '<select data-supmoveto="' + s.id + '" aria-label="Move to supervisor">' + others.map(function (o) { return '<option value="' + o.id + '">' + esc(supLabel(o)) + '</option>'; }).join('') + '</select>' +
+          '<button type="button" class="btn-sm fill" data-dosupmove="' + s.id + '">Move ' + plural(n, 'entry') + '</button></div>'
+        : '';
+      var hint = n && !others.length ? '<p class="fine">In use by ' + plural(n, 'entry') + '. To remove this person, add another supervisor and move the entries to them, or delete the entries.</p>' : '';
       return '<div class="sup-card"><div class="sc-head"><span class="sc-name">' + esc(s.name) + '</span>' + (s.current ? '<span class="badge">Current</span>' : '') + '</div>' +
         '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' +
-        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') +
-        '<button type="button" class="rm" data-rmsup="' + s.id + '"' + (n ? ' disabled' : '') + '>' + (n ? 'In use' : 'Remove') + '</button></div></div>';
+        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') + moveBtn +
+        (n ? '<button type="button" class="rm" disabled>In use</button>' : '<button type="button" class="rm" data-rmsup="' + s.id + '">Remove</button>') + '</div>' + hint + moveBox + '</div>';
     }).join('');
   }
-  function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; renderSupervisors(); openSheet('sheet-supervisors'); }
+  function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; supMoveOpen = null; renderSupervisors(); openSheet('sheet-supervisors'); }
   $('openSupervisors').addEventListener('click', openSupervisors);
   $('supNoticeAdd').addEventListener('click', openSupervisors);
-  $('supBack').addEventListener('click', function () { closeSheet('sheet-supervisors'); renderSettings(); });
+  $('supBack').addEventListener('click', function () { closeSheet('sheet-supervisors'); renderAll(); });
   $('newSupAdd').addEventListener('click', function () {
     var name = $('newSupName').value.trim().slice(0, 60); if (!name) { $('newSupName').focus(); return; }
     var since = $('newSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
@@ -1495,7 +1527,20 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('supList').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.makecur) { state.supervisors.forEach(function (s) { s.current = s.id === b.dataset.makecur; }); saveState(); renderSupervisors(); toast('Current supervisor updated'); }
-    if (b.dataset.rmsup) { if (supEntryCount(b.dataset.rmsup)) return; var wasCur = (supervisor(b.dataset.rmsup) || {}).current; state.supervisors = state.supervisors.filter(function (s) { return s.id !== b.dataset.rmsup; }); if (wasCur && state.supervisors.length) state.supervisors[state.supervisors.length - 1].current = true; saveState(); renderSupervisors(); toast('Supervisor removed'); }
+    if (b.dataset.supmove) { supMoveOpen = supMoveOpen === b.dataset.supmove ? null : b.dataset.supmove; renderSupervisors(); }
+    if (b.dataset.dosupmove) {
+      var from = b.dataset.dosupmove; var sel = document.querySelector('[data-supmoveto="' + from + '"]'); var toSup = sel ? supervisor(sel.value) : null; if (!toSup) return;
+      var moved = 0; state.entries.forEach(function (e) { if (e.sup === from) { e.sup = toSup.id; moved++; } });
+      supMoveOpen = null; saveState(); renderSupervisors(); toast(plural(moved, 'entry') + ' moved to ' + toSup.name);
+    }
+    if (b.dataset.rmsup) {
+      var rid = b.dataset.rmsup; var rs = supervisor(rid); if (!rs || supEntryCount(rid)) return;
+      state.supervisors = state.supervisors.filter(function (s) { return s.id !== rid; });
+      if (rs.current && state.supervisors.length) state.supervisors[state.supervisors.length - 1].current = true;
+      /* The report sheet keeps the signing supervisor's name separately; drop it too so nothing of this person is left behind. */
+      if (state.report.supervisor === rs.name) state.report = { supervisor: '', credential: '' };
+      saveState(); renderSupervisors(); renderAll(); toast('Supervisor removed');
+    }
   });
 
   /* ---------- import from a spreadsheet ---------- */
@@ -1648,6 +1693,22 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     clearTimeout(wipeTimer); b.classList.remove('armed'); b.style.background = ''; b.style.padding = '';
     state.entries = []; state.categories.forEach(function (c) { state.carried[c.id] = 0; });
     saveState(); renderAll(); renderSettings(); toast('All entries deleted');
+  });
+
+  /* ---------- start over: wipe the logbook and return to setup; display choices stay ---------- */
+  var resetTimer = null, RESET_SUB = 'Erase everything and go back to setup';
+  function disarmReset() { var b = $('resetAll'); b.classList.remove('armed'); b.style.background = ''; b.style.padding = ''; b.querySelector('small').textContent = RESET_SUB; }
+  $('resetAll').addEventListener('click', function () {
+    var b = this;
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.style.background = 'var(--danger-bg)'; b.style.borderRadius = '10px'; b.style.padding = '0 10px'; b.querySelector('small').textContent = 'Tap again to erase everything'; resetTimer = setTimeout(disarmReset, 4000); return; }
+    clearTimeout(resetTimer); disarmReset();
+    var keep = { palette: state.palette, chart: state.chart, step: state.step, supWeeks: state.supWeeks, collapsed: state.collapsed };
+    state = freshState();
+    state.palette = keep.palette; state.chart = keep.chart; state.step = keep.step; state.supWeeks = keep.supWeeks; state.collapsed = keep.collapsed;
+    try { localStorage.removeItem(OLDKEY); } catch (e) { /* nothing older to clear */ }
+    saveState();
+    dayOpen = {}; filterCat = 'all'; openCat = null; moveOpen = null; rmArm = null; supMoveOpen = null;
+    renderAll(); go('dashboard'); openSetup(); toast('Everything erased');
   });
 
   /* ---------- signature pads ---------- */
