@@ -414,6 +414,19 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .fab:active{transform:scale(.97)}
 .fab-wrap span{font-size:11.5px;font-weight:600;color:var(--brand-2)}
 
+/* Account screens */
+.acct-pane{display:flex;flex-direction:column;gap:14px}
+.acct-hero{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 0 6px;text-align:center}
+.acct-hero .mark{width:56px;height:56px;border-radius:16px;background:var(--logo);color:var(--on-logo);display:inline-flex;align-items:center;justify-content:center}
+.acct-hero .mark svg{width:30px;height:30px}
+.acct-hero h3{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.acct-hero h3 b{font-weight:600;color:var(--logo-2);margin-left:4px}
+.acct-hero p{font-size:14.5px;color:var(--ink-2);line-height:1.5;max-width:300px}
+.acct-pane .primary{margin-top:0}
+.acct-pane .link-btn{align-self:center}
+#acctStatus{text-align:center;min-height:20px}
+#acctStatus.err,#syncStatus.err{color:var(--danger)}
+.list-row.plain{cursor:default}
 /* Toast */
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.16);animation:toastin .18s ease-out;max-width:calc(100% - 32px);text-align:center}
 .toast[hidden]{display:none}
@@ -571,12 +584,21 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </div>
   </section>
   <section class="panel">
+    <div class="panel-head"><h2>Account</h2></div>
+    <div class="list">
+      <div class="list-row plain">Signed in as<small id="acctEmail"></small></div>
+      <button class="list-row" id="syncNow">Sync<small id="syncStatus"></small></button>
+      <button class="list-row" id="signOut">Sign out<small>Your logbook stays in your account</small></button>
+    </div>
+    <p class="fine" id="syncNote" style="margin-top:10px"></p>
+  </section>
+  <section class="panel">
     <div class="panel-head"><h2>Data</h2></div>
     <div class="list">
       <button class="list-row danger-row" id="wipeAll">Delete every entry<small id="wipeSub"></small></button>
       <button class="list-row danger-row" id="resetAll">Start over<small>Erase everything and go back to setup</small></button>
     </div>
-    <p class="fine" style="margin-top:10px">Delete every entry keeps your types, targets and supervisors. Start over also removes those, along with your name and program. Both are permanent and cannot be undone.</p>
+    <p class="fine" style="margin-top:10px">Delete every entry keeps your types, targets and supervisors. Start over also removes those, along with your name and program. Both apply to your account, not just this phone, and cannot be undone.</p>
   </section>
 </main>
 
@@ -710,6 +732,63 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </div>
     <button type="button" class="primary" id="impGo" disabled>Import</button>
     <p class="fine">Types that are not Direct client hours, Indirect hours, Supervision or one of your own types are added as new types. Subcategories not already in the app are added to the matching type. Nothing already in the app is changed.</p>
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="sheet" id="sheet-account" hidden role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+  <div class="sheet-top wrap"><button class="link" id="acctBack" hidden>Back</button><h2 id="acctTitle">Praxis Plus</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <div class="acct-pane" id="acct-welcome">
+      <div class="acct-hero">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span>
+        <h3>Praxis<b>Plus</b></h3>
+        <p>Your clinical hours, kept in your account so they follow you to any phone and are never lost with the device.</p>
+      </div>
+      <button class="primary" id="acctGoCreate">Create account</button>
+      <button class="secondary" id="acctGoSignIn">Sign in</button>
+    </div>
+    <div class="acct-pane" id="acct-signin" hidden>
+      <div class="group fields stack-fields">
+        <input type="email" id="siEmail" placeholder="Email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false">
+        <input type="password" id="siPassword" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button class="primary" id="siSubmit">Sign in</button>
+      <button class="link-btn" id="siForgot">Forgot your password?</button>
+    </div>
+    <div class="acct-pane" id="acct-create" hidden>
+      <div class="group fields stack-fields">
+        <input type="email" id="crEmail" placeholder="Email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false">
+        <input type="password" id="crPassword" placeholder="Password" autocomplete="new-password">
+        <input type="password" id="crPassword2" placeholder="Password again" autocomplete="new-password">
+      </div>
+      <p class="fine">At least 10 characters with upper and lower case letters and a number. We will email you a code to confirm the address.</p>
+      <button class="primary" id="crSubmit">Create account</button>
+    </div>
+    <div class="acct-pane" id="acct-confirm" hidden>
+      <p class="fine">We emailed a code to <b id="confirmWho"></b>. Enter it here to confirm your address. Check the junk folder if it does not arrive within a minute.</p>
+      <div class="group fields stack-fields">
+        <input type="text" id="cfCode" placeholder="6-digit code" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+      </div>
+      <button class="primary" id="cfSubmit">Confirm</button>
+      <button class="link-btn" id="cfResend">Send a new code</button>
+    </div>
+    <div class="acct-pane" id="acct-forgot" hidden>
+      <p class="fine">Enter the email address of your account and we will send a code to set a new password.</p>
+      <div class="group fields stack-fields">
+        <input type="email" id="fpEmail" placeholder="Email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false">
+      </div>
+      <button class="primary" id="fpSubmit">Send code</button>
+    </div>
+    <div class="acct-pane" id="acct-reset" hidden>
+      <p class="fine">Enter the code we emailed to <b id="resetWho"></b> and choose a new password.</p>
+      <div class="group fields stack-fields">
+        <input type="text" id="rsCode" placeholder="6-digit code" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+        <input type="password" id="rsPassword" placeholder="New password" autocomplete="new-password">
+      </div>
+      <button class="primary" id="rsSubmit">Set new password</button>
+    </div>
+    <p class="fine" id="acctStatus" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -1306,7 +1385,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $(id).hidden = true; sheetStack = sheetStack.filter(function (s) { return s !== id; });
     if (!sheetStack.length) document.body.style.overflow = '';
   }
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && sheetStack.length) closeSheet(); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && sheetStack.length && sheetStack[sheetStack.length - 1] !== 'sheet-account') closeSheet(); });
 
   /* ---------- log / edit form ---------- */
   var form = null;
@@ -1881,11 +1960,539 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     saveState(); closeSheet('sheet-setup'); renderAll(); toast('Set up. Tap Log hours to record a session.');
   });
 
+
+  /* ---------- account and sync ----------
+     The logbook lives in the account on the server; this device keeps a working copy and
+     syncs it. Rows on the server are keyed by uuid; the app keeps its own ids, so a small
+     map (ids) translates between the two. After every successful exchange we remember
+     what the server holds (snapshot) and push only what differs from it. */
+  var API_BASE = 'https://api.praxislogix.com';
+  var AUTH = { endpoint: 'https://cognito-idp.us-east-2.amazonaws.com/', clientId: '41ncfdjs5tia8opuf94qqsojn4' };
+  var SESSION_KEY = 'praxisplus.session', SYNC_KEY = 'praxisplus.sync';
+  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  var ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  var PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,}$/;
+  var FIELDS = {
+    supervisee_profiles: ['university_name', 'program_name', 'total_target_hours'],
+    user_settings: ['palette', 'chart_style', 'minute_step', 'supervision_weeks', 'collapsed_panels'],
+    supervisor_records: ['name', 'credential', 'since_date', 'is_current'],
+    hour_categories: ['builtin_key', 'name', 'target_hours', 'counts_toward_total', 'sort'],
+    hour_subcategories: ['category_id', 'name', 'sort'],
+    hour_entries: ['entry_date', 'category_id', 'subcategory_id', 'minutes', 'modality', 'client_code', 'note', 'supervisor_record_id', 'site_id', 'client_created_at'],
+    carried_in_hours: ['category_id', 'hours']
+  };
+  /* parents before children, so the server never sees an entry for a type it does not have yet */
+  var PUSH_ORDER = { supervisee_profiles: 0, user_settings: 0, hour_categories: 1, supervisor_records: 2, hour_subcategories: 2, carried_in_hours: 3, hour_entries: 4 };
+
+  /* --- session --- */
+  var session = null;
+  try { var rawSession = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); if (rawSession && rawSession.refreshToken) session = rawSession; } catch (e) { /* no session */ }
+  function saveSession(s) {
+    session = s;
+    try { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); } catch (e) { /* storage unavailable */ }
+  }
+  function signedIn() { return !!(session && session.refreshToken); }
+
+  /* --- identity provider --- */
+  function idpCall(action, body) {
+    return fetch(AUTH.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': 'AWSCognitoIdentityProviderService.' + action },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = {}; try { j = t ? JSON.parse(t) : {}; } catch (e) { /* not json */ }
+        if (!r.ok) { var err = new Error(j.message || 'Request failed'); err.code = String(j.__type || '').split('#').pop(); throw err; }
+        return j;
+      });
+    });
+  }
+  function storeTokens(email, a) {
+    saveSession({ email: email, accessToken: a.AccessToken, refreshToken: a.RefreshToken || (session && session.refreshToken), expiresAt: Date.now() + ((a.ExpiresIn || 3600) - 60) * 1000 });
+  }
+  var auth = {
+    signUp: function (email, password) {
+      return idpCall('SignUp', { ClientId: AUTH.clientId, Username: email, Password: password, UserAttributes: [{ Name: 'email', Value: email }] });
+    },
+    confirm: function (email, code) { return idpCall('ConfirmSignUp', { ClientId: AUTH.clientId, Username: email, ConfirmationCode: code }); },
+    resendCode: function (email) { return idpCall('ResendConfirmationCode', { ClientId: AUTH.clientId, Username: email }); },
+    signIn: function (email, password) {
+      return idpCall('InitiateAuth', { AuthFlow: 'USER_PASSWORD_AUTH', ClientId: AUTH.clientId, AuthParameters: { USERNAME: email, PASSWORD: password } }).then(function (r) {
+        if (!r.AuthenticationResult) { var err = new Error('Sign-in needs another step'); err.code = r.ChallengeName || 'Challenge'; throw err; }
+        storeTokens(email, r.AuthenticationResult);
+      });
+    },
+    refresh: function () {
+      if (!session) return Promise.reject(signedOutError());
+      return idpCall('InitiateAuth', { AuthFlow: 'REFRESH_TOKEN_AUTH', ClientId: AUTH.clientId, AuthParameters: { REFRESH_TOKEN: session.refreshToken } }).then(function (r) {
+        if (!r.AuthenticationResult) throw signedOutError();
+        storeTokens(session.email, r.AuthenticationResult);
+      }, function (err) {
+        /* the refresh token itself is dead: expired or revoked. Keep the logbook, drop the session. */
+        if (err.code === 'NotAuthorizedException') { saveSession(null); throw signedOutError(); }
+        throw err;
+      });
+    },
+    forgot: function (email) { return idpCall('ForgotPassword', { ClientId: AUTH.clientId, Username: email }); },
+    resetPassword: function (email, code, password) { return idpCall('ConfirmForgotPassword', { ClientId: AUTH.clientId, Username: email, ConfirmationCode: code, Password: password }); },
+    signOut: function () {
+      var s = session; saveSession(null);
+      if (s && s.refreshToken) idpCall('RevokeToken', { ClientId: AUTH.clientId, Token: s.refreshToken }).catch(function () { /* already gone */ });
+    }
+  };
+  function signedOutError() { var e = new Error('Signed out'); e.code = 'SignedOut'; return e; }
+  function authMessage(err) {
+    var c = (err && err.code) || '';
+    if (c === 'NotAuthorizedException') return 'That email and password don’t match.';
+    if (c === 'UsernameExistsException') return 'An account with this email already exists. Sign in instead.';
+    if (c === 'InvalidPasswordException') return 'Password needs at least 10 characters with upper and lower case letters and a number.';
+    if (c === 'CodeMismatchException') return 'That code isn’t right. Check the email and try again.';
+    if (c === 'ExpiredCodeException') return 'That code has expired. Request a new one.';
+    if (c === 'LimitExceededException' || c === 'TooManyRequestsException') return 'Too many attempts. Wait a few minutes and try again.';
+    if (c === 'InvalidParameterException') return err.message || 'Check what you entered and try again.';
+    if (!c && err && /fetch|network|load/i.test(err.message || '')) return 'No connection. Check the internet and try again.';
+    return (err && err.message) || 'Something went wrong. Try again.';
+  }
+
+  /* --- api --- */
+  function tokenReady() {
+    if (!signedIn()) return Promise.reject(signedOutError());
+    if (Date.now() < session.expiresAt) return Promise.resolve(session.accessToken);
+    return auth.refresh().then(function () { return session.accessToken; });
+  }
+  function api(path, opts) {
+    opts = opts || {};
+    return tokenReady().then(function (token) {
+      var init = { method: opts.method || 'GET', headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
+      if (opts.body !== undefined) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+      return fetch(API_BASE + path, init);
+    }).then(function (r) {
+      if (r.status === 401 && !opts.retried) return auth.refresh().then(function () { return api(path, { method: opts.method, body: opts.body, retried: true }); });
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { /* not json */ }
+        if (!r.ok) { var err = new Error((j && j.error && j.error.message) || ('Server error ' + r.status)); err.status = r.status; err.code = j && j.error && j.error.code; throw err; }
+        return j;
+      });
+    });
+  }
+
+  /* --- sync bookkeeping, kept apart from the logbook so Start over cannot lose it --- */
+  var sync = loadSync();
+  function loadSync() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem(SYNC_KEY) || 'null'); } catch (e) { /* unreadable */ }
+    if (!s || typeof s !== 'object') s = {};
+    s.cursor = s.cursor || 0; s.ids = s.ids || {}; s.snapshot = s.snapshot || {}; s.versions = s.versions || {}; s.tables = s.tables || {}; s.rejected = s.rejected || {};
+    ['cat', 'sub', 'sup', 'entry', 'carried'].forEach(function (k) { s.ids[k] = s.ids[k] || {}; });
+    return s;
+  }
+  function saveSync() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) { /* storage unavailable */ } }
+  function resetSync() { try { localStorage.removeItem(SYNC_KEY); } catch (e) { /* ignore */ } sync = loadSync(); }
+  var saveQuiet = saveState;   /* the original: writes the logbook without waking the sync */
+
+  function str(v, max) { return String(v == null ? '' : v).trim().slice(0, max); }
+  function num(v) { var n = +v; return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : 0; }
+  function orderedKeys(o) { var out = {}; Object.keys(o || {}).sort().forEach(function (k) { out[k] = o[k]; }); return out; }
+  /* one canonical shape per table so two copies of the same row always stringify the same */
+  function canon(table, d) {
+    var out = {};
+    FIELDS[table].forEach(function (k) { out[k] = d[k] === undefined ? null : d[k]; });
+    if (table === 'hour_entries' && out.client_created_at) { var t = Date.parse(out.client_created_at); out.client_created_at = isNaN(t) ? null : new Date(t).toISOString(); }
+    if (table === 'user_settings') out.collapsed_panels = orderedKeys(out.collapsed_panels || {});
+    if (table === 'hour_categories' || table === 'supervisee_profiles' || table === 'carried_in_hours') { ['target_hours', 'total_target_hours', 'hours'].forEach(function (k) { if (k in out) out[k] = num(out[k]); }); }
+    return out;
+  }
+  function snapKey(d, deleted) { return (deleted ? 'D' : 'L') + JSON.stringify(d); }
+
+  /* uuid for each local thing; made on first use and kept forever */
+  function catUuid(localId) { if (!sync.ids.cat[localId]) sync.ids.cat[localId] = uid(); return sync.ids.cat[localId]; }
+  function subUuid(catId, name) { var k = catId + '\u0001' + name; if (!sync.ids.sub[k]) sync.ids.sub[k] = uid(); return sync.ids.sub[k]; }
+  function supUuid(localId) { if (!sync.ids.sup[localId]) sync.ids.sup[localId] = uid(); return sync.ids.sup[localId]; }
+  function entryUuid(localId) { if (UUID_RE.test(localId)) return localId.toLowerCase(); if (!sync.ids.entry[localId]) sync.ids.entry[localId] = uid(); return sync.ids.entry[localId]; }
+  function carriedUuid(catId) { if (!sync.ids.carried[catId]) sync.ids.carried[catId] = uid(); return sync.ids.carried[catId]; }
+  function reverse(map) { var r = {}; Object.keys(map).forEach(function (k) { r[map[k]] = k; }); return r; }
+
+  function collapsedFlags() { var out = {}; Object.keys(state.collapsed || {}).forEach(function (k) { if (state.collapsed[k]) out[String(k).slice(0, 40)] = true; }); return out; }
+  function localHasData() {
+    return !!(state.entries.length || state.supervisors.length || state.name || state.program ||
+      state.categories.some(function (c) { return !c.builtin; }) ||
+      Object.keys(state.carried || {}).some(function (k) { return +state.carried[k] > 0; }));
+  }
+
+  /* the logbook as the server should see it: { uuid: { table, data, deleted } } */
+  function rowsFromState() {
+    var rows = {};
+    function put(table, id, data, deleted) { rows[id] = { table: table, data: canon(table, data), deleted: !!deleted }; }
+    if (sync.ids.profile) put('supervisee_profiles', sync.ids.profile, { university_name: '', program_name: str(state.program, 120), total_target_hours: state.totalTarget });
+    if (sync.ids.settings) put('user_settings', sync.ids.settings, {
+      palette: THEME_BY_ID[state.palette] ? state.palette : 'pine', chart_style: ['bars', 'rings', 'pie'].indexOf(state.chart) >= 0 ? state.chart : 'bars',
+      minute_step: [1, 5, 15].indexOf(state.step) >= 0 ? state.step : 5, supervision_weeks: ['4', '8', '12', 'term'].indexOf(String(state.supWeeks)) >= 0 ? String(state.supWeeks) : '8',
+      collapsed_panels: collapsedFlags()
+    });
+    state.categories.forEach(function (c, i) {
+      var id = catUuid(c.id);
+      put('hour_categories', id, { builtin_key: c.builtin ? c.id : null, name: str(c.name, 60) || 'Untitled', target_hours: c.target, counts_toward_total: c.inTotal !== false, sort: i });
+      (c.subs || []).forEach(function (name, j) { if (str(name, 120)) put('hour_subcategories', subUuid(c.id, name), { category_id: id, name: str(name, 120), sort: j }); });
+      var car = num(state.carried[c.id]);
+      if (car > 0 || sync.ids.carried[c.id]) put('carried_in_hours', carriedUuid(c.id), { category_id: id, hours: car });
+    });
+    state.supervisors.forEach(function (s) {
+      put('supervisor_records', supUuid(s.id), { name: str(s.name, 120) || 'Supervisor', credential: str(s.credential, 120), since_date: ISO_DATE_RE.test(s.since || '') ? s.since : null, is_current: !!s.current });
+    });
+    state.entries.forEach(function (e) {
+      var c = cat(e.cat); if (!c || !ISO_DATE_RE.test(e.date || '')) return;
+      var subName = str(e.sub, 120), subId = null;
+      if (subName) {
+        subId = subUuid(c.id, subName);
+        /* a subcategory the user removed from the list but old entries still name: it stays on the server, marked removed */
+        if (!rows[subId]) put('hour_subcategories', subId, { category_id: catUuid(c.id), name: subName, sort: 999 }, true);
+      }
+      put('hour_entries', entryUuid(e.id), {
+        entry_date: e.date, category_id: catUuid(c.id), subcategory_id: subId, minutes: Math.min(600, Math.max(1, Math.round(+e.minutes || 0))),
+        modality: MOD_BY_ID[e.modality] ? e.modality : null, client_code: str(e.client, 24), note: str(e.note, 300),
+        supervisor_record_id: e.sup && supervisor(e.sup) ? supUuid(e.sup) : null, site_id: null,
+        client_created_at: e.created ? new Date(e.created).toISOString() : null
+      });
+    });
+    return rows;
+  }
+
+  function pendingChanges() {
+    var rows = rowsFromState(), changes = [];
+    Object.keys(rows).forEach(function (id) {
+      var r = rows[id], key = snapKey(r.data, r.deleted);
+      if (sync.snapshot[id] === key || sync.rejected[id] === key) return;
+      changes.push({ table: r.table, id: id, baseVersion: sync.versions[id] || 0, deleted: r.deleted, data: r.data });
+    });
+    Object.keys(sync.snapshot).forEach(function (id) {
+      if (rows[id] || sync.snapshot[id].charAt(0) === 'D') return;
+      changes.push({ table: sync.tables[id], id: id, baseVersion: sync.versions[id] || 0, deleted: true, data: JSON.parse(sync.snapshot[id].slice(1)) });
+    });
+    changes.sort(function (a, b) { return (PUSH_ORDER[a.table] || 9) - (PUSH_ORDER[b.table] || 9); });
+    return changes;
+  }
+  function pendingCount() { try { return pendingChanges().length; } catch (e) { return 0; } }
+
+  /* --- applying what the server sends --- */
+  var rev = null;   /* uuid -> local id maps, rebuilt per sync */
+  function buildReverse() { rev = { cat: reverse(sync.ids.cat), sub: reverse(sync.ids.sub), sup: reverse(sync.ids.sup), entry: reverse(sync.ids.entry), carried: reverse(sync.ids.carried) }; }
+  function localCatId(uuid) { return rev.cat[uuid] || null; }
+  function subNameFor(uuid) { var k = rev.sub[uuid]; return k ? k.split('\u0001')[1] : ''; }
+
+  /* keepLocal: first sync of an account that was just created, with a logbook already on this
+     phone. The server only has defaults, so the phone's values win and the defaults it does
+     not have get removed on the next push. Otherwise the server wins. */
+  function applyRow(table, row, keepLocal) {
+    var id = row.id, deleted = !!row.deleted_at, data = canon(table, row), key = snapKey(data, deleted);
+    if (sync.versions[id] === row.version && sync.snapshot[id] === key) return false;
+    sync.versions[id] = row.version; sync.tables[id] = table; sync.snapshot[id] = key; delete sync.rejected[id];
+    var c, s, i, name;
+    if (table === 'supervisee_profiles') {
+      sync.ids.profile = id;
+      if (!keepLocal && !deleted) { state.program = str(data.program_name, 80); state.totalTarget = num(data.total_target_hours); }
+    } else if (table === 'user_settings') {
+      sync.ids.settings = id;
+      if (!keepLocal && !deleted) {
+        if (THEME_BY_ID[data.palette]) state.palette = data.palette;
+        if (['bars', 'rings', 'pie'].indexOf(data.chart_style) >= 0) state.chart = data.chart_style;
+        if ([1, 5, 15].indexOf(data.minute_step) >= 0) state.step = data.minute_step;
+        state.supWeeks = data.supervision_weeks === 'term' ? 'term' : (+data.supervision_weeks || 8);
+        state.collapsed = {}; Object.keys(data.collapsed_panels || {}).forEach(function (k) { state.collapsed[k] = true; });
+      }
+    } else if (table === 'hour_categories') {
+      var localId = data.builtin_key || localCatId(id) || id;
+      if (data.builtin_key) { sync.ids.cat[data.builtin_key] = id; rev.cat[id] = data.builtin_key; }
+      else if (!rev.cat[id]) { sync.ids.cat[localId] = id; rev.cat[id] = localId; }
+      c = cat(localId);
+      if (deleted) {
+        if (c && !c.builtin) { state.categories = state.categories.filter(function (x) { return x.id !== localId; }); delete state.carried[localId]; }
+      } else if (!c) {
+        state.categories.push({ id: localId, name: str(data.name, 60) || 'Untitled', target: num(data.target_hours), builtin: !!data.builtin_key, inTotal: data.counts_toward_total !== false, subs: [], sort: data.sort });
+      } else if (!keepLocal) {
+        if (!c.builtin) c.name = str(data.name, 60) || c.name;
+        c.target = num(data.target_hours); c.inTotal = data.counts_toward_total !== false; c.sort = data.sort;
+      }
+    } else if (table === 'hour_subcategories') {
+      var catLocal = localCatId(data.category_id); if (!catLocal) return true;
+      c = cat(catLocal); if (!c) return true;
+      name = str(data.name, 120); var oldKey = rev.sub[id], newKey = catLocal + '\u0001' + name;
+      if (oldKey && oldKey !== newKey) {   /* renamed elsewhere: follow the rename here, entries included */
+        var oldName = oldKey.split('\u0001')[1]; delete sync.ids.sub[oldKey];
+        i = c.subs.indexOf(oldName); if (i >= 0) c.subs[i] = name;
+        state.entries.forEach(function (e) { if (e.cat === catLocal && e.sub === oldName) e.sub = name; });
+      }
+      sync.ids.sub[newKey] = id; rev.sub[id] = newKey;
+      if (deleted) { i = c.subs.indexOf(name); if (i >= 0) c.subs.splice(i, 1); }
+      else if (c.subs.indexOf(name) < 0 && !keepLocal) c.subs.push(name);
+    } else if (table === 'supervisor_records') {
+      var supLocal = rev.sup[id] || id; if (!rev.sup[id]) { sync.ids.sup[supLocal] = id; rev.sup[id] = supLocal; }
+      s = supervisor(supLocal);
+      if (deleted) {
+        if (s) { state.supervisors = state.supervisors.filter(function (x) { return x.id !== supLocal; }); if (state.report.supervisor === s.name) state.report = { supervisor: '', credential: '' }; }
+      } else if (!s) state.supervisors.push({ id: supLocal, name: str(data.name, 60), credential: str(data.credential, 60), since: data.since_date || '', current: !!data.is_current });
+      else { s.name = str(data.name, 60) || s.name; s.credential = str(data.credential, 60); s.since = data.since_date || ''; s.current = !!data.is_current; }
+    } else if (table === 'carried_in_hours') {
+      var carLocal = localCatId(data.category_id); if (!carLocal) return true;
+      sync.ids.carried[carLocal] = id; rev.carried[id] = carLocal;
+      if (!keepLocal) state.carried[carLocal] = deleted ? 0 : num(data.hours);
+    } else if (table === 'hour_entries') {
+      var entryLocal = rev.entry[id] || id;
+      var catFor = localCatId(data.category_id);
+      var idx = -1; for (i = 0; i < state.entries.length; i++) if (state.entries[i].id === entryLocal) { idx = i; break; }
+      if (deleted || !catFor) { if (idx >= 0) state.entries.splice(idx, 1); return true; }
+      var e = idx >= 0 ? state.entries[idx] : { id: entryLocal, created: 0 };
+      e.date = data.entry_date; e.cat = catFor; e.sub = data.subcategory_id ? subNameFor(data.subcategory_id) : '';
+      e.minutes = +data.minutes || 0; e.modality = MOD_BY_ID[data.modality] ? data.modality : ''; e.client = str(data.client_code, 24); e.note = str(data.note, 300);
+      e.sup = data.supervisor_record_id ? (rev.sup[data.supervisor_record_id] || data.supervisor_record_id) : '';
+      var made = Date.parse(data.client_created_at || row.created_at || ''); if (!e.created) e.created = isNaN(made) ? Date.now() : made;
+      if (idx < 0) state.entries.push(e);
+    }
+    return true;
+  }
+  function finishApply() {
+    /* keep the server's order for types; anything only on this phone keeps its place */
+    state.categories.forEach(function (c, i) { if (c.sort == null) c.sort = i; });
+    state.categories.sort(function (a, b) { return (a.builtin ? 0 : 1) - (b.builtin ? 0 : 1) || a.sort - b.sort; });
+    state.categories.forEach(function (c) { delete c.sort; });
+    var cur = false; state.supervisors.forEach(function (s) { if (s.current && cur) s.current = false; if (s.current) cur = true; });
+  }
+
+  /* --- the exchange itself --- */
+  var syncing = null, syncTimer = null, syncListeners = [];
+  function syncStatus() {
+    if (!signedIn()) return { text: 'Not signed in', pending: 0 };
+    var n = pendingCount();
+    if (syncing) return { text: 'Syncing…', pending: n };
+    if (sync.lastError) return { text: sync.lastError, pending: n, error: true };
+    if (n) return { text: plural(n, 'change') + ' waiting to sync', pending: n };
+    if (sync.lastAt) return { text: 'Synced ' + ago(sync.lastAt), pending: 0 };
+    return { text: 'Not synced yet', pending: 0 };
+  }
+  function ago(t) { var s = Math.round((Date.now() - t) / 1000); if (s < 60) return 'just now'; var m = Math.round(s / 60); if (m < 60) return m + ' min ago'; var h = Math.round(m / 60); if (h < 24) return h + ' h ago'; return fmtIso(iso(new Date(t))); }
+  function onSyncChange(fn) { syncListeners.push(fn); }
+  function notifySync() { syncListeners.forEach(function (fn) { try { fn(); } catch (e) { /* listener problem is not ours */ } }); }
+
+  function syncNow(reason) {
+    if (!signedIn()) return Promise.reject(signedOutError());
+    if (syncing) return syncing;
+    notifySync();
+    syncing = runSync(reason).then(function (r) { syncing = null; sync.lastError = ''; sync.lastAt = Date.now(); saveSync(); notifySync(); return r; }, function (err) {
+      syncing = null;
+      sync.lastError = err.code === 'SignedOut' ? 'Signed out' : (navigator.onLine === false ? 'Waiting for a connection' : (err.status ? 'Server problem (' + err.status + ')' : 'Could not reach the server'));
+      saveSync(); notifySync();
+      if (err.code === 'SignedOut') showAccount('signin', 'Your session ended. Sign in again to keep syncing.');
+      throw err;
+    });
+    return syncing;
+  }
+  function runSync(reason) {
+    var first = !sync.cursor && !sync.userId, keepLocal = false, changed = false;
+    return api('/v1/me').then(function (me) {
+      if (sync.userId && sync.userId !== me.user.id) {
+        /* a different account on this phone: its logbook belongs to someone else, so start clean */
+        state = freshState(); saveQuiet(); resetSync(); first = true;
+      }
+      sync.userId = me.user.id;
+      /* display name lives on the user record, not in the sync tables; three-way merge against what we last saw */
+      var serverName = me.user.displayName || '';
+      if (serverName !== (sync.name || '') && state.name === (sync.name || '')) { state.name = str(serverName, 60); changed = true; }
+      var namePush = state.name !== (sync.name || '') && state.name !== serverName ? api('/v1/me', { method: 'PATCH', body: { displayName: state.name } }) : Promise.resolve();
+      sync.name = state.name;
+      var boot = me.needsBootstrap ? api('/v1/bootstrap', { method: 'POST', body: {} }) : Promise.resolve();
+      keepLocal = first && me.needsBootstrap && localHasData();
+      return Promise.all([namePush, boot]);
+    }).then(function () {
+      return pullAll(keepLocal).then(function (n) { if (n) changed = true; });
+    }).then(function () {
+      var changes = pendingChanges();
+      if (!changes.length) return;
+      var batches = []; for (var i = 0; i < changes.length; i += 200) batches.push(changes.slice(i, i + 200));
+      return batches.reduce(function (p, batch) {
+        return p.then(function () {
+          return api('/v1/sync', { method: 'POST', body: { changes: batch } }).then(function (res) {
+            var byId = {}; batch.forEach(function (ch) { byId[ch.id] = ch; });
+            (res.outcomes || []).forEach(function (o) {
+              var ch = byId[o.id]; if (!ch) return;
+              if (o.status === 'applied') { sync.versions[o.id] = o.version; sync.tables[o.id] = ch.table; sync.snapshot[o.id] = snapKey(ch.data, ch.deleted); delete sync.rejected[o.id]; }
+              else if (o.status === 'conflict' && o.row) { if (applyRow(ch.table, o.row, false)) changed = true; }
+              else if (o.status === 'rejected') { sync.rejected[o.id] = snapKey(ch.data, ch.deleted); sync.lastRejected = (ch.table.replace(/_/g, ' ') + ': ' + (o.reason || 'not accepted')).slice(0, 140); }
+            });
+            if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
+          });
+        });
+      }, Promise.resolve());
+    }).then(function () {
+      finishApply();
+      if (changed) { saveQuiet(); renderAll(); }
+      saveSync();
+      return { changed: changed, reason: reason };
+    });
+  }
+  function pullAll(keepLocal) {
+    buildReverse();
+    var applied = 0;
+    function page() {
+      return api('/v1/sync?since=' + (sync.cursor || 0) + '&limit=500').then(function (res) {
+        (res.changes || []).forEach(function (ch) { if (FIELDS[ch.table] && applyRow(ch.table, ch.row, keepLocal)) applied++; });
+        if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
+        return res.hasMore ? page() : applied;
+      });
+    }
+    return page();
+  }
+  function scheduleSync(delay) {
+    if (!signedIn()) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () { syncNow('change').catch(function () { /* shown in Settings */ }); }, delay == null ? 1500 : delay);
+  }
+  /* every save of the logbook queues a sync; the sync's own bookkeeping goes through saveQuiet */
+  saveState = function () { saveQuiet(); notifySync(); scheduleSync(); };
+  var renderSettingsBase = renderSettings;
+  renderSettings = function () { renderSettingsBase(); renderAccount(); };
+  window.addEventListener('online', function () { scheduleSync(300); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) scheduleSync(300); });
+  setInterval(function () { if (!document.hidden) scheduleSync(0); }, 5 * 60 * 1000);
+
+  /* --- account screens --- */
+  var acct = { mode: 'welcome', email: '', password: '' };
+  var PANES = ['welcome', 'signin', 'create', 'confirm', 'forgot', 'reset'];
+  var TITLES = { welcome: '', signin: 'Sign in', create: 'Create account', confirm: 'Check your email', forgot: 'Reset password', reset: 'New password' };
+  function showAccount(mode, message) {
+    acct.mode = mode || 'welcome';
+    PANES.forEach(function (p) { $('acct-' + p).hidden = p !== acct.mode; });
+    $('acctTitle').textContent = TITLES[acct.mode];
+    $('acctBack').hidden = acct.mode === 'welcome';
+    $('acctStatus').textContent = message || '';
+    $('acctStatus').classList.toggle('err', false);
+    if (acct.mode === 'confirm') $('confirmWho').textContent = acct.email;
+    if (acct.mode === 'reset') $('resetWho').textContent = acct.email;
+    if ($('sheet-account').hidden) openSheet('sheet-account');
+    var first = $('sheet-account').querySelector('#acct-' + acct.mode + ' input'); if (first) setTimeout(function () { first.focus(); }, 50);
+  }
+  function acctError(err) { var m = authMessage(err); $('acctStatus').textContent = m; $('acctStatus').classList.toggle('err', true); }
+  function busy(btn, on) { btn.disabled = on; btn.dataset.label = btn.dataset.label || btn.textContent; btn.textContent = on ? 'One moment…' : btn.dataset.label; }
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  $('acctGoCreate').addEventListener('click', function () { showAccount('create'); });
+  $('acctGoSignIn').addEventListener('click', function () { showAccount('signin'); });
+  $('acctBack').addEventListener('click', function () { showAccount(acct.mode === 'reset' ? 'forgot' : acct.mode === 'confirm' ? 'create' : 'welcome'); });
+  $('siForgot').addEventListener('click', function () { $('fpEmail').value = $('siEmail').value; showAccount('forgot'); });
+  $('cfResend').addEventListener('click', function () {
+    auth.resendCode(acct.email).then(function () { $('acctStatus').textContent = 'A new code is on its way to ' + acct.email + '.'; $('acctStatus').classList.remove('err'); }, acctError);
+  });
+
+  $('siSubmit').addEventListener('click', function () {
+    var email = $('siEmail').value.trim().toLowerCase(), pw = $('siPassword').value, btn = this;
+    if (!validEmail(email)) return acctError({ message: 'Enter the email address you signed up with.' });
+    if (!pw) return acctError({ message: 'Enter your password.' });
+    acct.email = email; acct.password = pw; busy(btn, true);
+    auth.signIn(email, pw).then(function () { busy(btn, false); $('siPassword').value = ''; return afterSignIn(); }, function (err) {
+      busy(btn, false);
+      if (err.code === 'UserNotConfirmedException') { auth.resendCode(email).catch(function () { /* fine */ }); showAccount('confirm', 'This account still needs its email confirmed. We sent a new code.'); return; }
+      if (err.code === 'PasswordResetRequiredException') { auth.forgot(email).catch(function () { /* fine */ }); showAccount('reset', 'A password reset is required. Use the code we just emailed you.'); return; }
+      acctError(err);
+    });
+  });
+  $('crSubmit').addEventListener('click', function () {
+    var email = $('crEmail').value.trim().toLowerCase(), pw = $('crPassword').value, pw2 = $('crPassword2').value, btn = this;
+    if (!validEmail(email)) return acctError({ message: 'Enter a valid email address.' });
+    if (!PASSWORD_RE.test(pw)) return acctError({ code: 'InvalidPasswordException' });
+    if (pw !== pw2) return acctError({ message: 'The two passwords don’t match.' });
+    acct.email = email; acct.password = pw; busy(btn, true);
+    auth.signUp(email, pw).then(function (r) {
+      busy(btn, false); $('crPassword').value = ''; $('crPassword2').value = '';
+      if (r.UserConfirmed) return auth.signIn(email, pw).then(afterSignIn);
+      showAccount('confirm');
+    }, function (err) { busy(btn, false); if (err.code === 'UsernameExistsException') { showAccount('signin', authMessage(err)); $('siEmail').value = email; return; } acctError(err); });
+  });
+  $('cfSubmit').addEventListener('click', function () {
+    var code = $('cfCode').value.trim(), btn = this;
+    if (!/^\d{4,8}$/.test(code)) return acctError({ message: 'Enter the code from the email.' });
+    busy(btn, true);
+    auth.confirm(acct.email, code).then(function () {
+      $('cfCode').value = '';
+      if (acct.password) return auth.signIn(acct.email, acct.password).then(function () { busy(btn, false); acct.password = ''; return afterSignIn(); });
+      busy(btn, false); showAccount('signin', 'Email confirmed. Sign in to continue.'); $('siEmail').value = acct.email;
+    }, function (err) { busy(btn, false); acctError(err); });
+  });
+  $('fpSubmit').addEventListener('click', function () {
+    var email = $('fpEmail').value.trim().toLowerCase(), btn = this;
+    if (!validEmail(email)) return acctError({ message: 'Enter the email address of your account.' });
+    acct.email = email; busy(btn, true);
+    auth.forgot(email).then(function () { busy(btn, false); showAccount('reset', 'If that address has an account, a code is on its way.'); }, function (err) { busy(btn, false); acctError(err); });
+  });
+  $('rsSubmit').addEventListener('click', function () {
+    var code = $('rsCode').value.trim(), pw = $('rsPassword').value, btn = this;
+    if (!/^\d{4,8}$/.test(code)) return acctError({ message: 'Enter the code from the email.' });
+    if (!PASSWORD_RE.test(pw)) return acctError({ code: 'InvalidPasswordException' });
+    busy(btn, true);
+    auth.resetPassword(acct.email, code, pw).then(function () {
+      return auth.signIn(acct.email, pw).then(function () { busy(btn, false); $('rsCode').value = ''; $('rsPassword').value = ''; return afterSignIn(); });
+    }, function (err) { busy(btn, false); acctError(err); });
+  });
+  ['siPassword', 'cfCode', 'rsPassword', 'crPassword2', 'fpEmail'].forEach(function (id) {
+    var submit = { siPassword: 'siSubmit', cfCode: 'cfSubmit', rsPassword: 'rsSubmit', crPassword2: 'crSubmit', fpEmail: 'fpSubmit' }[id];
+    $(id).addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $(submit).click(); } });
+  });
+
+  /* signed in: bring the account and this phone together, then carry on into the app */
+  function afterSignIn() {
+    $('acctStatus').classList.remove('err');
+    $('acctStatus').textContent = localHasData() ? 'Moving your logbook into your account…' : 'Opening your logbook…';
+    return syncNow('signin').then(function () { enterApp(); }, function (err) {
+      /* the account is good even if the server is not reachable right now; the logbook syncs later */
+      if (err.code === 'SignedOut') return;
+      enterApp(); toast('Signed in. Sync will finish when the server is reachable.');
+    });
+  }
+  function enterApp() {
+    closeSheet('sheet-account'); applyPalette(); renderAll(); renderAccount();
+    if (needsSetup()) openSetup();
+  }
+
+  /* --- Settings: account panel --- */
+  function renderAccount() {
+    var st = syncStatus();
+    $('acctEmail').textContent = session ? session.email : '';
+    $('syncStatus').textContent = st.text;
+    $('syncStatus').classList.toggle('err', !!st.error);
+    $('syncNote').textContent = sync.lastRejected ? 'One item was not accepted by the server (' + sync.lastRejected + '). Edit it to try again.' : '';
+  }
+  onSyncChange(function () { if (!$('view-settings').hidden) renderAccount(); });
+  $('syncNow').addEventListener('click', function () { syncNow('manual').then(function () { toast('Synced'); }, function () { renderAccount(); }); });
+  var signOutArm = null;
+  $('signOut').addEventListener('click', function () {
+    var btn = this, n = pendingCount();
+    if (n && !signOutArm) {
+      syncNow('signout').then(function () { if (!pendingCount()) finishSignOut(); else armSignOut(btn, pendingCount()); }, function () { armSignOut(btn, n); });
+      return;
+    }
+    if (signOutArm) { clearTimeout(signOutArm); signOutArm = null; }
+    finishSignOut();
+  });
+  function armSignOut(btn, n) {
+    btn.querySelector('small').textContent = plural(n, 'change') + ' not synced. Tap again to sign out and lose them';
+    signOutArm = setTimeout(function () { signOutArm = null; btn.querySelector('small').textContent = 'Your logbook stays in your account'; }, 6000);
+  }
+  function finishSignOut() {
+    auth.signOut();
+    var keep = { palette: state.palette, chart: state.chart, step: state.step, supWeeks: state.supWeeks };
+    state = freshState(); state.palette = keep.palette; state.chart = keep.chart; state.step = keep.step; state.supWeeks = keep.supWeeks;
+    saveQuiet(); resetSync();
+    dayOpen = {}; filterCat = 'all'; openCat = null; moveOpen = null; rmArm = null; supMoveOpen = null;
+    renderAll(); go('dashboard'); showAccount('welcome');
+  }
+
   /* ---------- boot ---------- */
   applyPalette();
   renderAll();
   showView(location.hash.replace('#', ''));
-  if (needsSetup()) openSetup();
+  if (!signedIn()) showAccount('welcome');
+  else if (needsSetup()) {
+    /* an empty phone with an account: the logbook may well be on the server already */
+    var settle = function () { if (needsSetup()) openSetup(); };
+    syncNow('boot').then(settle, settle);
+  } else scheduleSync(200);
 })();
 </script>
 
