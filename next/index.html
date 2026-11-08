@@ -488,6 +488,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .hi-when{font-size:12.5px;color:var(--ink-2)}
 .hi-change{padding-left:12px}
 .hi-change s{color:var(--ink-2)}
+.checks label{display:flex;align-items:center;gap:12px;min-height:46px;padding:4px 0;border-top:1px solid var(--line);font-size:15px;cursor:pointer}
+.checks label:first-child{border-top:0}
+.checks input[type="checkbox"],.checks input[type="radio"]{width:22px;height:22px;min-height:0;margin:0;flex-shrink:0;accent-color:var(--brand-2)}
+.checks .ck-main{flex:1;min-width:0}
+.checks .ck-sub{display:block;font-size:12.5px;color:var(--ink-2)}
+.checks .empty{padding:8px 0}
+.sc-sites{font-size:13px;color:var(--ink-2);margin-top:6px}
 .hist-row span{color:var(--ink-2)}
 </style>
 
@@ -591,6 +598,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="list">
       <button class="list-row" id="openCats">Categories and targets<small id="catsSummary"></small></button>
       <button class="list-row" id="openSupervisors">Supervisors<small id="supervisorsSummary"></small></button>
+      <button class="list-row" id="openSites">Sites<small id="sitesSummary"></small></button>
       <button class="list-row" id="openCarried">Hours carried in<small id="carriedSummary"></small></button>
       <button class="list-row" id="openImport">Import from a spreadsheet<small>CSV saved from Excel</small></button>
     </div>
@@ -683,6 +691,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <p class="fine">Shown to the supervisees you connect with. The license number is marked as not verified until a clinic or program confirms it.</p>
   </section>
   <section class="panel">
+    <div class="panel-head"><h2>Sites</h2></div>
+    <div class="list"><button class="list-row" id="svOpenSites">Your sites<small id="svSitesSummary"></small></button></div>
+    <p class="fine">The places where supervisees work with you. You pick from this list when you connect with a supervisee, and each hour they log under you carries the site.</p>
+  </section>
+  <section class="panel">
     <div class="panel-head"><h2>Account</h2></div>
     <div class="list">
       <div class="list-row plain">Signed in as<small id="svAcctEmail"></small></div>
@@ -772,6 +785,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
           <input type="text" id="supNewCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
           <p class="fine">Saved to your supervisor list and made current. Each entry keeps the supervisor it was logged under.</p>
         </div>
+      </div>
+    </fieldset>
+    <fieldset class="f" id="siteField" hidden><legend>Site</legend>
+      <div class="group fields stack-fields">
+        <select id="siteSelect" aria-label="Site"></select>
       </div>
     </fieldset>
     <fieldset class="f"><legend>Details (optional)</legend>
@@ -1017,6 +1035,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         <div class="chips" id="svInvType" role="group" aria-label="Type" style="padding-top:0"><button type="button" class="chip" data-type="individual" aria-pressed="true">Individual</button><button type="button" class="chip" data-type="group" aria-pressed="false">Group</button></div>
       </div>
     </fieldset>
+    <fieldset class="f"><legend>Sites</legend>
+      <div class="group fields stack-fields">
+        <div class="checks" id="svInvSites"></div>
+        <p class="fine" id="svInvSitesHint">Where this supervisee works with you. Each hour they log under you carries the site.</p>
+      </div>
+    </fieldset>
     <button class="primary" id="svInvSend">Send request</button>
     <p class="fine" id="svInvStatus" role="status" aria-live="polite"></p>
   </div>
@@ -1047,7 +1071,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       <div id="svDetEntries"></div>
     </section>
     <section class="panel">
-      <div class="list"><button class="list-row" id="svDetReport">Hours report (PDF)<small>Hours under you, with the signed weeks</small></button></div>
+      <div class="list">
+        <button class="list-row" id="svDetSites">Sites<small id="svDetSitesSub"></small></button>
+        <button class="list-row" id="svDetReport">Hours report (PDF)<small>Hours under you, with the signed weeks</small></button>
+      </div>
       <p class="fine" id="svDetReportStatus" role="status" aria-live="polite" style="margin-top:8px"></p>
     </section>
     <section class="panel" id="svDetActions">
@@ -1063,6 +1090,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   <div class="sheet-top wrap"><button class="link" id="accCancel">Cancel</button><h2 id="accTitle">Supervisor request</h2><span></span></div>
   <div class="sheet-body wrap">
     <p class="fine" id="accWho"></p>
+    <p class="fine" id="accSites" hidden></p>
     <p class="fine">Accepting lets this supervisor see the hours you log under them, with the type, subcategory, site, client code and note of each entry. They cannot change or delete anything. Hours under other supervisors and the rest of your logbook stay private.</p>
     <fieldset class="f"><legend>Supervisor card</legend>
       <div class="group fields stack-fields">
@@ -1193,6 +1221,73 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </div>
 </div>
 
+<!-- SITES: the person's own list (both sides) -->
+<div class="sheet" id="sheet-sites" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <div class="sheet-top wrap"><button class="link" id="stBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="stTitle">Sites</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="stIntro"></p>
+    <div class="list" id="stList"></div>
+    <button class="secondary" id="stAdd">Add a site</button>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-site" hidden role="dialog" aria-modal="true" aria-labelledby="seTitle">
+  <div class="sheet-top wrap"><button class="link" id="seCancel">Cancel</button><h2 id="seTitle">Site</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="notice" id="seLinked" hidden style="margin-bottom:0"></p>
+    <fieldset class="f"><legend>Site</legend>
+      <div class="group fields stack-fields">
+        <input type="text" id="seName" placeholder="Name, for example Riverside Counseling Center" maxlength="120" autocomplete="off">
+        <input type="text" id="seStreet" placeholder="Street address (optional)" maxlength="160" autocomplete="off">
+        <input type="text" id="seCity" placeholder="City" maxlength="80" autocomplete="off">
+        <div class="two" style="display:flex;gap:10px"><input type="text" id="seState" placeholder="State" maxlength="40" autocomplete="off" style="flex:1"><input type="text" id="seZip" placeholder="ZIP" maxlength="12" inputmode="numeric" autocomplete="off" style="flex:1"></div>
+        <label class="switch"><span>Usual site<small style="display:block;color:var(--ink-2);font-size:12.5px">Chosen first when a supervisor covers several</small></span><input type="checkbox" id="sePrimary"><i class="sw-ctl"></i></label>
+      </div>
+    </fieldset>
+    <button class="primary" id="seSave">Save site</button>
+    <button class="danger" id="seRemove" hidden>Remove site</button>
+    <p class="fine" id="seStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- WHICH OF MY SITES A SUPERVISOR CARD COVERS (logbook side) -->
+<div class="sheet" id="sheet-cardsites" hidden role="dialog" aria-modal="true" aria-labelledby="csTitle">
+  <div class="sheet-top wrap"><button class="link" id="csBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Supervisors</button><h2 id="csTitle">Sites</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="csWho"></p>
+    <div class="checks" id="csList"></div>
+    <button class="secondary" id="csAdd">Add a site</button>
+    <p class="fine">With one site ticked, every entry logged under this supervisor gets it. With several, the log form asks which.</p>
+  </div>
+</div>
+
+<!-- LINK A SUPERVISOR'S SITE TO ONE OF MINE (logbook side) -->
+<div class="sheet" id="sheet-sitelink" hidden role="dialog" aria-modal="true" aria-labelledby="slTitle">
+  <div class="sheet-top wrap"><button class="link" id="slCancel">Later</button><h2 id="slTitle">Site</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="slWho"></p>
+    <section class="panel" id="slSite"></section>
+    <p class="fine" id="slAsk">Is this one of your sites? Pick it and the two records are treated as the same place from now on. Or add it as a new site.</p>
+    <div class="checks" id="slList"></div>
+    <button class="primary" id="slLink" disabled>Link to the selected site</button>
+    <button class="secondary" id="slNew">Add it as a new site</button>
+    <p class="fine" id="slStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- WHICH OF MY SITES A CONNECTION COVERS (supervising side) -->
+<div class="sheet" id="sheet-connsites" hidden role="dialog" aria-modal="true" aria-labelledby="cnsTitle">
+  <div class="sheet-top wrap"><button class="link" id="cnsCancel">Cancel</button><h2 id="cnsTitle">Sites</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="cnsWho"></p>
+    <div class="checks" id="cnsList"></div>
+    <button class="secondary" id="cnsAdd">Add a site</button>
+    <p class="fine" id="cnsHint"></p>
+    <button class="primary" id="cnsSave">Save</button>
+    <p class="fine" id="cnsStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -1243,7 +1338,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
   function freshState() {
     return { v: 2, name: '', program: '', totalTarget: 700, categories: builtinCats(), carried: { direct: 0, indirect: 0, supervision: 0 },
-             chart: 'bars', step: 5, entries: [], examples: false, bannerDismissed: false, collapsed: {}, supervisors: [], report: { supervisor: '', credential: '' } };
+             chart: 'bars', step: 5, entries: [], examples: false, bannerDismissed: false, collapsed: {}, supervisors: [], sites: [], report: { supervisor: '', credential: '' } };
   }
   function uid() {
     try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
@@ -1296,6 +1391,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   var hadSupList = Array.isArray(state.supervisors);
   if (!hadSupList) state.supervisors = [];
   if (!hadSupList && state.report.supervisor) { state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: state.report.supervisor, credential: state.report.credential || '', since: '', current: true }); }
+  /* sites and which of them each supervisor card covers came later than the lists themselves */
+  if (!Array.isArray(state.sites)) state.sites = [];
+  state.supervisors.forEach(function (s) { if (!Array.isArray(s.sites)) s.sites = []; });
   saveState();
 
   /* ---------- categories ---------- */
@@ -1305,6 +1403,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function customCats() { return state.categories.filter(function (c) { return !c.builtin; }); }
   function entryCount(catId) { var n = 0; state.entries.forEach(function (e) { if (e.cat === catId) n++; }); return n; }
   function supervisor(id) { for (var i = 0; i < state.supervisors.length; i++) if (state.supervisors[i].id === id) return state.supervisors[i]; return null; }
+  function site(id) { for (var i = 0; i < state.sites.length; i++) if (state.sites[i].id === id) return state.sites[i]; return null; }
   function currentSupervisor() { var c = state.supervisors.filter(function (s) { return s.current; })[0]; return c || state.supervisors[0] || null; }
   function supLabel(s) { return s ? s.name + (s.credential ? ', ' + s.credential : '') : ''; }
   function supEntryCount(id) { var n = 0; state.entries.forEach(function (e) { if (e.sup === id) n++; }); return n; }
@@ -1485,6 +1584,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var c = cat(e.cat); var sub = '';
     if (e.sub) sub += '<span>' + esc(e.sub) + '</span>';
     if (e.modality && MOD_BY_ID[e.modality]) sub += '<span>' + MOD_BY_ID[e.modality].label + '</span>';
+    if (e.site && site(e.site)) sub += '<span>' + esc(siteDisplayName(site(e.site))) + '</span>';
     if (e.client) sub += '<span>Client ' + esc(e.client) + '</span>';
     if (e.note) sub += '<span>' + esc(e.note) + '</span>';
     var pend = pendingDeletionFor(e.id) ? '<span class="pill warn">Deletion requested</span>' : '';
@@ -1632,6 +1732,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('catsSummary').textContent = plural(state.categories.length, 'type') + (state.totalTarget ? ' · ' + state.totalTarget + ' h total' : '');
     $('carriedSummary').textContent = T.carriedMin ? hrs(T.carriedMin) + ' h' : 'None';
     var cs = currentSupervisor(); $('supervisorsSummary').textContent = cs ? cs.name + (state.supervisors.length > 1 ? ' (current)' : '') : 'None yet';
+    $('sitesSummary').textContent = sitesSummary();
     $('wipeSub').textContent = state.entries.length ? plural(state.entries.length, 'entry') : 'Nothing to delete';
     document.querySelectorAll('#stepSeg button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.step === state.step ? 'true' : 'false'); });
     document.querySelectorAll('#supSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.span) === String(state.supWeeks || 8) ? 'true' : 'false'); });
@@ -1713,11 +1814,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 
   /* ---------- sheets ---------- */
   var sheetStack = [];
-  function openSheet(id) { var el = $(id); el.hidden = false; el.scrollTop = 0; document.body.style.overflow = 'hidden'; if (sheetStack.indexOf(id) < 0) sheetStack.push(id); }
+  /* a sheet opened over another sits above it whatever their order in the page */
+  function openSheet(id) { var el = $(id); el.hidden = false; el.scrollTop = 0; document.body.style.overflow = 'hidden'; if (sheetStack.indexOf(id) < 0) { sheetStack.push(id); el.style.zIndex = String(20 + sheetStack.length); } }
   function closeSheet(id) {
     if (!id) id = sheetStack[sheetStack.length - 1];
     if (!id) return;
-    $(id).hidden = true; sheetStack = sheetStack.filter(function (s) { return s !== id; });
+    $(id).hidden = true; $(id).style.zIndex = ''; sheetStack = sheetStack.filter(function (s) { return s !== id; });
     if (!sheetStack.length) document.body.style.overflow = '';
   }
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && sheetStack.length && sheetStack[sheetStack.length - 1] !== 'sheet-account') closeSheet(); });
@@ -1726,8 +1828,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   var form = null;
   function openLog(entry) {
     form = entry
-      ? { id: entry.id, date: entry.date, cat: entry.cat, sub: entry.sub || '', otherName: '', minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '', sup: entry.sup || '', extraDates: [] }
-      : { id: null, date: iso(todayDate()), cat: 'direct', sub: '', otherName: '', minutes: 50, modality: 'in_person', client: '', note: '', sup: '', extraDates: [] };
+      ? { id: entry.id, date: entry.date, cat: entry.cat, sub: entry.sub || '', otherName: '', minutes: entry.minutes, modality: entry.modality || '', client: entry.client || '', note: entry.note || '', sup: entry.sup || '', site: entry.site || '', extraDates: [] }
+      : { id: null, date: iso(todayDate()), cat: 'direct', sub: '', otherName: '', minutes: 50, modality: 'in_person', client: '', note: '', sup: '', site: '', extraDates: [] };
     if (!supervisor(form.sup)) form.sup = (currentSupervisor() || {}).id || '__new';
     $('logTitle').textContent = entry ? 'Edit entry' : 'Log hours';
     $('logDelete').hidden = !entry; disarmDelete();
@@ -1760,6 +1862,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('supSelect').innerHTML = state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (form.sup === s.id ? ' selected' : '') + '>' + esc(supLabel(s)) + (s.current ? ' (current)' : '') + '</option>'; }).join('') +
       '<option value="__new"' + (form.sup === '__new' ? ' selected' : '') + '>' + (state.supervisors.length ? 'Add a new supervisor\u2026' : 'Add your supervisor') + '</option>';
     $('supNewBox').hidden = form.sup !== '__new';
+    renderSiteField();
     $('moreDates').innerHTML = form.extraDates.map(function (d, i) { return '<div><input type="date" data-extra="' + i + '" value="' + esc(d) + '" aria-label="Additional date"><button type="button" data-remove="' + i + '" aria-label="Remove this date">&times;</button></div>'; }).join('');
     var n = 1 + form.extraDates.filter(function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); }).length;
     $('logSave').textContent = form.id ? 'Save changes' : (n > 1 ? 'Save ' + n + ' entries' : 'Save entry');
@@ -1781,6 +1884,26 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('logRequestDelete').hidden = !original || !!pending || !covering;
     $('logRequestDelete').disabled = false;
   }
+  /* the site comes from the supervisor card: one site, set without asking; several, a choice; none, no site */
+  /* the sites a supervisor card covers are the choices; a card that covers none offers all of the person's sites */
+  function renderSiteField() {
+    var card = supervisor(form.sup), covered = card ? (card.sites || []).filter(function (id) { return site(id); }) : [];
+    var restricted = covered.length > 0, choices = restricted ? covered : sortedSites().map(function (st) { return st.id; });
+    if (form.site && choices.indexOf(form.site) < 0 && site(form.site)) choices = choices.concat([form.site]);
+    $('siteField').hidden = !choices.length;
+    if (!choices.length) { form.site = ''; return; }
+    if (form.site && choices.indexOf(form.site) < 0) form.site = '';
+    if (!form.site && (!form.id || (restricted && choices.length === 1))) form.site = defaultSiteFor(card, choices);
+    var noSite = !restricted || choices.length > 1;
+    $('siteSelect').innerHTML = choices.map(function (id) { var st = site(id); return '<option value="' + id + '"' + (form.site === id ? ' selected' : '') + '>' + esc(siteDisplayName(st)) + (st.primary ? ' (usual)' : '') + '</option>'; }).join('') +
+      (noSite ? '<option value=""' + (form.site ? '' : ' selected') + '>No site</option>' : '');
+    $('siteSelect').disabled = restricted && choices.length === 1;
+  }
+  function defaultSiteFor(card, choices) {
+    var usual = choices.filter(function (id) { return site(id) && site(id).primary; })[0];
+    return usual || choices[0];
+  }
+  $('siteSelect').addEventListener('change', function () { form.site = this.value; });
   /* why the entry in the form cannot be saved, or '' when it can */
   function formLock() {
     var original = form.id ? state.entries.filter(function (x) { return x.id === form.id; })[0] : null;
@@ -1827,16 +1950,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       if (!supName) { toast('Enter your supervisor\u2019s name'); $('supNewName').focus(); return; }
       state.supervisors.forEach(function (x) { x.current = false; });
       supId = 's' + uid().replace(/-/g, '').slice(0, 10);
-      state.supervisors.push({ id: supId, name: supName, credential: $('supNewCred').value.trim().slice(0, 60), since: '', current: true });
+      state.supervisors.push({ id: supId, name: supName, credential: $('supNewCred').value.trim().slice(0, 60), since: '', current: true, sites: [] });
     }
     if (!supervisor(supId)) { toast('Choose a supervisor'); $('supSelect').focus(); return; }
     var id = form.id, made = 0;
     if (id) {
       var e = state.entries.filter(function (x) { return x.id === id; })[0];
-      if (e) { e.date = form.date; e.cat = catId; e.sub = form.sub; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; e.sup = supId; }
+      if (e) { e.date = form.date; e.cat = catId; e.sub = form.sub; e.minutes = form.minutes; e.modality = form.modality; e.client = form.client; e.note = form.note; e.sup = supId; e.site = site(form.site) ? form.site : ''; }
     } else {
       var dates = [form.date].concat(form.extraDates).filter(function (d, i, a) { return /^\d{4}-\d{2}-\d{2}$/.test(d) && a.indexOf(d) === i; });
-      dates.forEach(function (d) { var nid = uid(); if (!made) id = nid; state.entries.push({ id: nid, date: d, cat: catId, sub: form.sub, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, sup: supId, created: Date.now() + made }); made++; });
+      dates.forEach(function (d) { var nid = uid(); if (!made) id = nid; state.entries.push({ id: nid, date: d, cat: catId, sub: form.sub, minutes: form.minutes, modality: form.modality, client: form.client, note: form.note, sup: supId, site: site(form.site) ? form.site : '', created: Date.now() + made }); made++; });
     }
     saveState(); closeSheet('sheet-log');
     if (!$('view-entries').hidden) { dayOpen[form.date] = true; }
@@ -1975,9 +2098,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       } else if (signedIn()) {
         connBtn = '<button type="button" data-connect="' + s.id + '">Connect by email</button>';
       }
+      var siteNames = (s.sites || []).filter(function (id) { return site(id); }).map(function (id) { return esc(siteDisplayName(site(id))); });
+      var siteLine = '<div class="sc-sites">' + (siteNames.length ? 'Sites: ' + siteNames.join(', ') : 'No site set') + '</div>';
       return '<div class="sup-card"><div class="sc-head"><span class="sc-name">' + esc(s.name) + '</span>' + (s.current ? '<span class="badge">Current</span>' : '') + '</div>' +
-        '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' + connLine +
-        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') + connBtn + moveBtn +
+        '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' + siteLine + connLine +
+        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') + '<button type="button" data-cardsites="' + s.id + '">Sites</button>' + connBtn + moveBtn +
         (n ? '<button type="button" class="rm" disabled>In use</button>' : (cn && cn.status === 'active' ? '' : '<button type="button" class="rm" data-rmsup="' + s.id + '">Remove</button>')) + '</div>' + hint + moveBox + '</div>';
     }).join('');
   }
@@ -1992,13 +2117,14 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var email = $('newSupEmail').value.trim().toLowerCase();
     if (email && !validEmail(email)) { toast('Check the email address'); $('newSupEmail').focus(); return; }
     state.supervisors.forEach(function (s) { s.current = false; });
-    var card = { id: 's' + uid().replace(/-/g, '').slice(0, 10), name: name, credential: $('newSupCred').value.trim().slice(0, 60), since: since, current: true };
+    var card = { id: 's' + uid().replace(/-/g, '').slice(0, 10), name: name, credential: $('newSupCred').value.trim().slice(0, 60), since: since, current: true, sites: [] };
     state.supervisors.push(card);
     saveState(); openSupervisors(); toast(name + ' is now your current supervisor');
     if (email) sendConnectRequest(card, email, since, null);
   });
   $('supList').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.cardsites) { var cc = supervisor(b.dataset.cardsites); if (cc) openCardSites(cc); return; }
     if (b.dataset.connect) { var cs = supervisor(b.dataset.connect); if (cs) openConnect(cs); return; }
     if (b.dataset.weeks) { var wc = connById(b.dataset.weeks); if (wc) openWeeks(wc); return; }
     if (b.dataset.withdraw) { withdrawRequest(b.dataset.withdraw, renderSupervisors); return; }
@@ -2354,6 +2480,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (rows.length) table([{ label: 'Type', w: 160 }, { label: 'Subcategory', w: 264 }, { label: 'Hours', w: 80, align: 'right' }], rows);
     else { font('normal', 9.5, GRAY); text('No entries in this period.', M, k.y); k.y += 14; }
 
+    var bySite = {}; entries.forEach(function (e) { var nm = e.site && site(e.site) ? siteDisplayName(site(e.site)) : 'No site'; bySite[nm] = (bySite[nm] || 0) + e.minutes; });
+    if (Object.keys(bySite).some(function (k) { return k !== 'No site'; })) {
+      section('Hours by site');
+      table([{ label: 'Site', w: 424 }, { label: 'Hours', w: 80, align: 'right' }], Object.keys(bySite).sort(function (a, b) { return a === 'No site' ? 1 : b === 'No site' ? -1 : bySite[b] - bySite[a]; }).map(function (k) { return [k, hrs(bySite[k])]; }));
+    }
+
     if ($('rpEntries').checked && entries.length) {
       section('Entries (' + entries.length + ')');
       var multiSup = !period.supId && state.supervisors.length > 1;
@@ -2424,7 +2556,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       var since = $('suSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
       state.program = $('suProgram').value.trim().slice(0, 80);
       state.supervisors.forEach(function (x) { x.current = false; });
-      state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: supName, credential: $('suSupCred').value.trim().slice(0, 60), since: since, current: true });
+      state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: supName, credential: $('suSupCred').value.trim().slice(0, 60), since: since, current: true, sites: [] });
       sync.wantLogbook = true;
     }
     if (r.sup) { sync.pendingSupervisorProfile = { credentials: $('suCred').value.trim().slice(0, 120), licenseNumber: $('suLicense').value.trim().slice(0, 60) }; }
@@ -2451,13 +2583,15 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     supervisee_profiles: ['university_name', 'program_name', 'total_target_hours'],
     user_settings: ['palette', 'chart_style', 'minute_step', 'supervision_weeks', 'collapsed_panels'],
     supervisor_records: ['name', 'credential', 'since_date', 'is_current'],
+    sites: ['name', 'is_primary', 'sort', 'address_line', 'city', 'state_code', 'postal_code', 'canonical_site_id'],
+    supervisor_record_sites: ['supervisor_record_id', 'site_id'],
     hour_categories: ['builtin_key', 'name', 'target_hours', 'counts_toward_total', 'sort'],
     hour_subcategories: ['category_id', 'name', 'sort'],
     hour_entries: ['entry_date', 'category_id', 'subcategory_id', 'minutes', 'modality', 'client_code', 'note', 'supervisor_record_id', 'site_id', 'client_created_at'],
     carried_in_hours: ['category_id', 'hours']
   };
   /* parents before children, so the server never sees an entry for a type it does not have yet */
-  var PUSH_ORDER = { supervisee_profiles: 0, user_settings: 0, hour_categories: 1, supervisor_records: 2, hour_subcategories: 2, carried_in_hours: 3, hour_entries: 4 };
+  var PUSH_ORDER = { supervisee_profiles: 0, user_settings: 0, hour_categories: 1, sites: 1, supervisor_records: 2, hour_subcategories: 2, carried_in_hours: 3, supervisor_record_sites: 3, hour_entries: 4 };
 
   /* --- session --- */
   var session = null;
@@ -2558,7 +2692,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     try { s = JSON.parse(localStorage.getItem(SYNC_KEY) || 'null'); } catch (e) { /* unreadable */ }
     if (!s || typeof s !== 'object') s = {};
     s.cursor = s.cursor || 0; s.ids = s.ids || {}; s.snapshot = s.snapshot || {}; s.versions = s.versions || {}; s.tables = s.tables || {}; s.rejected = s.rejected || {};
-    ['cat', 'sub', 'sup', 'entry', 'carried'].forEach(function (k) { s.ids[k] = s.ids[k] || {}; });
+    ['cat', 'sub', 'sup', 'entry', 'carried', 'site', 'srs'].forEach(function (k) { s.ids[k] = s.ids[k] || {}; });
     return s;
   }
   function saveSync() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) { /* storage unavailable */ } }
@@ -2586,6 +2720,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function supUuid(localId) { if (!sync.ids.sup[localId]) sync.ids.sup[localId] = uid(); return sync.ids.sup[localId]; }
   function entryUuid(localId) { if (UUID_RE.test(localId)) return localId.toLowerCase(); if (!sync.ids.entry[localId]) sync.ids.entry[localId] = uid(); return sync.ids.entry[localId]; }
   function carriedUuid(catId) { if (!sync.ids.carried[catId]) sync.ids.carried[catId] = uid(); return sync.ids.carried[catId]; }
+  function siteUuid(localId) { if (UUID_RE.test(localId)) return localId.toLowerCase(); if (!sync.ids.site[localId]) sync.ids.site[localId] = uid(); return sync.ids.site[localId]; }
+  /* the row that says a supervisor card covers a site: one per pair */
+  function srsUuid(supLocal, siteLocal) { var k = supLocal + '\u0001' + siteLocal; if (!sync.ids.srs[k]) sync.ids.srs[k] = uid(); return sync.ids.srs[k]; }
   function reverse(map) { var r = {}; Object.keys(map).forEach(function (k) { r[map[k]] = k; }); return r; }
 
   function collapsedFlags() { var out = {}; Object.keys(state.collapsed || {}).forEach(function (k) { if (state.collapsed[k]) out[String(k).slice(0, 40)] = true; }); return out; }
@@ -2595,6 +2732,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     return !!(state.entries.length || state.supervisors.length ||
       state.categories.some(function (c) { return !c.builtin; }) ||
       Object.keys(state.carried || {}).some(function (k) { return +state.carried[k] > 0; }));
+  }
+
+  /* an account without a logbook still syncs its sites: a supervisor's list of places has to be on the
+     server for a connection to name them. Everything else waits for a logbook. */
+  function syncTables() {
+    var has = (sync.me && sync.me.profiles && sync.me.profiles.supervisee) || sync.wantLogbook || localHasLogbook();
+    return has ? null : { sites: true };
   }
 
   /* the logbook as the server should see it: { uuid: { table, data, deleted } } */
@@ -2614,8 +2758,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       var car = num(state.carried[c.id]);
       if (car > 0 || sync.ids.carried[c.id]) put('carried_in_hours', carriedUuid(c.id), { category_id: id, hours: car });
     });
+    state.sites.forEach(function (st, i) {
+      put('sites', siteUuid(st.id), { name: str(st.name, 120) || 'Site', is_primary: !!st.primary, sort: i, address_line: str(st.address, 160), city: str(st.city, 80), state_code: str(st.st, 40), postal_code: str(st.zip, 12),
+        canonical_site_id: UUID_RE.test(st.canonical || '') ? st.canonical.toLowerCase() : null });
+    });
     state.supervisors.forEach(function (s) {
       put('supervisor_records', supUuid(s.id), { name: str(s.name, 120) || 'Supervisor', credential: str(s.credential, 120), since_date: ISO_DATE_RE.test(s.since || '') ? s.since : null, is_current: !!s.current });
+      (s.sites || []).forEach(function (siteLocal) { if (site(siteLocal)) put('supervisor_record_sites', srsUuid(s.id, siteLocal), { supervisor_record_id: supUuid(s.id), site_id: siteUuid(siteLocal) }); });
     });
     state.entries.forEach(function (e) {
       var c = cat(e.cat); if (!c || !ISO_DATE_RE.test(e.date || '')) return;
@@ -2628,7 +2777,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       put('hour_entries', entryUuid(e.id), {
         entry_date: e.date, category_id: catUuid(c.id), subcategory_id: subId, minutes: Math.min(600, Math.max(1, Math.round(+e.minutes || 0))),
         modality: MOD_BY_ID[e.modality] ? e.modality : null, client_code: str(e.client, 24), note: str(e.note, 300),
-        supervisor_record_id: e.sup && supervisor(e.sup) ? supUuid(e.sup) : null, site_id: null,
+        supervisor_record_id: e.sup && supervisor(e.sup) ? supUuid(e.sup) : null, site_id: e.site && site(e.site) ? siteUuid(e.site) : null,
         client_created_at: e.created ? new Date(e.created).toISOString() : null
       });
     });
@@ -2636,14 +2785,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
 
   function pendingChanges() {
-    var rows = rowsFromState(), changes = [];
+    var rows = rowsFromState(), changes = [], only = syncTables();
     Object.keys(rows).forEach(function (id) {
       var r = rows[id], key = snapKey(r.data, r.deleted);
+      if (only && !only[r.table]) return;
       if (sync.snapshot[id] === key || sync.rejected[id] === key) return;
       changes.push({ table: r.table, id: id, baseVersion: sync.versions[id] || 0, deleted: r.deleted, data: r.data });
     });
     Object.keys(sync.snapshot).forEach(function (id) {
       if (rows[id] || sync.snapshot[id].charAt(0) === 'D') return;
+      if (only && !only[sync.tables[id]]) return;
       changes.push({ table: sync.tables[id], id: id, baseVersion: sync.versions[id] || 0, deleted: true, data: JSON.parse(sync.snapshot[id].slice(1)) });
     });
     changes.sort(function (a, b) { return (PUSH_ORDER[a.table] || 9) - (PUSH_ORDER[b.table] || 9); });
@@ -2653,7 +2804,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 
   /* --- applying what the server sends --- */
   var rev = null;   /* uuid -> local id maps, rebuilt per sync */
-  function buildReverse() { rev = { cat: reverse(sync.ids.cat), sub: reverse(sync.ids.sub), sup: reverse(sync.ids.sup), entry: reverse(sync.ids.entry), carried: reverse(sync.ids.carried) }; }
+  function buildReverse() { rev = { cat: reverse(sync.ids.cat), sub: reverse(sync.ids.sub), sup: reverse(sync.ids.sup), entry: reverse(sync.ids.entry), carried: reverse(sync.ids.carried), site: reverse(sync.ids.site), srs: reverse(sync.ids.srs) }; }
   function localCatId(uuid) { return rev.cat[uuid] || null; }
   function subNameFor(uuid) { var k = rev.sub[uuid]; return k ? k.split('\u0001')[1] : ''; }
 
@@ -2737,9 +2888,32 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       s = supervisor(supLocal);
       if (deleted) {
         if (s) { state.supervisors = state.supervisors.filter(function (x) { return x.id !== supLocal; }); if (state.report.supervisor === s.name) state.report = { supervisor: '', credential: '' }; }
-      } else if (!s) state.supervisors.push({ id: supLocal, name: str(data.name, 60), credential: str(data.credential, 60), since: data.since_date || '', current: !!data.is_current, linkedTo: row.supervisor_user_id || '' });
+      } else if (!s) state.supervisors.push({ id: supLocal, name: str(data.name, 60), credential: str(data.credential, 60), since: data.since_date || '', current: !!data.is_current, linkedTo: row.supervisor_user_id || '', sites: [] });
       else if (merge) { s.name = str(data.name, 60) || s.name; s.credential = s.credential || str(data.credential, 60); s.since = s.since || data.since_date || ''; s.linkedTo = row.supervisor_user_id || ''; }
       else { s.name = str(data.name, 60) || s.name; s.credential = str(data.credential, 60); s.since = data.since_date || ''; s.current = !!data.is_current; s.linkedTo = row.supervisor_user_id || ''; }
+    } else if (table === 'sites') {
+      var siteLocal = rev.site[id];
+      if (!siteLocal && merge && !deleted) {
+        var twinSite = state.sites.filter(function (x) { return !seenByServer(sync.ids.site[x.id]) && sameName(x.name, data.name); })[0];
+        if (twinSite) siteLocal = twinSite.id;
+      }
+      if (!siteLocal) siteLocal = id;
+      if (!rev.site[id]) { sync.ids.site[siteLocal] = id; rev.site[id] = siteLocal; }
+      var st = site(siteLocal);
+      if (deleted) {
+        if (st) { state.sites = state.sites.filter(function (x) { return x.id !== siteLocal; }); state.supervisors.forEach(function (x) { x.sites = (x.sites || []).filter(function (y) { return y !== siteLocal; }); }); state.entries.forEach(function (x) { if (x.site === siteLocal) x.site = ''; }); }
+      } else if (!st) state.sites.push({ id: siteLocal, name: str(data.name, 120), address: str(data.address_line, 160), city: str(data.city, 80), st: str(data.state_code, 40), zip: str(data.postal_code, 12), primary: !!data.is_primary, canonical: data.canonical_site_id || '' });
+      else if (merge) { st.name = str(data.name, 120) || st.name; st.address = st.address || str(data.address_line, 160); st.city = st.city || str(data.city, 80); st.st = st.st || str(data.state_code, 40); st.zip = st.zip || str(data.postal_code, 12); st.canonical = st.canonical || data.canonical_site_id || ''; }
+      else { st.name = str(data.name, 120) || st.name; st.address = str(data.address_line, 160); st.city = str(data.city, 80); st.st = str(data.state_code, 40); st.zip = str(data.postal_code, 12); st.primary = !!data.is_primary; st.canonical = data.canonical_site_id || ''; }
+    } else if (table === 'supervisor_record_sites') {
+      var csSup = rev.sup[data.supervisor_record_id], csSite = rev.site[data.site_id];
+      if (!csSup || !csSite) return true;
+      sync.ids.srs[csSup + '\u0001' + csSite] = id; rev.srs[id] = csSup + '\u0001' + csSite;
+      var card = supervisor(csSup); if (!card) return true;
+      card.sites = card.sites || [];
+      var has = card.sites.indexOf(csSite) >= 0;
+      if (deleted && has && !keepLocal) card.sites = card.sites.filter(function (y) { return y !== csSite; });
+      else if (!deleted && !has && site(csSite)) card.sites.push(csSite);
     } else if (table === 'carried_in_hours') {
       var carLocal = localCatId(data.category_id); if (!carLocal) return true;
       sync.ids.carried[carLocal] = id; rev.carried[id] = carLocal;
@@ -2754,6 +2928,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       e.date = data.entry_date; e.cat = catFor; e.sub = data.subcategory_id ? subNameFor(data.subcategory_id) : '';
       e.minutes = +data.minutes || 0; e.modality = MOD_BY_ID[data.modality] ? data.modality : ''; e.client = str(data.client_code, 24); e.note = str(data.note, 300);
       e.sup = data.supervisor_record_id ? (rev.sup[data.supervisor_record_id] || data.supervisor_record_id) : '';
+      e.site = data.site_id ? (rev.site[data.site_id] || data.site_id) : '';
       var made = Date.parse(data.client_created_at || row.created_at || ''); if (!e.created) e.created = isNaN(made) ? Date.now() : made;
       if (idx < 0) state.entries.push(e);
     }
@@ -2827,10 +3002,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         : Promise.resolve();
       return Promise.all([namePush, boot, prof]);
     }).then(function () {
-      if (!logbook) return;
       return pullAll(mode).then(function (n) { if (n) changed = true; });
     }).then(function () {
-      if (!logbook) return;
       var changes = pendingChanges();
       if (!changes.length) return;
       var batches = []; for (var i = 0; i < changes.length; i += 200) batches.push(changes.slice(i, i + 200));
@@ -2863,6 +3036,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       return loadConnections().then(loadAllWeeks).then(loadDeletions).catch(function () { /* shown next time */ });
     }).then(function () {
       finishApply();
+      if (autoMirrorSites()) changed = true;
       if (changed) { saveQuiet(); renderAll(); } else renderSides();
       saveSync();
       /* a phone that was just cleared for a different account goes to setup, like a new one */
@@ -2872,10 +3046,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
   function pullAll(mode) {
     buildReverse();
-    var applied = 0;
+    var applied = 0, only = syncTables();
     function page() {
       return api('/v1/sync?since=' + (sync.cursor || 0) + '&limit=500').then(function (res) {
-        (res.changes || []).forEach(function (ch) { if (FIELDS[ch.table] && applyRow(ch.table, ch.row, mode)) applied++; });
+        (res.changes || []).forEach(function (ch) { if (FIELDS[ch.table] && (!only || only[ch.table]) && applyRow(ch.table, ch.row, mode)) applied++; });
         if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
         return res.hasMore ? page() : applied;
       });
@@ -3121,7 +3295,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var box = $('connNotice');
     var waiting = conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'requested' && !c.requestedByMe; });
     var asked = conns.filter(function (c) { return c.role === 'supervisor' && c.status === 'requested' && !c.requestedByMe; });
-    box.hidden = !waiting.length && !asked.length && !weekNoticesHtml(false) && !deletionNoticesHtml(false);
+    box.hidden = !waiting.length && !asked.length && !weekNoticesHtml(false) && !deletionNoticesHtml(false) && !siteNoticesHtml(false);
     if (box.hidden) { box.innerHTML = ''; return; }
     var html = waiting.map(function (c) {
       var who = c.supervisor;
@@ -3133,6 +3307,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
     html += weekNoticesHtml(!!html);
     html += deletionNoticesHtml(!!html);
+    html += siteNoticesHtml(!!html);
     box.innerHTML = html;
   }
   $('connNotice').addEventListener('click', function (ev) {
@@ -3141,6 +3316,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (b.dataset.respond) { var c = connById(b.dataset.respond); if (c) openAccept(c); return; }
     if (b.dataset.week) { var wc = connById(b.dataset.weekConn); if (wc) openWeek(wc, b.dataset.week); return; }
     if (b.dataset.dismissDel) { dismissDeletionNotice(b.dataset.dismissDel); return; }
+    if (b.dataset.sitelink) { var sc = connById(b.dataset.sitelink); var sx = sc ? (sc.sites || []).filter(function (x) { return x.id === b.dataset.sitelinkSite; })[0] : null; if (sc && sx) openSiteLink(sc, sx); return; }
     if (b.dataset.hist) openHistory(b.dataset.hist);
   });
 
@@ -3150,6 +3326,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var line = esc(personLabel(who)) + (who.credentials ? ', ' + esc(who.credentials) : '') + (who.displayName && who.email ? ' (' + esc(who.email) + ')' : '') + ' asked to connect as your supervisor';
     if (who.licenseNumber) line += '. License number ' + esc(who.licenseNumber) + ' (not verified)';
     $('accWho').innerHTML = line + '.';
+    var named = (c.sites || []).map(function (x) { return esc(siteLabel(x)); });
+    $('accSites').hidden = !named.length;
+    $('accSites').innerHTML = named.length ? 'Site' + (named.length > 1 ? 's' : '') + ' they named for your work together: <b>' + named.join('</b>, <b>') + '</b>. After you accept, the app asks whether ' + (named.length > 1 ? 'these are' : 'this is') + ' one of your sites or adds ' + (named.length > 1 ? 'them' : 'it') + ' for you.' : '';
     var match = state.supervisors.filter(function (s) { return sameName(s.name, who.displayName || ''); })[0];
     $('accCard').innerHTML = '<option value="__new"' + (match ? '' : ' selected') + '>Add ' + esc(personLabel(who)) + ' as a new supervisor card</option>' +
       state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (match && match.id === s.id ? ' selected' : '') + '>Use my card ' + esc(supLabel(s)) + '</option>'; }).join('');
@@ -3170,7 +3349,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     }).then(function () {
       closeSheet('sheet-accept'); accepting = null;
       toast('Connected with ' + personLabel(c.supervisor));
-      return afterConnChange();
+      return afterConnChange().then(settleSiteLinks);
     }).catch(function (err) { $('accAccept').disabled = false; $('accDecline').disabled = false; $('accStatus').textContent = apiMessage(err); });
   });
   $('accDecline').addEventListener('click', function () {
@@ -3254,8 +3433,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('svRequests').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.accept) {
+      var rc = connById(b.dataset.accept);
+      if (rc && state.sites.length) { openConnSites(rc, 'accept'); return; }
       b.disabled = true;
-      api('/v1/connections/' + b.dataset.accept + '/accept', { method: 'POST', body: {} }).then(function (r) { toast('Connected with ' + personLabel(r.connection.supervisee)); return afterConnChange(); }, function (err) { b.disabled = false; toast(apiMessage(err)); });
+      acceptAsSupervisor(b.dataset.accept, []).then(null, function (err) { b.disabled = false; toast(apiMessage(err)); });
     }
     if (b.dataset.decline) {
       b.disabled = true;
@@ -3263,6 +3444,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     }
     if (b.dataset.withdraw) withdrawRequest(b.dataset.withdraw);
   });
+  function acceptAsSupervisor(connId, siteUuids) {
+    return api('/v1/connections/' + connId + '/accept', { method: 'POST', body: { siteIds: siteUuids } }).then(function (r) { toast('Connected with ' + personLabel(r.connection.supervisee)); return afterConnChange(); });
+  }
   $('svList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-open]'); if (!b) return; var c = connById(b.dataset.open); if (c) openSvDetail(c); });
 
   /* --- supervising side: invite --- */
@@ -3270,6 +3454,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function openSvInvite() {
     $('svInvEmail').value = ''; $('svInvSince').value = ''; $('svInvWeek').value = '1'; $('svInvStatus').textContent = ''; $('svInvSend').disabled = false;
     inv = { standing: 'primary', type: 'individual' }; renderInviteChips();
+    renderSiteChecks($('svInvSites'), state.sites.filter(function (x) { return x.primary; }).map(function (x) { return x.id; }), 'inv');
+    $('svInvSitesHint').textContent = state.sites.length ? 'Where this supervisee works with you. Each hour they log under you carries the site.' : 'No sites yet. Add them under Settings, Your sites; the connection can get its sites later.';
     openSheet('sheet-sv-invite'); setTimeout(function () { $('svInvEmail').focus(); }, 50);
   }
   function renderInviteChips() {
@@ -3285,7 +3471,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!validEmail(email)) { $('svInvStatus').textContent = 'Enter the email address they use for Praxis Plus.'; $('svInvEmail').focus(); return; }
     if (!ISO_DATE_RE.test(since)) since = '';
     $('svInvSend').disabled = true; $('svInvStatus').textContent = 'Sending…';
-    api('/v1/connections', { method: 'POST', body: { as: 'supervisor', email: email, startedOn: since || null, weekStartDow: +$('svInvWeek').value, standing: inv.standing, connectionType: inv.type } })
+    var siteUuids = checkedSites($('svInvSites')).map(siteUuid);
+    /* the sites have to be on the server before a connection can name them */
+    (siteUuids.length ? syncNow('invite').catch(function () {}) : Promise.resolve()).then(function () {
+      return api('/v1/connections', { method: 'POST', body: { as: 'supervisor', email: email, startedOn: since || null, weekStartDow: +$('svInvWeek').value, standing: inv.standing, connectionType: inv.type, siteIds: siteUuids } });
+    })
       .then(function () { closeSheet('sheet-sv-invite'); toast('Request sent to ' + email); return afterConnChange(); })
       .catch(function (err) { $('svInvSend').disabled = false; $('svInvStatus').textContent = apiMessage(err); });
   });
@@ -3320,6 +3510,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       '<div class="meta">' + (p.displayName && p.email ? esc(p.email) + '<br>' : '') + (program ? esc(program) + '<br>' : '') + esc(connMeta(c)) + (c.status !== 'active' ? ' · ' + esc(c.status) : '') + '</div>' +
       '<div class="total">' + (h ? hrs(h.totalMinutes) : '–') + '<small>hours under you</small></div>';
     renderDetailWeeks(c);
+    $('svDetSitesSub').textContent = (c.sites || []).length ? (c.sites || []).map(siteLabel).join(' · ') : (c.status === 'active' ? 'No site set' : '');
+    $('svDetSites').disabled = c.status !== 'active';
     if (!h) { $('svDetTotals').innerHTML = '<p class="note">Loading…</p>'; $('svDetEntries').innerHTML = ''; $('svDetCount').textContent = ''; $('svDetTargetNote').textContent = ''; return; }
     var tt = h.supervisee ? h.supervisee.totalTargetHours : 0;
     $('svDetTargetNote').textContent = tt ? 'Program target ' + tt + ' h' : '';
@@ -3350,6 +3542,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
   $('svDetEntries').addEventListener('click', function (ev) { var b = ev.target.closest('[data-hist]'); if (b) openHistory(b.dataset.hist); });
   $('svDetBack').addEventListener('click', function () { closeSheet('sheet-sv-detail'); det.conn = null; renderSv(); });
+  $('svDetSites').addEventListener('click', function () { if (det.conn && det.conn.status === 'active') openConnSites(det.conn, 'change'); });
   $('svDetRange').addEventListener('click', function (ev) { var b = ev.target.closest('[data-range]'); if (!b) return; det.range = b.dataset.range; renderSvDetail(); });
   $('svDetEnd').addEventListener('click', function () {
     if (!det.conn) return;
@@ -3372,6 +3565,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('svAcctEmail').textContent = session ? session.email : '';
     $('svSyncStatus').textContent = st.text; $('svSyncStatus').classList.toggle('err', !!st.error);
     $('svGoLogbookSub').textContent = accountProfiles().supervisee ? 'Your own hours' : 'Set up your own logbook';
+    $('svSitesSummary').textContent = sitesSummary();
   }
   function queueSupervisorProfile() {
     var cur = (sync.me && sync.me.supervisorProfile) || { credentials: '', licenseNumber: '' };
@@ -3891,6 +4085,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var tot = ['Total clinical hours under you', tt || '—', hrs(h.totalMinutes), tt ? pct(h.totalMinutes, tt * 60) + '%' : '—']; tot.bold = true; rows.push(tot);
     k.table([{ label: 'Type', w: 264 }, { label: 'Target', w: 80, align: 'right' }, { label: 'Hours', w: 80, align: 'right' }, { label: 'Complete', w: 80, align: 'right' }], rows);
     k.font('normal', 8.5, k.GRAY); k.text('Targets are the supervisee’s program targets; the hours are those logged under this connection only.', k.M, k.y); k.y += 14;
+    var bySite = {}; entries.forEach(function (e) { var nm = e.siteName || 'No site'; bySite[nm] = (bySite[nm] || 0) + e.minutes; });
+    if (Object.keys(bySite).some(function (kk) { return kk !== 'No site'; })) {
+      k.section('Hours by site');
+      k.table([{ label: 'Site', w: 424 }, { label: 'Hours', w: 80, align: 'right' }], Object.keys(bySite).sort(function (a, b) { return a === 'No site' ? 1 : b === 'No site' ? -1 : bySite[b] - bySite[a]; }).map(function (kk) { return [kk, hrs(bySite[kk])]; }));
+    }
     if (entries.length) {
       k.section('Entries (' + entries.length + ')');
       k.table([{ label: 'Date', w: 66 }, { label: 'Type', w: 112 }, { label: 'Subcategory', w: 150 }, { label: 'Format', w: 52 }, { label: 'Client', w: 44 }, { label: 'Hours', w: 80, align: 'right' }],
@@ -3910,6 +4109,246 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     k.foot('Praxis Plus · Clinical Hours Report · ' + personLabel(c.supervisee));
     doc.save('Praxis-Plus-hours-report-' + personLabel(c.supervisee).replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') + '-' + iso(todayDate()) + '.pdf');
   }
+
+  /* ---------- sites ----------
+     A site is the place where the hours happen. A site record belongs to whoever created it: the
+     supervisee keeps their own list (for the printed report), the supervisor keeps theirs, and a
+     connection names the supervisor's sites the pair works at. The two records for one place are
+     linked by a single confirmation from the supervisee, never by matching text; from then on the
+     supervisor's name for it is the one reports use. */
+
+  /* --- names --- */
+  function siteLabel(x) { return x.name + (x.city ? ', ' + x.city : ''); }
+  function siteAddress(x) { return [x.address, [x.city, x.st].filter(Boolean).join(', '), x.zip].filter(Boolean).join(' · '); }
+  /* a linked site reads under the supervisor's name for it */
+  function siteDisplayName(st) {
+    if (st && st.canonical) {
+      for (var i = 0; i < conns.length; i++) { var hit = (conns[i].sites || []).filter(function (x) { return x.id === st.canonical; })[0]; if (hit) return hit.name; }
+    }
+    return st ? st.name : '';
+  }
+  function sitesSummary() { return state.sites.length ? plural(state.sites.length, 'site') : 'None yet'; }
+  function sortedSites() { return state.sites.slice().sort(function (a, b) { return (b.primary ? 1 : 0) - (a.primary ? 1 : 0) || a.name.localeCompare(b.name); }); }
+
+  /* --- the person's own list --- */
+  var stFrom = 'settings';
+  function openSites(from) {
+    stFrom = from || 'settings';
+    $('stIntro').textContent = stFrom === 'sv' ? 'The places where supervisees work with you. You pick from this list when you connect with a supervisee, and each hour they log under you carries the site.'
+      : 'The places where your hours happen. Tick which sites each supervisor covers under Settings, Supervisors; a supervisor connected in Praxis Plus names the sites for you.';
+    renderSites(); openSheet('sheet-sites');
+  }
+  function renderSites() {
+    var list = sortedSites();
+    $('stList').innerHTML = list.length ? list.map(function (st) {
+      var covered = state.supervisors.filter(function (s) { return (s.sites || []).indexOf(st.id) >= 0; }).length;
+      var sub = [siteAddress(st), st.canonical ? 'Linked to ' + siteDisplayName(st) : '', covered ? plural(covered, 'supervisor') : ''].filter(Boolean).join(' · ');
+      return '<button type="button" class="list-row" data-site="' + st.id + '"><span>' + esc(st.name) + (st.primary ? ' <span class="pill muted">Usual</span>' : '') + '</span><small>' + esc(sub) + '</small></button>';
+    }).join('') : '<div class="empty"><b>No sites yet.</b> Add the places where the hours happen.</div>';
+  }
+  $('openSites').addEventListener('click', function () { openSites('settings'); });
+  $('svOpenSites').addEventListener('click', function () { openSites('sv'); });
+  $('stBack').addEventListener('click', function () { closeSheet('sheet-sites'); renderAll(); if (stFrom === 'sv') renderSvSettings(); });
+  $('stAdd').addEventListener('click', function () { openSiteEditor(null, 'sites'); });
+  $('stList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-site]'); if (!b) return; var st = site(b.dataset.site); if (st) openSiteEditor(st, 'sites'); });
+
+  /* --- one site --- */
+  var se = { id: null, after: null, arm: false, timer: null };
+  function openSiteEditor(st, after) {
+    se = { id: st ? st.id : null, after: after, arm: false, timer: null };
+    $('seTitle').textContent = st ? 'Edit site' : 'New site';
+    $('seName').value = st ? st.name : ''; $('seStreet').value = st ? st.address || '' : ''; $('seCity').value = st ? st.city || '' : ''; $('seState').value = st ? st.st || '' : ''; $('seZip').value = st ? st.zip || '' : '';
+    $('sePrimary').checked = st ? !!st.primary : !state.sites.length;
+    $('seLinked').hidden = !(st && st.canonical);
+    if (st && st.canonical) $('seLinked').innerHTML = 'Linked to <b>' + esc(siteDisplayName(st)) + '</b>, your supervisor’s record for this place. Reports use their name for it; your name here is for your own lists.';
+    $('seRemove').hidden = !st; $('seRemove').textContent = 'Remove site'; $('seStatus').textContent = ''; $('seSave').disabled = false;
+    openSheet('sheet-site'); setTimeout(function () { $('seName').focus(); }, 50);
+  }
+  $('seCancel').addEventListener('click', function () { closeSheet('sheet-site'); });
+  $('seSave').addEventListener('click', function () {
+    var name = $('seName').value.trim().slice(0, 120); if (!name) { $('seStatus').textContent = 'Give the site a name.'; $('seName').focus(); return; }
+    var st = se.id ? site(se.id) : null;
+    if (!st) { st = { id: uid(), name: name, address: '', city: '', st: '', zip: '', primary: false, canonical: '' }; state.sites.push(st); }
+    st.name = name; st.address = $('seStreet').value.trim().slice(0, 160); st.city = $('seCity').value.trim().slice(0, 80); st.st = $('seState').value.trim().slice(0, 40); st.zip = $('seZip').value.trim().slice(0, 12);
+    if ($('sePrimary').checked) state.sites.forEach(function (x) { x.primary = x.id === st.id; }); else st.primary = false;
+    saveState(); closeSheet('sheet-site'); renderSites(); renderAll(); toast(se.id ? 'Site saved' : 'Site added');
+    if (se.after === 'cardsites' && cs.card) { if (!se.id) cs.card.sites.push(st.id); saveState(); renderCardSites(); }
+    if (se.after === 'connsites' && cns.conn) { var picked = checkedSites($('cnsList')); if (!se.id) picked.push(st.id); renderConnSiteChecks(picked); }
+  });
+  $('seRemove').addEventListener('click', function () {
+    var st = se.id ? site(se.id) : null; if (!st) return;
+    var n = state.entries.filter(function (e) { return e.site === st.id; }).length;
+    if (!se.arm) { se.arm = true; this.textContent = n ? 'Tap again to remove it from ' + plural(n, 'entry') : 'Tap again to remove'; se.timer = setTimeout(function () { se.arm = false; $('seRemove').textContent = 'Remove site'; }, 4000); return; }
+    clearTimeout(se.timer);
+    state.sites = state.sites.filter(function (x) { return x.id !== st.id; });
+    state.supervisors.forEach(function (s) { s.sites = (s.sites || []).filter(function (y) { return y !== st.id; }); });
+    state.entries.forEach(function (e) { if (e.site === st.id) e.site = ''; });
+    saveState(); closeSheet('sheet-site'); renderSites(); renderAll(); toast('Site removed');
+  });
+
+  /* --- checklists of the person's own sites --- */
+  function renderSiteChecks(box, selected, prefix) {
+    var list = sortedSites();
+    box.innerHTML = list.length ? list.map(function (st) {
+      return '<label><input type="checkbox" value="' + st.id + '"' + (selected.indexOf(st.id) >= 0 ? ' checked' : '') + ' id="' + prefix + '-' + st.id + '"><span class="ck-main">' + esc(st.name) + (siteAddress(st) ? '<span class="ck-sub">' + esc(siteAddress(st)) + '</span>' : '') + '</span></label>';
+    }).join('') : '<p class="empty">No sites yet.</p>';
+  }
+  function checkedSites(box) { return Array.prototype.map.call(box.querySelectorAll('input:checked'), function (i) { return i.value; }); }
+
+  /* --- which of my sites a supervisor card covers (logbook side) --- */
+  var cs = { card: null };
+  function openCardSites(card) {
+    cs.card = card;
+    $('csWho').textContent = 'Where you see clients under ' + card.name + '.';
+    renderCardSites(); openSheet('sheet-cardsites');
+  }
+  function renderCardSites() { if (cs.card) renderSiteChecks($('csList'), cs.card.sites || [], 'cs'); }
+  $('csList').addEventListener('change', function () {
+    if (!cs.card) return;
+    cs.card.sites = checkedSites($('csList'));
+    fillSingleSite(cs.card); saveState();
+  });
+  $('csAdd').addEventListener('click', function () { openSiteEditor(null, 'cardsites'); });
+  $('csBack').addEventListener('click', function () { closeSheet('sheet-cardsites'); cs.card = null; renderSupervisors(); renderAll(); });
+  /* a card with exactly one site gives it to the entries under it that have none */
+  function fillSingleSite(card) {
+    var ids = (card.sites || []).filter(function (id) { return site(id); });
+    if (ids.length !== 1) return 0;
+    var n = 0; state.entries.forEach(function (e) { if (e.sup === card.id && !e.site) { e.site = ids[0]; n++; } });
+    return n;
+  }
+
+  /* --- linking the supervisor's site to one of mine (logbook side) --- */
+  function cardForConn(c) {
+    if (!c.supervisorRecordId) return null;
+    return state.supervisors.filter(function (s) { return sync.ids.sup[s.id] === c.supervisorRecordId; })[0] || null;
+  }
+  /* the supervisor's sites on live connections that no site of mine stands for yet */
+  function unlinkedConnSites() {
+    var out = [];
+    conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'active'; }).forEach(function (c) {
+      (c.sites || []).forEach(function (x) {
+        if (!state.sites.some(function (st) { return st.canonical === x.id; })) out.push({ conn: c, site: x });
+      });
+    });
+    return out;
+  }
+  function normSite(t) {
+    return String(t || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9 ]+/g, ' ')
+      .replace(/\b(street|st)\b/g, 'st').replace(/\b(avenue|ave)\b/g, 'ave').replace(/\b(road|rd)\b/g, 'rd').replace(/\b(boulevard|blvd)\b/g, 'blvd')
+      .replace(/\b(drive|dr)\b/g, 'dr').replace(/\b(suite|ste)\b/g, 'ste').replace(/\b(center|centre|ctr)\b/g, 'ctr').replace(/\b(counseling|counselling)\b/g, 'counseling')
+      .replace(/\s+/g, ' ').trim();
+  }
+  /* how likely one of my sites is the same place: a ranking for the suggestion, never a decision */
+  function siteScore(st, x) {
+    var score = 0;
+    if (normSite(st.name) === normSite(x.name)) score += 3; else if (normSite(st.name).indexOf(normSite(x.name)) >= 0 || normSite(x.name).indexOf(normSite(st.name)) >= 0) score += 1;
+    if (st.zip && x.postalCode && st.zip.slice(0, 5) === x.postalCode.slice(0, 5)) score += 2;
+    if (st.city && x.city && normSite(st.city) === normSite(x.city)) score += 1;
+    if (st.address && x.addressLine && normSite(st.address) === normSite(x.addressLine)) score += 2;
+    return score;
+  }
+  var sl = { conn: null, site: null };
+  function openSiteLink(c, x) {
+    sl.conn = c; sl.site = x;
+    $('slWho').textContent = personLabel(c.supervisor) + ' lists this as a site you work at under them.';
+    $('slSite').innerHTML = '<p class="label">Their site</p><div style="font-size:17px;font-weight:600">' + esc(x.name) + '</div>' + (siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode }) ? '<div class="meta" style="margin-top:4px">' + esc(siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode })) + '</div>' : '');
+    var ranked = state.sites.filter(function (st) { return !st.canonical; }).map(function (st) { return { st: st, score: siteScore(st, x) }; }).sort(function (a, b) { return b.score - a.score || a.st.name.localeCompare(b.st.name); });
+    $('slList').innerHTML = ranked.map(function (r, i) {
+      return '<label><input type="radio" name="slPick" value="' + r.st.id + '"' + (i === 0 && r.score >= 3 ? ' checked' : '') + '><span class="ck-main">' + esc(r.st.name) + (r.score >= 3 ? ' <span class="pill">Likely the same</span>' : '') + (siteAddress(r.st) ? '<span class="ck-sub">' + esc(siteAddress(r.st)) + '</span>' : '') + '</span></label>';
+    }).join('');
+    $('slAsk').hidden = !ranked.length;
+    $('slLink').hidden = !ranked.length; $('slLink').disabled = !$('slList').querySelector('input:checked');
+    $('slNew').textContent = ranked.length ? 'Add it as a new site' : 'Add it to my sites';
+    $('slStatus').textContent = '';
+    openSheet('sheet-sitelink');
+  }
+  $('slList').addEventListener('change', function () { $('slLink').disabled = !$('slList').querySelector('input:checked'); });
+  $('slCancel').addEventListener('click', function () { closeSheet('sheet-sitelink'); sl.conn = null; renderConnNotice(); });
+  $('slLink').addEventListener('click', function () {
+    var pick = $('slList').querySelector('input:checked'); if (!pick || !sl.conn) return;
+    var st = site(pick.value); if (!st) return;
+    linkSite(st, sl.conn, sl.site); closeSheet('sheet-sitelink'); toast(st.name + ' linked to ' + sl.site.name);
+    sl.conn = null; afterSiteLink();
+  });
+  $('slNew').addEventListener('click', function () {
+    if (!sl.conn) return;
+    var st = addMirrorSite(sl.conn, sl.site); closeSheet('sheet-sitelink'); toast(st.name + ' added to your sites');
+    sl.conn = null; afterSiteLink();
+  });
+  function afterSiteLink() { renderAll(); if (!$('sheet-supervisors').hidden) renderSupervisors(); settleSiteLinks(); }
+  /* my record for their place: a copy of what they entered, linked to it */
+  function addMirrorSite(c, x) {
+    var st = { id: uid(), name: str(x.name, 120), address: str(x.addressLine, 160), city: str(x.city, 80), st: str(x.stateCode, 40), zip: str(x.postalCode, 12), primary: !state.sites.length, canonical: x.id };
+    state.sites.push(st); coverSite(c, st); saveState(); return st;
+  }
+  function linkSite(st, c, x) {
+    st.canonical = x.id;
+    if (!st.address) st.address = str(x.addressLine, 160); if (!st.city) st.city = str(x.city, 80); if (!st.st) st.st = str(x.stateCode, 40); if (!st.zip) st.zip = str(x.postalCode, 12);
+    coverSite(c, st); saveState();
+  }
+  /* the card behind the connection covers the site; one covered site goes onto the entries under the card */
+  function coverSite(c, st) {
+    var card = cardForConn(c); if (!card) return;
+    card.sites = card.sites || []; if (card.sites.indexOf(st.id) < 0) card.sites.push(st.id);
+    fillSingleSite(card);
+  }
+  /* after a sync: nothing to ask when the person has no sites of their own (their record is made for them);
+     otherwise one question per site, the rest wait on the dashboard */
+  function settleSiteLinks() {
+    if (autoMirrorSites()) { renderAll(); return; }
+    var todo = unlinkedConnSites();
+    if (!todo.length) { renderConnNotice(); return; }
+    if ($('sheet-sitelink').hidden && !sl.conn) openSiteLink(todo[0].conn, todo[0].site);
+  }
+  /* someone with no sites of their own has nothing to link: their record for each named site is made for them */
+  function autoMirrorSites() {
+    var todo = unlinkedConnSites();
+    if (!todo.length || state.sites.some(function (st) { return !st.canonical; })) return false;
+    todo.forEach(function (t) { addMirrorSite(t.conn, t.site); });
+    toast(todo.length === 1 ? todo[0].site.name + ' added to your sites' : plural(todo.length, 'site') + ' added to your sites');
+    return true;
+  }
+  function siteNoticesHtml(after) {
+    var html = '';
+    unlinkedConnSites().forEach(function (t) {
+      html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '><b>' + esc(personLabel(t.conn.supervisor)) + '</b> lists <b>' + esc(t.site.name) + '</b> as a site you work at under them.' +
+        '<div class="btns"><button type="button" class="btn-sm fill" data-sitelink="' + t.conn.id + '" data-sitelink-site="' + t.site.id + '">Link or add it</button></div></div>';
+    });
+    return html;
+  }
+
+  /* --- which of my sites a connection covers (supervising side) --- */
+  var cns = { conn: null, mode: 'change' };
+  function openConnSites(c, mode) {
+    cns.conn = c; cns.mode = mode;
+    $('cnsTitle').textContent = mode === 'accept' ? 'Accept and name the sites' : 'Sites';
+    $('cnsWho').textContent = 'Where ' + personLabel(c.supervisee) + ' works with you.';
+    $('cnsHint').textContent = 'Each hour they log under you carries the site. Your full list is under Settings, Your sites.';
+    $('cnsSave').textContent = mode === 'accept' ? 'Accept' : 'Save'; $('cnsSave').disabled = false; $('cnsStatus').textContent = '';
+    renderConnSiteChecks(); openSheet('sheet-connsites');
+  }
+  function renderConnSiteChecks(picked) {
+    if (!cns.conn) return;
+    var selected = picked || (cns.conn.sites || []).map(function (x) { return localSiteFor(x.id); }).filter(Boolean);
+    if (!picked && cns.mode === 'accept' && !selected.length) selected = state.sites.filter(function (st) { return st.primary; }).map(function (st) { return st.id; });
+    renderSiteChecks($('cnsList'), selected, 'cns');
+  }
+  function localSiteFor(uuid) { for (var i = 0; i < state.sites.length; i++) if (siteUuid(state.sites[i].id) === uuid) return state.sites[i].id; return null; }
+  $('cnsAdd').addEventListener('click', function () { openSiteEditor(null, 'connsites'); });
+  $('cnsCancel').addEventListener('click', function () { closeSheet('sheet-connsites'); cns.conn = null; });
+  $('cnsSave').addEventListener('click', function () {
+    if (!cns.conn) return;
+    var btn = this, c = cns.conn, uuids = checkedSites($('cnsList')).map(siteUuid);
+    btn.disabled = true; $('cnsStatus').textContent = cns.mode === 'accept' ? 'Connecting…' : 'Saving…';
+    syncNow('sites').catch(function () { /* the request below says what is wrong */ }).then(function () {
+      if (cns.mode === 'accept') return acceptAsSupervisor(c.id, uuids);
+      return api('/v1/connections/' + c.id, { method: 'PATCH', body: { siteIds: uuids } }).then(function (r) {
+        if (r && r.connection) { for (var i = 0; i < conns.length; i++) if (conns[i].id === c.id) conns[i] = r.connection; saveConns(); if (det.conn && det.conn.id === c.id) { det.conn = r.connection; renderSvDetail(); } }
+        toast('Sites saved');
+      });
+    }).then(function () { closeSheet('sheet-connsites'); cns.conn = null; }, function (err) { btn.disabled = false; $('cnsStatus').textContent = apiMessage(err); });
+  });
 
   /* ---------- boot ---------- */
   applyPalette();
