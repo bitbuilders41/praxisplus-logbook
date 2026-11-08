@@ -479,6 +479,15 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .hist-row{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
 .hist-row:first-child{border-top:0;padding-top:2px}
 .hist-row b{font-weight:600}
+.row-sub .pill,.row-title .pill{font-size:10.5px;padding:2px 7px;vertical-align:middle;margin-left:4px}
+.dr-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 0;color:inherit;font:inherit;min-height:56px}
+.dr-row:first-child{border-top:0}
+.dr-row .row-main{flex:1;min-width:0}
+.dr-row .row-sub{white-space:normal;line-height:1.4}
+.dr-reason{font-style:italic;color:var(--ink-2)}
+.hi-when{font-size:12.5px;color:var(--ink-2)}
+.hi-change{padding-left:12px}
+.hi-change s{color:var(--ink-2)}
 .hist-row span{color:var(--ink-2)}
 </style>
 
@@ -722,9 +731,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 
 <!-- LOG / EDIT -->
 <div class="sheet" id="sheet-log" hidden role="dialog" aria-modal="true" aria-labelledby="logTitle">
-  <div class="sheet-top wrap"><button class="link" id="logCancel">Cancel</button><h2 id="logTitle">Log hours</h2><span></span></div>
+  <div class="sheet-top wrap"><button class="link" id="logCancel">Cancel</button><h2 id="logTitle">Log hours</h2><button class="link right" id="logHistory" hidden>History</button></div>
   <div class="sheet-body wrap">
     <p class="notice" id="logLocked" hidden style="margin-bottom:0"></p>
+    <p class="notice" id="logPendingDel" hidden style="margin-bottom:0"></p>
     <fieldset class="f"><legend>Type of hours</legend>
       <div class="group" id="catList" role="radiogroup"></div>
       <div class="other-box" id="otherBox" hidden>
@@ -772,6 +782,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </fieldset>
     <button class="primary" id="logSave">Save entry</button>
     <button class="danger" id="logDelete" hidden>Delete entry</button>
+    <button class="danger" id="logRequestDelete" hidden>Request deletion</button>
   </div>
 </div>
 
@@ -1020,6 +1031,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       <div class="panel-head"><h2>Weekly logs</h2><button type="button" class="link-btn" id="svDetAllWeeks" style="min-height:32px">All weeks</button></div>
       <div id="svDetWeeks"></div>
     </section>
+    <section class="panel" id="svDetDelPanel" hidden>
+      <div class="panel-head"><h2>Deletion requests</h2></div>
+      <div id="svDetDeletions"></div>
+    </section>
     <section class="panel">
       <div class="panel-head"><h2>Hours under you</h2><span class="panel-num" id="svDetTargetNote"></span></div>
       <div id="svDetTotals"></div>
@@ -1030,6 +1045,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       </div>
       <p class="view-sub" id="svDetCount" style="margin:0 0 8px"></p>
       <div id="svDetEntries"></div>
+    </section>
+    <section class="panel">
+      <div class="list"><button class="list-row" id="svDetReport">Hours report (PDF)<small>Hours under you, with the signed weeks</small></button></div>
+      <p class="fine" id="svDetReportStatus" role="status" aria-live="polite" style="margin-top:8px"></p>
     </section>
     <section class="panel" id="svDetActions">
       <div class="list"><button class="list-row danger-row" id="svDetEnd">End connection<small id="svDetEndSub">From today</small></button></div>
@@ -1125,6 +1144,52 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       <div id="wdHistoryList" class="list"></div>
     </section>
     <p class="fine" id="wdNote" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- ASK THE SUPERVISOR TO APPROVE A DELETION (logbook side) -->
+<div class="sheet" id="sheet-delreq" hidden role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="sheet-top wrap"><button class="link" id="drCancel">Cancel</button><h2 id="drTitle">Request deletion</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="drWho"></p>
+    <p class="fine">Once a supervisor covers an entry, deleting it takes their approval. They see the entry and your reason, and approve or decline. Until they answer, the entry stays in your logbook marked as requested and cannot be changed.</p>
+    <fieldset class="f"><legend>Reason</legend>
+      <div class="group fields stack-fields">
+        <textarea id="drReason" placeholder="Why should this entry be deleted? Your supervisor sees this." maxlength="500"></textarea>
+      </div>
+    </fieldset>
+    <button class="primary" id="drSend">Send request</button>
+    <p class="fine" id="drStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- THE HISTORY OF ONE ENTRY (both sides) -->
+<div class="sheet" id="sheet-history" hidden role="dialog" aria-modal="true" aria-labelledby="hiTitle">
+  <div class="sheet-top wrap"><button class="link" id="hiBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h2 id="hiTitle">History</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <section class="panel" id="hiEntry"></section>
+    <section class="panel">
+      <div class="panel-head"><h2>Changes</h2></div>
+      <div id="hiList" class="list"></div>
+    </section>
+    <p class="fine" id="hiNote" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- A DELETION REQUEST, FOR THE SUPERVISOR TO DECIDE (supervising side) -->
+<div class="sheet" id="sheet-delreview" hidden role="dialog" aria-modal="true" aria-labelledby="rvTitle">
+  <div class="sheet-top wrap"><button class="link" id="rvBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h2 id="rvTitle">Deletion request</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <section class="panel" id="rvBody"></section>
+    <section class="panel" id="rvActions">
+      <button class="primary" id="rvApprove">Approve deletion</button>
+      <div class="stack-fields" style="margin-top:16px">
+        <textarea id="rvNote" placeholder="Why not? The supervisee sees this note." maxlength="500"></textarea>
+        <button class="secondary" id="rvDecline">Decline</button>
+      </div>
+      <p class="fine" style="margin-top:10px">Approving deletes the entry. It stays in the history, marked deleted, with your name and the date. Nothing else in the logbook changes.</p>
+    </section>
+    <p class="fine" id="rvNoteOut" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -1422,8 +1487,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (e.modality && MOD_BY_ID[e.modality]) sub += '<span>' + MOD_BY_ID[e.modality].label + '</span>';
     if (e.client) sub += '<span>Client ' + esc(e.client) + '</span>';
     if (e.note) sub += '<span>' + esc(e.note) + '</span>';
+    var pend = pendingDeletionFor(e.id) ? '<span class="pill warn">Deletion requested</span>' : '';
     return '<button class="row' + (e.id === flashId ? ' flash' : '') + (plain ? ' plain' : '') + '" data-id="' + e.id + '" aria-label="Edit entry">' +
-           '<div class="row-main"><div class="row-title">' + esc(c ? c.name : e.cat) + '</div>' + (sub ? '<div class="row-sub">' + sub + '</div>' : '') + '</div>' +
+           '<div class="row-main"><div class="row-title">' + esc(c ? c.name : e.cat) + pend + '</div>' + (sub ? '<div class="row-sub">' + sub + '</div>' : '') + '</div>' +
            '<div class="row-h">' + hrs(e.minutes) + '<small>h</small></div>' + CHEV_R + '</button>';
   }
   function renderRecent(flashId) {
@@ -1665,6 +1731,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!supervisor(form.sup)) form.sup = (currentSupervisor() || {}).id || '__new';
     $('logTitle').textContent = entry ? 'Edit entry' : 'Log hours';
     $('logDelete').hidden = !entry; disarmDelete();
+    $('logHistory').hidden = !entry || !signedIn();
     $('addDate').hidden = !!entry;
     $('clientInput').value = form.client; $('noteInput').value = form.note; $('dateInput').value = form.date; $('otherName').value = ''; $('supNewName').value = ''; $('supNewCred').value = '';
     renderForm(); openSheet('sheet-log');
@@ -1700,6 +1767,19 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var lock = formLock();
     $('logLocked').hidden = !lock; if (lock) $('logLocked').innerHTML = lock;
     $('logSave').disabled = !!lock; $('logDelete').disabled = !!lock;
+    /* once a supervisor covers the entry, deleting it is a request to them, not a tap */
+    var original = form.id ? state.entries.filter(function (x) { return x.id === form.id; })[0] : null;
+    var pending = original ? pendingDeletionFor(original.id) : null;
+    var covering = original && !pending ? coveringConnForEntry(original) : null;
+    $('logPendingDel').hidden = !pending;
+    if (pending) {
+      $('logPendingDel').innerHTML = '<b>You asked ' + esc(personLabel(pending.supervisor)) + ' to approve deleting this entry</b> on ' + esc(fmtIso(pending.requestedAt.slice(0, 10))) + '. It cannot be changed until they answer.' +
+        '<div class="btns"><button type="button" class="btn-sm" id="logWithdrawDel">Withdraw the request</button></div>';
+      $('logSave').disabled = true;
+    }
+    $('logDelete').hidden = !original || !!pending || !!covering;
+    $('logRequestDelete').hidden = !original || !!pending || !covering;
+    $('logRequestDelete').disabled = false;
   }
   /* why the entry in the form cannot be saved, or '' when it can */
   function formLock() {
@@ -1771,6 +1851,18 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     state.entries = state.entries.filter(function (x) { return x.id !== form.id; });
     saveState(); closeSheet('sheet-log'); renderAll(); toast('Entry deleted');
   });
+  $('logRequestDelete').addEventListener('click', function () {
+    var original = form && form.id ? state.entries.filter(function (x) { return x.id === form.id; })[0] : null;
+    var c = original ? coveringConnForEntry(original) : null;
+    if (original && c) openDeletionRequest(original, c);
+  });
+  $('logPendingDel').addEventListener('click', function (ev) {
+    if (!ev.target.closest('#logWithdrawDel')) return;
+    var original = form && form.id ? state.entries.filter(function (x) { return x.id === form.id; })[0] : null;
+    var pending = original ? pendingDeletionFor(original.id) : null;
+    if (pending) withdrawDeletion(pending);
+  });
+  $('logHistory').addEventListener('click', function () { if (form && form.id) openHistory(entryUuid(form.id)); });
   $('btnLog').addEventListener('click', function () { openLog(null); });
 
   /* ---------- settings: profile, display ---------- */
@@ -2161,48 +2253,84 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var period = reportPeriod();
     if (period.from && period.to && period.from > period.to) { $('rpStatus').textContent = 'The From date is after the To date.'; return; }
     period.supId = (!$('rpOnlySupRow').hidden && $('rpOnlySup').checked && supervisor($('rpSupervisorSel').value)) ? $('rpSupervisorSel').value : null;
-    try { buildPdf(period); $('rpStatus').textContent = 'PDF created. It opens or saves through your download or share sheet.'; }
-    catch (err) { $('rpStatus').textContent = 'The PDF could not be created. Try again.'; }
+    var btn = this; btn.disabled = true; $('rpStatus').textContent = 'Preparing…';
+    /* the signed weeks and their signatures come from the server; without them the report still goes out */
+    prepareSignoff(period).then(function (so) {
+      try { buildPdf(period, so); $('rpStatus').textContent = 'PDF created. It opens or saves through your download or share sheet.'; }
+      catch (err) { $('rpStatus').textContent = 'The PDF could not be created. Try again.'; }
+      btn.disabled = false;
+    });
   });
 
-  function buildPdf(period) {
-    var jsPDF = window.jspdf.jsPDF; var doc = new jsPDF({ unit: 'pt', format: 'letter' });
-    var W = 612, H = 792, M = 54, y = M, INK = [23, 32, 41], GRAY = [91, 103, 112], LINE = [217, 224, 228], TH = THEME_BY_ID[state.palette] || THEMES[0], ACCENT = TH.pdf, TINT = TH.tint;
-    var entries = state.entries.filter(function (e) { return (!period.from || e.date >= period.from) && (!period.to || e.date <= period.to) && (!period.supId || e.sup === period.supId); })
-                               .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); });
-    var T = totals(entries, period.all);
-    function text(s, x, yy, o) { doc.text(String(s), x, yy, o || {}); }
-    function font(style, size, color) { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(size || 10); var c = color || INK; doc.setTextColor(c[0], c[1], c[2]); }
-    function ensure(h) { if (y + h > H - M - 20) { doc.addPage(); y = M; return true; } return false; }
-    function section(title) { ensure(40); y += 10; font('bold', 12, ACCENT); text(title, M, y); y += 8; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, y, W - M, y); y += 14; }
-    function table(cols, rows) {
-      var x0 = M, tw = W - 2 * M, lh = 12, padY = 5, hdrH = 18;
+  /* the drawing helpers both reports share: a letter page with the mark and wordmark, section
+     heads, tables that break across pages, and the page footer */
+  function pdfKit(doc, ACCENT, TINT) {
+    var k = { W: 612, H: 792, M: 54, y: 54, INK: [23, 32, 41], GRAY: [91, 103, 112], LINE: [217, 224, 228] };
+    k.text = function (s, x, yy, o) { doc.text(String(s), x, yy, o || {}); };
+    k.font = function (style, size, color) { doc.setFont('helvetica', style || 'normal'); doc.setFontSize(size || 10); var c = color || k.INK; doc.setTextColor(c[0], c[1], c[2]); };
+    k.ensure = function (h) { if (k.y + h > k.H - k.M - 20) { doc.addPage(); k.y = k.M; return true; } return false; };
+    k.section = function (title) { k.ensure(40); k.y += 10; k.font('bold', 12, ACCENT); k.text(title, k.M, k.y); k.y += 8; doc.setDrawColor(k.LINE[0], k.LINE[1], k.LINE[2]); doc.line(k.M, k.y, k.W - k.M, k.y); k.y += 14; };
+    k.table = function (cols, rows) {
+      var x0 = k.M, tw = k.W - 2 * k.M, lh = 12, padY = 5, hdrH = 18;
       function header() {
-        doc.setFillColor(TINT[0], TINT[1], TINT[2]); doc.rect(x0, y, tw, hdrH, 'F'); font('bold', 8.5, GRAY);
-        var x = x0; cols.forEach(function (c) { text(c.label, c.align === 'right' ? x + c.w - 4 : x + 4, y + 12, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; });
-        y += hdrH;
+        doc.setFillColor(TINT[0], TINT[1], TINT[2]); doc.rect(x0, k.y, tw, hdrH, 'F'); k.font('bold', 8.5, k.GRAY);
+        var x = x0; cols.forEach(function (c) { k.text(c.label, c.align === 'right' ? x + c.w - 4 : x + 4, k.y + 12, { align: c.align === 'right' ? 'right' : 'left' }); x += c.w; });
+        k.y += hdrH;
       }
       header();
       rows.forEach(function (r) {
         var cells = cols.map(function (c, i) { return doc.splitTextToSize(String(r[i] == null ? '' : r[i]), c.w - 8); });
-        var n = Math.max.apply(null, cells.map(function (c) { return c.length; })); var h = n * lh + 2 * padY;
-        if (ensure(h)) header();
-        font(r.bold ? 'bold' : 'normal', 9, r.muted ? GRAY : INK);
-        var x = x0; cols.forEach(function (c, i) { text(cells[i], c.align === 'right' ? x + c.w - 4 : x + 4, y + padY + 9, { align: c.align === 'right' ? 'right' : 'left', lineHeightFactor: 1.33 }); x += c.w; });
-        y += h; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x0, y, x0 + tw, y);
+        var n = Math.max.apply(null, cells.map(function (c) { return c.length; })); var h = Math.max(n * lh + 2 * padY, r.image ? 42 : 0);
+        if (k.ensure(h)) header();
+        k.font(r.bold ? 'bold' : 'normal', 9, r.muted ? k.GRAY : k.INK);
+        var x = x0; cols.forEach(function (c, i) {
+          if (r.image && i === r.image.col) { var ih = 32, iw = Math.min(c.w - 8, ih * (r.image.ratio || 3)); try { doc.addImage(r.image.src, 'PNG', x + 4, k.y + 5, iw, ih); } catch (e) { /* a bad image is left out */ } return x += c.w; }
+          k.text(cells[i], c.align === 'right' ? x + c.w - 4 : x + 4, k.y + padY + 9, { align: c.align === 'right' ? 'right' : 'left', lineHeightFactor: 1.33 }); x += c.w;
+        });
+        k.y += h; doc.setDrawColor(k.LINE[0], k.LINE[1], k.LINE[2]); doc.line(x0, k.y, x0 + tw, k.y);
       });
-      y += 8;
-    }
-    /* header: the mark and wordmark, then the title */
-    doc.setFillColor(LOGO_RGB[0], LOGO_RGB[1], LOGO_RGB[2]); doc.roundedRect(M, y - 15, 20, 20, 5, 5, 'F');
-    doc.setDrawColor(255, 255, 255); doc.setLineWidth(2.4); try { doc.setLineCap('round'); } catch (e) {}
-    doc.line(M + 10, y - 10.5, M + 10, y + 0.5); doc.line(M + 4.5, y - 5, M + 15.5, y - 5); doc.setLineWidth(0.6);
-    font('bold', 13, INK); text('Praxis', M + 27, y); var wP = doc.getTextWidth('Praxis'); font('bold', 13, LOGO2_RGB); text('Plus', M + 27 + wP + 3, y);
-    font('normal', 9, GRAY); text('Generated ' + fmtDateLong(todayDate()), W - M, y, { align: 'right' }); y += 26;
-    font('bold', 20, INK); text('Clinical Hours Report', M, y); y += 10;
-    doc.setDrawColor(ACCENT[0], ACCENT[1], ACCENT[2]); doc.setLineWidth(1.2); doc.line(M, y, W - M, y); doc.setLineWidth(0.6); y += 18;
-    var meta = [['Supervisee', state.name || '—'], ['Program or site', state.program || '—'], ['Period', period.label + (period.supId ? ', entries under ' + supLabel(supervisor(period.supId)) : '')], ['Supervisor', state.report.supervisor ? state.report.supervisor + (state.report.credential ? ', ' + state.report.credential : '') : '—']];
-    meta.forEach(function (m) { font('normal', 9.5, GRAY); text(m[0], M, y); font('normal', 10, INK); text(m[1], M + 110, y); y += 15; });
+      k.y += 8;
+    };
+    k.head = function (title) {
+      var M = k.M, y = k.y;
+      doc.setFillColor(LOGO_RGB[0], LOGO_RGB[1], LOGO_RGB[2]); doc.roundedRect(M, y - 15, 20, 20, 5, 5, 'F');
+      doc.setDrawColor(255, 255, 255); doc.setLineWidth(2.4); try { doc.setLineCap('round'); } catch (e) {}
+      doc.line(M + 10, y - 10.5, M + 10, y + 0.5); doc.line(M + 4.5, y - 5, M + 15.5, y - 5); doc.setLineWidth(0.6);
+      k.font('bold', 13, k.INK); k.text('Praxis', M + 27, y); var wP = doc.getTextWidth('Praxis'); k.font('bold', 13, LOGO2_RGB); k.text('Plus', M + 27 + wP + 3, y);
+      k.font('normal', 9, k.GRAY); k.text('Generated ' + fmtDateLong(todayDate()), k.W - M, y, { align: 'right' }); y += 26;
+      k.font('bold', 20, k.INK); k.text(title, M, y); y += 10;
+      doc.setDrawColor(ACCENT[0], ACCENT[1], ACCENT[2]); doc.setLineWidth(1.2); doc.line(M, y, k.W - M, y); doc.setLineWidth(0.6); k.y = y + 18;
+    };
+    k.meta = function (rows) { rows.forEach(function (m) { k.font('normal', 9.5, k.GRAY); k.text(m[0], k.M, k.y); k.font('normal', 10, k.INK); k.text(m[1], k.M + 110, k.y); k.y += 15; }); };
+    k.foot = function (label) {
+      var n = doc.getNumberOfPages();
+      for (var p = 1; p <= n; p++) { doc.setPage(p); k.font('normal', 8, k.GRAY); k.text(label, k.M, k.H - 30); k.text('Page ' + p + ' of ' + n, k.W - k.M, k.H - 30, { align: 'right' }); }
+    };
+    /* the weeks of the period and where their sign-off stands, with the drawn signature where there is one */
+    k.signoff = function (rows) {
+      k.section('Weekly sign-off');
+      if (!rows.length) { k.font('normal', 9.5, k.GRAY); k.text('No weeks under a connected supervisor in this period.', k.M, k.y); k.y += 14; return; }
+      k.table([{ label: 'Week', w: 110 }, { label: 'Hours', w: 46, align: 'right' }, { label: 'Status', w: 212 }, { label: 'Signature', w: 136 }], rows.map(function (r) {
+        var row = [r.label, hrs(r.minutes), r.statusText, r.image ? '' : (r.status === 'signed' ? 'Recorded without a drawn signature' : '')];
+        if (r.image) row.image = { col: 3, src: r.image, ratio: r.ratio || 3 };
+        return row;
+      }));
+      k.font('normal', 8.5, k.GRAY); k.text('License numbers are as entered by the supervisor and are shown as not verified until an organization attests them.', k.M, k.y); k.y += 14;
+    };
+    return k;
+  }
+
+  /* the supervisee's report; signoff is what prepareSignoff found for the period, or null when offline */
+  function buildPdf(period, signoff) {
+    var jsPDF = window.jspdf.jsPDF; var doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    var TH = THEME_BY_ID[state.palette] || THEMES[0];
+    var k = pdfKit(doc, TH.pdf, TH.tint), W = k.W, M = k.M, INK = k.INK, GRAY = k.GRAY, LINE = k.LINE;
+    var text = k.text, font = k.font, ensure = k.ensure, section = k.section, table = k.table;
+    var entries = state.entries.filter(function (e) { return (!period.from || e.date >= period.from) && (!period.to || e.date <= period.to) && (!period.supId || e.sup === period.supId); })
+                               .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0); });
+    var T = totals(entries, period.all);
+    k.head('Clinical Hours Report');
+    k.meta([['Supervisee', state.name || '—'], ['Program or site', state.program || '—'], ['Period', period.label + (period.supId ? ', entries under ' + supLabel(supervisor(period.supId)) : '')], ['Supervisor', state.report.supervisor ? state.report.supervisor + (state.report.credential ? ', ' + state.report.credential : '') : '—']]);
 
     section('Summary by type');
     var sum = [];
@@ -2213,18 +2341,18 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     T.custom.forEach(function (c) { sum.push([c.name + (c.inTotal ? '' : ' (not in total)'), c.target ? c.target : '—', hrs(c.min), c.target ? pct(c.min, c.target * 60) + '%' : '—']); });
     var totRow = ['Total clinical hours', state.totalTarget || '—', hrs(T.total), state.totalTarget ? pct(T.total, state.totalTarget * 60) + '%' : '—']; totRow.bold = true; sum.push(totRow);
     table([{ label: 'Type', w: 264 }, { label: 'Target', w: 80, align: 'right' }, { label: 'Hours', w: 80, align: 'right' }, { label: 'Complete', w: 80, align: 'right' }], sum);
-    if (T.carriedMin) { font('normal', 8.5, GRAY); text('Includes ' + hrs(T.carriedMin) + ' hours carried in from earlier logs, which are not itemized below.', M, y); y += 14; }
-    if (!period.all) { font('normal', 8.5, GRAY); text('Hours carried in from earlier logs are not included for a dated period.', M, y); y += 14; }
+    if (T.carriedMin) { font('normal', 8.5, GRAY); text('Includes ' + hrs(T.carriedMin) + ' hours carried in from earlier logs, which are not itemized below.', M, k.y); k.y += 14; }
+    if (!period.all) { font('normal', 8.5, GRAY); text('Hours carried in from earlier logs are not included for a dated period.', M, k.y); k.y += 14; }
 
     section('Hours by subcategory');
     var rows = [];
     state.categories.forEach(function (c) {
       var m = subBreakdown(c.id, entries); var keys = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; }); if (!keys.length) return;
-      var hr = [c.name, '', hrs(keys.reduce(function (a, k) { return a + m[k]; }, 0))]; hr.bold = true; rows.push(hr);
-      keys.forEach(function (k) { rows.push(['', k || 'No subcategory', hrs(m[k])]); });
+      var hr = [c.name, '', hrs(keys.reduce(function (a, kk) { return a + m[kk]; }, 0))]; hr.bold = true; rows.push(hr);
+      keys.forEach(function (kk) { rows.push(['', kk || 'No subcategory', hrs(m[kk])]); });
     });
     if (rows.length) table([{ label: 'Type', w: 160 }, { label: 'Subcategory', w: 264 }, { label: 'Hours', w: 80, align: 'right' }], rows);
-    else { font('normal', 9.5, GRAY); text('No entries in this period.', M, y); y += 14; }
+    else { font('normal', 9.5, GRAY); text('No entries in this period.', M, k.y); k.y += 14; }
 
     if ($('rpEntries').checked && entries.length) {
       section('Entries (' + entries.length + ')');
@@ -2235,25 +2363,29 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       table(cols, entries.map(function (e) { var r = [e.date, catName(e.cat), e.sub || '', e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.client || '']; if (multiSup) r.push((supervisor(e.sup) || {}).name || ''); r.push(hrs(e.minutes)); return r; }));
     }
 
+    if (signoff) k.signoff(signoff.rows);
+
     ensure(190); section('Attestation');
     font('normal', 9.5, INK);
     var att = doc.splitTextToSize('I attest that the hours recorded in this report are accurate and were completed as described. The supervisor’s signature confirms that these hours were reviewed.', W - 2 * M);
-    text(att, M, y); y += att.length * 13 + 16;
-    var colW = (W - 2 * M - 30) / 2; var bx = [M, M + colW + 30]; var by = y;
-    [{ who: 'Supervisee', name: state.name, pad: pads.sigSupervisee }, { who: 'Supervisor', name: state.report.supervisor + (state.report.credential ? '\n' + state.report.credential : ''), pad: pads.sigSupervisor }].forEach(function (s, i) {
+    text(att, M, k.y); k.y += att.length * 13 + 16;
+    var colW = (W - 2 * M - 30) / 2; var bx = [M, M + colW + 30]; var by = k.y;
+    var recorded = signoff && signoff.signature && !pads.sigSupervisor.image() ? signoff.signature : null;
+    [{ who: 'Supervisee', name: state.name, pad: pads.sigSupervisee }, { who: 'Supervisor', name: recorded ? recorded.name : state.report.supervisor + (state.report.credential ? '\n' + state.report.credential : ''), pad: pads.sigSupervisor, recorded: recorded }].forEach(function (sg, i) {
       var x = bx[i]; var yy = by;
-      font('bold', 9, GRAY); text(s.who.toUpperCase(), x, yy); yy += 8;
-      var img = s.pad.image();
-      if (img) { var ih = 46, iw = Math.min(colW, ih * s.pad.ratio()); doc.addImage(img, 'PNG', x, yy + 2, iw, ih); }
+      font('bold', 9, GRAY); text(sg.who.toUpperCase(), x, yy); yy += 8;
+      var img = sg.pad.image(), ratio = sg.pad.ratio();
+      if (!img && sg.recorded && sg.recorded.image) { img = sg.recorded.image; ratio = sg.recorded.ratio || 3; }
+      if (img) { var ih = 46, iw = Math.min(colW, ih * ratio); try { doc.addImage(img, 'PNG', x, yy + 2, iw, ih); } catch (e) { /* a bad image is left out */ } }
       yy += 52; doc.setDrawColor(INK[0], INK[1], INK[2]); doc.line(x, yy, x + colW, yy); yy += 11;
-      font('normal', 8.5, GRAY); text('Signature', x, yy); yy += 16;
-      font('normal', 10, INK); var nm = doc.splitTextToSize(s.name || ' ', colW); text(nm, x, yy); yy += nm.length * 12 + 2;
+      font('normal', 8.5, GRAY); text(sg.recorded ? 'Signed in Praxis Plus on ' + sg.recorded.date : 'Signature', x, yy); yy += 16;
+      font('normal', 10, INK); var nm = doc.splitTextToSize(sg.name || ' ', colW); text(nm, x, yy); yy += nm.length * 12 + 2;
       doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(x, yy, x + colW, yy); yy += 11; font('normal', 8.5, GRAY); text('Printed name' + (i ? ' and credentials' : ''), x, yy); yy += 22;
-      doc.line(x, yy, x + colW * 0.6, yy); yy += 11; text('Date', x, yy);
+      if (sg.recorded) { font('normal', 10, INK); text(sg.recorded.date, x, yy - 4); }
+      doc.line(x, yy, x + colW * 0.6, yy); yy += 11; font('normal', 8.5, GRAY); text('Date', x, yy);
     });
 
-    var n = doc.getNumberOfPages();
-    for (var p = 1; p <= n; p++) { doc.setPage(p); font('normal', 8, GRAY); text('Praxis Plus · Clinical Hours Report' + (state.name ? ' · ' + state.name : ''), M, H - 30); text('Page ' + p + ' of ' + n, W - M, H - 30, { align: 'right' }); }
+    k.foot('Praxis Plus · Clinical Hours Report' + (state.name ? ' · ' + state.name : ''));
     doc.save('Praxis-Plus-hours-report-' + safeName() + '-' + iso(todayDate()) + '.pdf');
   }
 
@@ -2664,11 +2796,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     return syncing;
   }
   function runSync(reason) {
-    var first = !sync.cursor && !sync.userId, mode = 'server', changed = false, logbook = true;
+    var first = !sync.cursor && !sync.userId, mode = 'server', changed = false, logbook = true, switched = false;
     return api('/v1/me').then(function (me) {
       if (sync.userId && sync.userId !== me.user.id) {
-        /* a different account on this phone: its logbook belongs to someone else, so start clean */
-        state = freshState(); saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); first = true;
+        /* a different account on this phone (or the same login after the server's data was cleared):
+           what the phone holds belongs to someone else, so start clean */
+        state = freshState(); saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); clearDeletions(); first = true; switched = true; changed = true;
       }
       sync.userId = me.user.id;
       sync.me = { profiles: me.profiles || { supervisee: !me.needsBootstrap, supervisor: false }, supervisorProfile: me.supervisorProfile || null, counts: me.connections || null };
@@ -2709,7 +2842,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
               var ch = byId[o.id]; if (!ch) return;
               if (o.status === 'applied') { sync.versions[o.id] = o.version; sync.tables[o.id] = ch.table; sync.snapshot[o.id] = snapKey(ch.data, ch.deleted); delete sync.rejected[o.id]; }
               else if (o.status === 'conflict' && o.row) { if (applyRow(ch.table, o.row, 'server')) changed = true; }
-              else if (o.status === 'rejected') { sync.rejected[o.id] = snapKey(ch.data, ch.deleted); sync.lastRejected = (ch.table.replace(/_/g, ' ') + ': ' + (o.reason || 'not accepted')).slice(0, 140); }
+              else if (o.status === 'rejected') {
+                sync.rejected[o.id] = snapKey(ch.data, ch.deleted); sync.lastRejected = (ch.table.replace(/_/g, ' ') + ': ' + (o.reason || 'not accepted')).slice(0, 140);
+                /* the server kept its copy; the phone goes back to what the server last acknowledged so the two agree */
+                var snap = sync.snapshot[o.id];
+                if (snap) {
+                  var back = JSON.parse(snap.slice(1)); back.id = o.id; back.version = sync.versions[o.id] || 0; back.deleted_at = snap.charAt(0) === 'D' ? new Date().toISOString() : null;
+                  delete sync.snapshot[o.id]; /* so applyRow does not take the row as already known */
+                  if (applyRow(ch.table, back, 'server')) changed = true;
+                }
+              }
             });
             if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
           });
@@ -2718,11 +2860,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     }).then(function () {
       /* the connection list and the weeks under each live connection ride along with every sync;
          if they cannot be fetched the last ones stand */
-      return loadConnections().then(loadAllWeeks).catch(function () { /* shown next time */ });
+      return loadConnections().then(loadAllWeeks).then(loadDeletions).catch(function () { /* shown next time */ });
     }).then(function () {
       finishApply();
       if (changed) { saveQuiet(); renderAll(); } else renderSides();
       saveSync();
+      /* a phone that was just cleared for a different account goes to setup, like a new one */
+      if (switched && needsSetup()) { closeSheet(); openSetup(); }
       return { changed: changed, reason: reason };
     });
   }
@@ -2877,7 +3021,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     auth.signOut();
     var keep = { palette: state.palette, chart: state.chart, step: state.step, supWeeks: state.supWeeks };
     state = freshState(); state.palette = keep.palette; state.chart = keep.chart; state.step = keep.step; state.supWeeks = keep.supWeeks;
-    saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); rememberSide('logbook');
+    saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); clearDeletions(); rememberSide('logbook');
     dayOpen = {}; filterCat = 'all'; openCat = null; moveOpen = null; rmArm = null; supMoveOpen = null;
     renderAll(); go('dashboard'); showAccount('welcome');
   }
@@ -2940,7 +3084,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     /* a sync in flight loads the connections itself on its way out */
     if (!signedIn() || refreshing || syncing) return;
     if (!force && Date.now() - refreshedAt < 60000) return;
-    refreshing = loadConnections().then(loadAllWeeks).then(function () { refreshing = null; refreshedAt = Date.now(); renderSides(); }, function () { refreshing = null; });
+    refreshing = loadConnections().then(loadAllWeeks).then(loadDeletions).then(function () { refreshing = null; refreshedAt = Date.now(); renderSides(); }, function () { refreshing = null; });
   }
   function afterConnChange() {
     return loadConnections().catch(function () { /* list keeps what it had */ }).then(function () { renderSides(); if (!$('sheet-supervisors').hidden) renderSupervisors(); });
@@ -2977,7 +3121,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var box = $('connNotice');
     var waiting = conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'requested' && !c.requestedByMe; });
     var asked = conns.filter(function (c) { return c.role === 'supervisor' && c.status === 'requested' && !c.requestedByMe; });
-    box.hidden = !waiting.length && !asked.length && !weekNoticesHtml(false);
+    box.hidden = !waiting.length && !asked.length && !weekNoticesHtml(false) && !deletionNoticesHtml(false);
     if (box.hidden) { box.innerHTML = ''; return; }
     var html = waiting.map(function (c) {
       var who = c.supervisor;
@@ -2988,13 +3132,16 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (asked.length) html += '<div' + (html ? ' style="margin-top:10px"' : '') + '>' + (asked.length === 1 ? '<b>' + esc(personLabel(asked[0].supervisee)) + '</b> asked you to be their supervisor.' : '<b>' + asked.length + ' people</b> asked you to be their supervisor.') +
       '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
     html += weekNoticesHtml(!!html);
+    html += deletionNoticesHtml(!!html);
     box.innerHTML = html;
   }
   $('connNotice').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.goSv) { go('sv-home'); return; }
     if (b.dataset.respond) { var c = connById(b.dataset.respond); if (c) openAccept(c); return; }
-    if (b.dataset.week) { var wc = connById(b.dataset.weekConn); if (wc) openWeek(wc, b.dataset.week); }
+    if (b.dataset.week) { var wc = connById(b.dataset.weekConn); if (wc) openWeek(wc, b.dataset.week); return; }
+    if (b.dataset.dismissDel) { dismissDeletionNotice(b.dataset.dismissDel); return; }
+    if (b.dataset.hist) openHistory(b.dataset.hist);
   });
 
   var accepting = null;
@@ -3091,8 +3238,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     function row(c, muted) {
       var p = c.supervisee;
       var waiting = c.weeks && c.weeks.awaitingSignature ? '<span class="pill">' + plural(c.weeks.awaitingSignature, 'week') + ' to sign</span>' : '';
+      var dels = c.deletions && c.deletions.pending ? '<span class="pill warn">' + plural(c.deletions.pending, 'deletion request') + '</span>' : '';
       return '<button type="button" class="sv-row" data-open="' + c.id + '"' + (muted ? ' style="opacity:.7"' : '') + '><span class="av">' + esc(initials(p)) + '</span>' +
-        '<div class="row-main"><div class="row-title">' + esc(personLabel(p)) + '</div><div class="row-sub">' + (p.displayName && p.email ? esc(p.email) + ' · ' : '') + esc(connMeta(c)) + '</div></div>' + waiting + CHEV_R + '</button>';
+        '<div class="row-main"><div class="row-title">' + esc(personLabel(p)) + '</div><div class="row-sub">' + (p.displayName && p.email ? esc(p.email) + ' · ' : '') + esc(connMeta(c)) + (dels ? '<br>' + dels : '') + '</div></div>' + waiting + CHEV_R + '</button>';
     }
     var list = active.map(function (c) { return row(c, false); }).join('');
     if (!active.length) list = '<div class="empty">' + (incoming.length || outgoing.length ? 'No one connected yet.' : '<b>No supervisees yet.</b> Tap <b>Invite</b> to send a request to a supervisee’s email, or ask them to send you one from the Supervisors list in their logbook.') + '</div>';
@@ -3151,6 +3299,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     renderSvDetail(); openSheet('sheet-sv-detail');
     api('/v1/connections/' + c.id + '/hours').then(function (h) { if (det.conn && det.conn.id === c.id) { det.hours = h; det.conn = h.connection; renderSvDetail(); } }, function (err) { $('svDetStatus').textContent = apiMessage(err); });
     if (c.status === 'active') loadWeeks(c.id).then(function () { if (det.conn && det.conn.id === c.id) renderDetailWeeks(c); }, function () { /* cached weeks stand */ });
+    loadDeletions().then(function () { if (det.conn && det.conn.id === c.id) renderDetailDeletions(c); }, function () { /* the cached list stands */ });
+  }
+  /* reload what the detail sheet shows after a decision changed it */
+  function refreshSvDetail() {
+    var c = det.conn; if (!c) return;
+    api('/v1/connections/' + c.id + '/hours').then(function (h) { if (det.conn && det.conn.id === c.id) { det.hours = h; det.conn = h.connection; renderSvDetail(); } }, function () { /* keep what is shown */ });
+    if (c.status === 'active') loadWeeks(c.id).then(function () { if (det.conn && det.conn.id === c.id) renderDetailWeeks(c); }, function () {});
   }
   function rangeStart() {
     var t = todayDate();
@@ -3188,10 +3343,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       if (e.siteName) sub.push(esc(e.siteName));
       if (e.clientCode) sub.push('Client ' + esc(e.clientCode));
       if (e.note) sub.push(esc(e.note));
-      html += '<div class="ro-row"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div></div>';
+      html += '<button type="button" class="ro-row" data-hist="' + e.id + '" style="width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;color:inherit;font:inherit"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + (e.pendingDeletion ? '<span class="pill warn">Deletion requested</span>' : '') + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div>' + CHEV_R + '</button>';
     });
     $('svDetEntries').innerHTML = html;
+    renderDetailDeletions(c);
   }
+  $('svDetEntries').addEventListener('click', function (ev) { var b = ev.target.closest('[data-hist]'); if (b) openHistory(b.dataset.hist); });
   $('svDetBack').addEventListener('click', function () { closeSheet('sheet-sv-detail'); det.conn = null; renderSv(); });
   $('svDetRange').addEventListener('click', function (ev) { var b = ev.target.closest('[data-range]'); if (!b) return; det.range = b.dataset.range; renderSvDetail(); });
   $('svDetEnd').addEventListener('click', function () {
@@ -3415,7 +3572,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         if (e.siteName) sub.push(esc(e.siteName));
         if (e.clientCode) sub.push('Client ' + esc(e.clientCode));
         if (e.note) sub.push(esc(e.note));
-        html += '<div class="ro-row"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div></div>';
+        html += '<div class="ro-row"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + (e.pendingDeletion ? '<span class="pill warn">Deletion requested</span>' : '') + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div></div>';
       });
       $('wdEntries').innerHTML = html;
     }
@@ -3479,6 +3636,280 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     armThen('reopen', btn, function () { return weekAction('reopen', { reason: reason }).then(function () { toast('Week reopened'); }); });
   });
   window.addEventListener('resize', function () { if (!$('sheet-week').hidden && !$('wdSignBox').hidden) pads.sigWeek.resize(); });
+
+  /* ---------- deletion requests and history ----------
+     Once a supervisor covers an entry, deleting it is a request: the supervisee gives a reason,
+     the supervisor approves or declines with a note, and the approval is what deletes the entry
+     (the server does it and the phone learns of it on the next sync). Every change to an entry
+     is in its history, which both sides can open. */
+  var DELS_KEY = 'praxisplus.deletions';
+  var dels = { list: [], seen: {} };
+  try { var rawDels = JSON.parse(localStorage.getItem(DELS_KEY) || 'null'); if (rawDels && Array.isArray(rawDels.list)) dels = { list: rawDels.list, seen: rawDels.seen || {} }; } catch (e) { /* nothing cached */ }
+  function saveDels() { try { localStorage.setItem(DELS_KEY, JSON.stringify(dels)); } catch (e) { /* storage unavailable */ } }
+  function clearDeletions() { dels = { list: [], seen: {} }; saveDels(); }
+  function loadDeletions() {
+    if (!signedIn()) return Promise.resolve([]);
+    return api('/v1/deletion-requests').then(function (r) {
+      dels.list = (r && r.requests) || [];
+      var keep = {}; dels.list.forEach(function (x) { keep[x.id] = true; });
+      Object.keys(dels.seen).forEach(function (id) { if (!keep[id]) delete dels.seen[id]; });
+      saveDels(); return dels.list;
+    });
+  }
+  function replaceDel(req) {
+    if (!req) return;
+    var at = -1; dels.list.forEach(function (r, i) { if (r.id === req.id) at = i; });
+    if (at >= 0) dels.list[at] = req; else dels.list.unshift(req);
+    saveDels();
+  }
+  /* the server id of a local entry, without minting one */
+  function entryServerId(localId) { if (UUID_RE.test(localId)) return localId.toLowerCase(); return sync.ids.entry[localId] || null; }
+  function pendingDeletionFor(localEntryId) {
+    var id = entryServerId(localEntryId); if (!id) return null;
+    return dels.list.filter(function (r) { return r.status === 'pending' && r.entryId === id; })[0] || null;
+  }
+  /* the accepted connection (running or ended) that covers an entry, or null when the entry is the owner's alone */
+  function coveringConnForEntry(e) {
+    if (!e || !e.sup) return null;
+    var u = sync.ids.sup[e.sup]; if (!u) return null;
+    return conns.filter(function (c) {
+      return c.role === 'supervisee' && (c.status === 'active' || c.status === 'ended') && c.supervisorRecordId === u &&
+        (!c.startedOn || e.date >= c.startedOn) && (!c.endedOn || e.date <= c.endedOn);
+    })[0] || null;
+  }
+  function entryLabel(e) { var c = cat(e.cat); return hrs(e.minutes) + ' h ' + (c ? c.name : e.cat) + (e.sub ? ' (' + e.sub + ')' : '') + ' entry of ' + fmtIso(e.date); }
+
+  /* --- logbook side: ask --- */
+  var dr = { entry: null, conn: null };
+  function openDeletionRequest(entry, c) {
+    dr.entry = entry; dr.conn = c;
+    $('drWho').textContent = 'Ask ' + personLabel(c.supervisor) + ' to approve deleting the ' + entryLabel(entry) + '.';
+    $('drReason').value = ''; $('drStatus').textContent = ''; $('drSend').disabled = false;
+    openSheet('sheet-delreq'); setTimeout(function () { $('drReason').focus(); }, 50);
+  }
+  $('drCancel').addEventListener('click', function () { closeSheet('sheet-delreq'); dr.entry = null; });
+  $('drSend').addEventListener('click', function () {
+    var reason = $('drReason').value.trim(); if (!reason) { $('drStatus').textContent = 'Write the reason first.'; $('drReason').focus(); return; }
+    if (!dr.entry) return;
+    var btn = this, entry = dr.entry, who = personLabel(dr.conn.supervisor); btn.disabled = true; $('drStatus').textContent = 'Sending…';
+    /* the entry has to be on the server before anyone can be asked about it */
+    syncNow('deletion').catch(function () { /* the request below says what is wrong */ }).then(function () {
+      return api('/v1/entries/' + entryUuid(entry.id) + '/deletion-request', { method: 'POST', body: { reason: reason } });
+    }).then(function (r) {
+      replaceDel(r && r.request); dr.entry = null;
+      closeSheet('sheet-delreq'); closeSheet('sheet-log'); renderAll(); toast('Request sent to ' + who);
+    }, function (err) { btn.disabled = false; $('drStatus').textContent = apiMessage(err); });
+  });
+  function withdrawDeletion(req) {
+    api('/v1/deletion-requests/' + req.id + '/withdraw', { method: 'POST', body: {} }).then(function (r) {
+      replaceDel(r && r.request); renderAll(); if (!$('sheet-log').hidden && form) renderForm(); toast('Request withdrawn');
+    }, function (err) { toast(apiMessage(err)); });
+  }
+
+  /* --- the dashboard: outcomes for the supervisee, waiting requests for the supervisor --- */
+  function deletionNoticesHtml(after) {
+    var html = '';
+    dels.list.filter(function (r) { return r.role === 'supervisee' && (r.status === 'approved' || r.status === 'declined') && !dels.seen[r.id]; }).forEach(function (r) {
+      var e = r.entry;
+      var what = e ? hrs(e.minutes) + ' h ' + e.categoryName + (e.subcategoryName ? ' (' + e.subcategoryName + ')' : '') + ' entry of ' + fmtIso(e.entryDate) : 'entry';
+      html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '><b>' + esc(personLabel(r.supervisor)) + '</b> ' + (r.status === 'approved' ? 'approved deleting your ' : 'declined deleting your ') + esc(what) + (r.decisionNote ? ': ' + esc(r.decisionNote) : '.') +
+        '<div class="btns"><button type="button" class="btn-sm" data-hist="' + r.entryId + '">History</button><button type="button" class="btn-sm" data-dismiss-del="' + r.id + '">Dismiss</button></div></div>';
+    });
+    var mine = dels.list.filter(function (r) { return r.role === 'supervisor' && r.status === 'pending'; });
+    if (mine.length) {
+      html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '>' + (mine.length === 1 ? '<b>' + esc(personLabel(mine[0].supervisee)) + '</b> asked you to approve deleting an entry.' : '<b>' + mine.length + ' deletion requests</b> are waiting for you.') +
+        '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
+    }
+    return html;
+  }
+  function dismissDeletionNotice(id) { dels.seen[id] = true; saveDels(); renderConnNotice(); }
+
+  /* --- supervising side: decide --- */
+  function renderDetailDeletions(c) {
+    var pending = dels.list.filter(function (r) { return r.role === 'supervisor' && r.status === 'pending' && r.connectionId === c.id; });
+    $('svDetDelPanel').hidden = !pending.length;
+    $('svDetDeletions').innerHTML = pending.map(function (r) {
+      var e = r.entry || {};
+      return '<button type="button" class="dr-row" data-delreq="' + r.id + '"><div class="row-main"><div class="row-title">' + esc(e.categoryName || 'Entry') + (e.subcategoryName ? ' · ' + esc(e.subcategoryName) : '') + ' · ' + hrs(e.minutes || 0) + ' h</div>' +
+        '<div class="row-sub">' + esc(fmtIso(e.entryDate || '')) + (r.weekStatus === 'signed' ? ' · in a week you signed' : r.weekStatus === 'submitted' ? ' · in a week waiting for your signature' : '') + '<br><span class="dr-reason">“' + esc(r.reason) + '”</span></div></div>' + CHEV_R + '</button>';
+    }).join('');
+  }
+  $('svDetDeletions').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-delreq]'); if (!b) return;
+    var r = dels.list.filter(function (x) { return x.id === b.dataset.delreq; })[0]; if (r) openDeletionReview(r);
+  });
+  var rv = { req: null, arm: false, timer: null };
+  function openDeletionReview(r) {
+    rv.req = r; rv.arm = false; clearTimeout(rv.timer);
+    var e = r.entry || {};
+    var sub = [];
+    if (e.subcategoryName) sub.push(esc(e.subcategoryName));
+    if (e.modality && MOD_BY_ID[e.modality]) sub.push(MOD_BY_ID[e.modality].label);
+    if (e.siteName) sub.push(esc(e.siteName));
+    if (e.clientCode) sub.push('Client ' + esc(e.clientCode));
+    if (e.note) sub.push(esc(e.note));
+    $('rvBody').innerHTML = '<p class="label">' + esc(personLabel(r.supervisee)) + ' asks to delete</p>' +
+      '<div class="ro-row" style="padding-left:0;border-top:0"><div class="row-main"><div class="row-title">' + esc(e.categoryName || 'Entry') + '</div><div class="row-sub"><span>' + esc(fmtIso(e.entryDate || '')) + '</span>' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div></div><div class="row-h">' + hrs(e.minutes || 0) + '<small>h</small></div></div>' +
+      '<p class="fine" style="margin-top:10px"><b>Reason:</b> ' + esc(r.reason) + '</p>' +
+      (r.weekStatus === 'signed' ? '<p class="notice" style="margin-top:10px">This entry is in a week you signed. Approving reopens that week: the supervisee submits it again and you sign the new version.</p>'
+        : r.weekStatus === 'submitted' ? '<p class="notice" style="margin-top:10px">This entry is in a week waiting for your signature. Approving returns that week to the supervisee to submit again.</p>' : '') +
+      '<p class="fine" style="margin-top:10px">Asked ' + esc(fmtIso(r.requestedAt.slice(0, 10))) + '. <button type="button" class="link-btn" data-hist="' + r.entryId + '" style="min-height:0">Entry history</button></p>';
+    $('rvNote').value = ''; $('rvNoteOut').textContent = '';
+    $('rvApprove').textContent = 'Approve deletion'; $('rvApprove').disabled = false; $('rvDecline').disabled = false;
+    $('rvActions').hidden = r.status !== 'pending';
+    openSheet('sheet-delreview');
+  }
+  $('rvBody').addEventListener('click', function (ev) { var b = ev.target.closest('[data-hist]'); if (b) openHistory(b.dataset.hist); });
+  $('rvBack').addEventListener('click', function () { closeSheet('sheet-delreview'); rv.req = null; });
+  function decided(req) {
+    replaceDel(req); closeSheet('sheet-delreview'); rv.req = null;
+    renderSides(); if (det.conn) { renderDetailDeletions(det.conn); refreshSvDetail(); }
+  }
+  $('rvApprove').addEventListener('click', function () {
+    if (!rv.req) return;
+    if (!rv.arm) { rv.arm = true; this.textContent = 'Tap again to approve'; rv.timer = setTimeout(function () { rv.arm = false; $('rvApprove').textContent = 'Approve deletion'; }, 3500); return; }
+    clearTimeout(rv.timer); var btn = this; btn.disabled = true; $('rvNoteOut').textContent = 'Approving…';
+    var note = $('rvNote').value.trim();
+    api('/v1/deletion-requests/' + rv.req.id + '/approve', { method: 'POST', body: note ? { note: note } : {} })
+      .then(function (r) { decided(r.request); toast('Entry deleted'); }, function (err) { btn.disabled = false; rv.arm = false; btn.textContent = 'Approve deletion'; $('rvNoteOut').textContent = apiMessage(err); });
+  });
+  $('rvDecline').addEventListener('click', function () {
+    if (!rv.req) return;
+    var note = $('rvNote').value.trim(); if (!note) { $('rvNoteOut').textContent = 'Write a note on why first.'; $('rvNote').focus(); return; }
+    var btn = this; btn.disabled = true; $('rvNoteOut').textContent = 'Declining…';
+    api('/v1/deletion-requests/' + rv.req.id + '/decline', { method: 'POST', body: { note: note } })
+      .then(function (r) { decided(r.request); toast('Request declined'); }, function (err) { btn.disabled = false; $('rvNoteOut').textContent = apiMessage(err); });
+  });
+
+  /* --- the history of one entry, both sides --- */
+  function openHistory(entryId) {
+    $('hiEntry').innerHTML = '<p class="note">Loading…</p>'; $('hiList').innerHTML = ''; $('hiNote').textContent = '';
+    openSheet('sheet-history');
+    api('/v1/entries/' + entryId + '/history').then(renderHistory, function (err) { $('hiEntry').innerHTML = ''; $('hiNote').textContent = apiMessage(err); });
+  }
+  $('hiBack').addEventListener('click', function () { closeSheet('sheet-history'); });
+  function fmtWhen(ts) { var d = new Date(ts); if (isNaN(d.getTime())) return ts; return fmtDate(d) + ', ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+  function renderHistory(h) {
+    var e = h.entry;
+    $('hiEntry').innerHTML = '<p class="label">Entry</p><div style="font-size:17px;font-weight:600">' + esc(e.categoryName) + (e.subcategoryName ? ' · ' + esc(e.subcategoryName) : '') + '</div>' +
+      '<div class="meta" style="margin-top:4px">' + esc(fmtIso(e.entryDate)) + ' · ' + hrs(e.minutes) + ' h' + (e.deletedAt ? ' <span class="pill warn">Deleted</span>' : '') + '</div>';
+    var rows = h.events.slice().reverse().map(function (ev) {
+      var who = ev.actor.userId && ev.actor.userId === sync.userId ? 'You' : ev.actor.displayName, line;
+      switch (ev.kind) {
+        case 'created': line = '<b>' + esc(who) + '</b> logged this entry.'; break;
+        case 'changed': line = '<b>' + esc(who) + '</b> changed it.' + ev.changes.map(function (c) { return '<div class="hi-change">' + esc(c.field) + ': ' + (c.from !== null ? '<s>' + esc(c.from) + '</s> → ' : '') + (c.to !== null ? esc(c.to) : '<i>removed</i>') + '</div>'; }).join(''); break;
+        case 'deleted': line = '<b>' + esc(who) + '</b> deleted this entry.'; break;
+        case 'restored': line = '<b>' + esc(who) + '</b> restored this entry.'; break;
+        case 'placed_under_supervision': line = ev.text ? esc(ev.text) + '.' : 'Placed under a supervisor.'; break;
+        case 'deletion_requested': line = '<b>' + esc(who) + '</b> asked to delete it' + (ev.text ? ': “' + esc(ev.text) + '”' : '.'); break;
+        case 'deletion_approved': line = '<b>' + esc(who) + '</b> approved the deletion' + (ev.text ? ': “' + esc(ev.text) + '”' : '.'); break;
+        case 'deletion_declined': line = '<b>' + esc(who) + '</b> declined the deletion' + (ev.text ? ': “' + esc(ev.text) + '”' : '.'); break;
+        case 'deletion_withdrawn': line = '<b>' + esc(who) + '</b> withdrew the deletion request.'; break;
+        default: line = esc(ev.kind);
+      }
+      return '<div class="hist-row"><span class="hi-when">' + esc(fmtWhen(ev.at)) + '</span><span>' + line + '</span></div>';
+    });
+    $('hiList').innerHTML = rows.join('') || '<p class="note">Nothing recorded yet.</p>';
+  }
+
+  /* ---------- sign-offs in the reports ----------
+     The weeks of a period under connected supervisors, with the drawn signatures fetched from the
+     server, feed the "Weekly sign-off" section of both reports and the supervisor's signature block. */
+  function pngRatio(dataUrl) {
+    try {
+      var b = atob(dataUrl.split(',')[1].slice(0, 64));
+      var w = ((b.charCodeAt(16) << 24) | (b.charCodeAt(17) << 16) | (b.charCodeAt(18) << 8) | b.charCodeAt(19)) >>> 0;
+      var h = ((b.charCodeAt(20) << 24) | (b.charCodeAt(21) << 16) | (b.charCodeAt(22) << 8) | b.charCodeAt(23)) >>> 0;
+      return w && h ? w / h : 3;
+    } catch (e) { return 3; }
+  }
+  function signoffRows(list, c, from, to, withSupervisor) {
+    return list.filter(function (w) { return (!to || w.weekStart <= to) && (!from || w.weekEnd >= from) && (w.entryCount || w.status !== 'open'); })
+      .sort(function (a, b) { return a.weekStart < b.weekStart ? -1 : 1; })
+      .map(function (w) {
+        var s = w.submission || {}, t;
+        if (w.status === 'signed') t = 'Signed by ' + (s.signedName || personLabel(c.supervisor)) + (s.signedCredential ? ', ' + s.signedCredential : '') + (s.signedLicense ? ', license ' + s.signedLicense + ' (not verified)' : '') + ' on ' + fmtIso(s.signedAt.slice(0, 10));
+        else if (w.status === 'submitted') t = 'Submitted ' + fmtIso(s.submittedAt.slice(0, 10)) + ', waiting for signature';
+        else if (w.status === 'returned') t = 'Returned ' + fmtIso(s.returnedAt.slice(0, 10)) + ' for changes';
+        else if (w.status === 'reopened') t = 'Reopened ' + fmtIso(s.reopenedAt.slice(0, 10) ) + ', awaiting a new submission';
+        else t = w.closed ? 'Not submitted' : 'In progress';
+        if (withSupervisor && w.status !== 'signed') t += ' · ' + personLabel(c.supervisor);
+        return { conn: c, weekStart: w.weekStart, label: weekLabel(w.weekStart), minutes: w.totalMinutes, status: w.status, statusText: t, submission: s, image: null, ratio: 3 };
+      });
+  }
+  function withSignatures(rows) {
+    var signed = rows.filter(function (r) { return r.status === 'signed' && r.submission && r.submission.hasSignatureImage; });
+    return Promise.all(signed.map(function (r) {
+      return api('/v1/connections/' + r.conn.id + '/weeks/' + r.weekStart).then(function (d) {
+        if (d && d.week && d.week.signatureImage) { r.image = d.week.signatureImage; r.ratio = pngRatio(r.image); }
+      }, function () { /* the row goes out without the picture */ });
+    })).then(function () {
+      var last = rows.filter(function (r) { return r.status === 'signed'; }).slice(-1)[0];
+      var signature = last ? { image: last.image, ratio: last.ratio, name: (last.submission.signedName || '') + (last.submission.signedCredential ? '\n' + last.submission.signedCredential : ''), date: fmtIso(last.submission.signedAt.slice(0, 10)) } : null;
+      return { rows: rows, signature: signature };
+    });
+  }
+  /* the supervisee's report: every connected supervisor in the period, or the one card the report is limited to */
+  function prepareSignoff(period) {
+    if (!signedIn()) return Promise.resolve(null);
+    var want = period.supId ? sync.ids.sup[period.supId] : null;
+    var cs = conns.filter(function (c) { return c.role === 'supervisee' && (c.status === 'active' || c.status === 'ended') && (!want || c.supervisorRecordId === want); });
+    if (!cs.length) return Promise.resolve(null);
+    var rows = [];
+    cs.forEach(function (c) { rows = rows.concat(signoffRows(weeksOf(c.id), c, period.from, period.to, cs.length > 1)); });
+    return withSignatures(rows);
+  }
+
+  /* --- the supervisor's report on one supervisee: the hours under this connection and the signed weeks --- */
+  $('svDetReport').addEventListener('click', function () {
+    var c = det.conn, h = det.hours;
+    if (!c || !h) { $('svDetReportStatus').textContent = 'The hours are still loading.'; return; }
+    if (!window.jspdf || !window.jspdf.jsPDF) { $('svDetReportStatus').textContent = 'The PDF tool did not load. Check the connection and open the app again.'; return; }
+    var btn = this; btn.disabled = true; $('svDetReportStatus').textContent = 'Preparing…';
+    withSignatures(signoffRows(weeksOf(c.id), c, null, null, false)).then(function (so) {
+      try { buildSupervisorPdf(c, h, so); $('svDetReportStatus').textContent = 'PDF created. It opens or saves through your download or share sheet.'; }
+      catch (err) { $('svDetReportStatus').textContent = 'The PDF could not be created. Try again.'; }
+      btn.disabled = false;
+    });
+  });
+  function buildSupervisorPdf(c, h, so) {
+    var jsPDF = window.jspdf.jsPDF; var doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    var TH = THEME_BY_ID[state.palette] || THEMES[0];
+    var k = pdfKit(doc, TH.pdf, TH.tint);
+    var sp = (sync.me && sync.me.supervisorProfile) || {};
+    var myName = state.name || (session && session.email) || '';
+    var program = h.supervisee ? [h.supervisee.programName, h.supervisee.universityName].filter(Boolean).join(', ') : '';
+    var entries = h.entries.slice().sort(function (a, b) { return a.entryDate < b.entryDate ? -1 : a.entryDate > b.entryDate ? 1 : 0; });
+    var first = entries.length ? entries[0].entryDate : null;
+    var periodLabel = (c.startedOn ? fmtIso(c.startedOn) : first ? fmtIso(first) : 'Start') + ' to ' + (c.endedOn ? fmtIso(c.endedOn) : fmtDateLong(todayDate()));
+    k.head('Clinical Hours Report');
+    k.meta([['Supervisee', personLabel(c.supervisee)], ['Program or site', program || '—'], ['Period', periodLabel + ', hours under ' + myName],
+      ['Supervisor', myName + (sp.credentials ? ', ' + sp.credentials : '') + (sp.licenseNumber ? ', license ' + sp.licenseNumber + ' (not verified)' : '')]]);
+    k.section('Summary by type');
+    var rows = h.totals.map(function (t) { return [t.name + (t.countsTowardTotal ? '' : ' (not in total)'), t.targetHours ? t.targetHours : '—', hrs(t.minutes), t.targetHours ? pct(t.minutes, t.targetHours * 60) + '%' : '—']; });
+    var tt = h.supervisee ? h.supervisee.totalTargetHours : 0;
+    var tot = ['Total clinical hours under you', tt || '—', hrs(h.totalMinutes), tt ? pct(h.totalMinutes, tt * 60) + '%' : '—']; tot.bold = true; rows.push(tot);
+    k.table([{ label: 'Type', w: 264 }, { label: 'Target', w: 80, align: 'right' }, { label: 'Hours', w: 80, align: 'right' }, { label: 'Complete', w: 80, align: 'right' }], rows);
+    k.font('normal', 8.5, k.GRAY); k.text('Targets are the supervisee’s program targets; the hours are those logged under this connection only.', k.M, k.y); k.y += 14;
+    if (entries.length) {
+      k.section('Entries (' + entries.length + ')');
+      k.table([{ label: 'Date', w: 66 }, { label: 'Type', w: 112 }, { label: 'Subcategory', w: 150 }, { label: 'Format', w: 52 }, { label: 'Client', w: 44 }, { label: 'Hours', w: 80, align: 'right' }],
+        entries.map(function (e) { return [e.entryDate, e.categoryName, e.subcategoryName || '', e.modality && MOD_BY_ID[e.modality] ? MOD_BY_ID[e.modality].label : '', e.clientCode || '', hrs(e.minutes)]; }));
+    }
+    k.signoff(so ? so.rows : []);
+    k.ensure(150); k.section('Supervisor attestation');
+    k.font('normal', 9.5, k.INK);
+    var att = doc.splitTextToSize('I confirm that I supervised the hours listed above and signed the weeks marked as signed.', k.W - 2 * k.M);
+    k.text(att, k.M, k.y); k.y += att.length * 13 + 16;
+    var colW = (k.W - 2 * k.M - 30) / 2, x = k.M, yy = k.y, sig = so && so.signature;
+    if (sig && sig.image) { try { doc.addImage(sig.image, 'PNG', x, yy + 2, Math.min(colW, 46 * (sig.ratio || 3)), 46); } catch (e) { /* a bad image is left out */ } }
+    yy += 52; doc.setDrawColor(k.INK[0], k.INK[1], k.INK[2]); doc.line(x, yy, x + colW, yy); yy += 11;
+    k.font('normal', 8.5, k.GRAY); k.text(sig ? 'Last signed in Praxis Plus on ' + sig.date : 'Signature', x, yy); yy += 16;
+    k.font('normal', 10, k.INK); var nm = doc.splitTextToSize(myName + (sp.credentials ? '\n' + sp.credentials : ''), colW); k.text(nm, x, yy); yy += nm.length * 12 + 2;
+    doc.setDrawColor(k.LINE[0], k.LINE[1], k.LINE[2]); doc.line(x, yy, x + colW, yy); yy += 11; k.font('normal', 8.5, k.GRAY); k.text('Printed name and credentials', x, yy);
+    k.foot('Praxis Plus · Clinical Hours Report · ' + personLabel(c.supervisee));
+    doc.save('Praxis-Plus-hours-report-' + personLabel(c.supervisee).replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') + '-' + iso(todayDate()) + '.pdf');
+  }
 
   /* ---------- boot ---------- */
   applyPalette();
