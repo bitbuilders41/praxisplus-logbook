@@ -1917,7 +1917,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function setMinutes(m) { m = Math.round(m); if (!isFinite(m)) m = form.minutes; form.minutes = Math.min(600, Math.max(1, m)); renderForm(); }
   $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.cat = b.dataset.cat; form.sub = ''; renderForm(); if (form.cat === '__other') $('otherName').focus(); });
   $('subSelect').addEventListener('change', function () { form.sub = this.value; });
-  $('supSelect').addEventListener('change', function () { form.sup = this.value; $('supNewBox').hidden = form.sup !== '__new'; if (form.sup === '__new') $('supNewName').focus(); });
+  $('supSelect').addEventListener('change', function () { form.sup = this.value; $('supNewBox').hidden = form.sup !== '__new'; if (form.sup === '__new') $('supNewName').focus(); renderSiteField(); });
   $('otherName').addEventListener('input', function () { form.otherName = this.value; });
   $('durPresets').addEventListener('click', function (ev) { var b = ev.target.closest('[data-min]'); if (!b) return; setMinutes(+b.dataset.min); });
   $('durMinus').addEventListener('click', function () { var s = state.step || 5; setMinutes(form.minutes - s > 0 ? Math.ceil((form.minutes - s) / s) * s : 1); });
@@ -2300,8 +2300,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var b = this; if (!state.entries.length && !totals().carriedMin) return;
     if (!b.classList.contains('armed')) { b.classList.add('armed'); b.style.background = 'var(--danger-bg)'; b.style.borderRadius = '10px'; b.style.padding = '0 10px'; b.querySelector('small').textContent = 'Tap again to delete permanently'; wipeTimer = setTimeout(function () { b.classList.remove('armed'); b.style.background = ''; b.style.padding = ''; renderSettings(); }, 4000); return; }
     clearTimeout(wipeTimer); b.classList.remove('armed'); b.style.background = ''; b.style.padding = '';
-    state.entries = []; state.categories.forEach(function (c) { state.carried[c.id] = 0; });
-    saveState(); renderAll(); renderSettings(); toast('All entries deleted');
+    /* entries a connected supervisor covers are not the person's alone to delete: those take the supervisor's approval, one by one */
+    var kept = state.entries.filter(function (e) { return !!coveringConnForEntry(e); }), removed = state.entries.length - kept.length;
+    state.entries = kept; state.categories.forEach(function (c) { state.carried[c.id] = 0; });
+    saveState(); renderAll(); renderSettings();
+    toast(kept.length ? plural(removed, 'entry') + ' deleted. ' + plural(kept.length, 'entry') + ' under a connected supervisor stay; deleting those takes their approval.' : 'All entries deleted');
   });
 
   /* ---------- start over: wipe the logbook and return to setup; display choices stay ---------- */
@@ -4121,10 +4124,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   /* --- names --- */
   function siteLabel(x) { return x.name + (x.city ? ', ' + x.city : ''); }
   function siteAddress(x) { return [x.address, [x.city, x.st].filter(Boolean).join(', '), x.zip].filter(Boolean).join(' · '); }
-  /* a linked site reads under the supervisor's name for it */
+  /* a linked site reads under the name at the end of its chain of links: the supervisor's name for it, or the
+     name of the record their own record is linked to (the server resolves that as displayName) */
   function siteDisplayName(st) {
     if (st && st.canonical) {
-      for (var i = 0; i < conns.length; i++) { var hit = (conns[i].sites || []).filter(function (x) { return x.id === st.canonical; })[0]; if (hit) return hit.name; }
+      for (var i = 0; i < conns.length; i++) { var hit = (conns[i].sites || []).filter(function (x) { return x.id === st.canonical; })[0]; if (hit) return hit.displayName || hit.name; }
     }
     return st ? st.name : '';
   }
@@ -4258,15 +4262,33 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!c.supervisorRecordId) return null;
     return state.supervisors.filter(function (s) { return sync.ids.sup[s.id] === c.supervisorRecordId; })[0] || null;
   }
+  /* my record that stands for one of the supervisor's sites: linked to it, or linked to the same record
+     their own record is linked to (two supervisors naming one place reach the same record) */
+  function ownSiteFor(x) {
+    return state.sites.filter(function (st) { return st.canonical && (st.canonical === x.id || (x.rootId && x.rootId !== x.id && st.canonical === x.rootId)); })[0] || null;
+  }
+  function liveSuperviseeConns() { return conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'active'; }); }
   /* the supervisor's sites on live connections that no site of mine stands for yet */
   function unlinkedConnSites() {
     var out = [];
-    conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'active'; }).forEach(function (c) {
-      (c.sites || []).forEach(function (x) {
-        if (!state.sites.some(function (st) { return st.canonical === x.id; })) out.push({ conn: c, site: x });
-      });
+    liveSuperviseeConns().forEach(function (c) {
+      (c.sites || []).forEach(function (x) { if (!ownSiteFor(x)) out.push({ conn: c, site: x }); });
     });
     return out;
+  }
+  /* a site of mine that already stands for a named site still has to be covered by the card behind that connection */
+  function coverKnownSites() {
+    var changed = false;
+    liveSuperviseeConns().forEach(function (c) {
+      var card = cardForConn(c); if (!card) return;
+      (c.sites || []).forEach(function (x) {
+        var st = ownSiteFor(x); if (!st) return;
+        card.sites = card.sites || [];
+        if (card.sites.indexOf(st.id) < 0) { card.sites.push(st.id); fillSingleSite(card); changed = true; }
+      });
+    });
+    if (changed) saveState();
+    return changed;
   }
   function normSite(t) {
     return String(t || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9 ]+/g, ' ')
@@ -4276,8 +4298,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   }
   /* how likely one of my sites is the same place: a ranking for the suggestion, never a decision */
   function siteScore(st, x) {
-    var score = 0;
-    if (normSite(st.name) === normSite(x.name)) score += 3; else if (normSite(st.name).indexOf(normSite(x.name)) >= 0 || normSite(x.name).indexOf(normSite(st.name)) >= 0) score += 1;
+    var score = 0, mine = normSite(st.name), theirs = [normSite(x.name)];
+    if (x.displayName && x.displayName !== x.name) theirs.push(normSite(x.displayName));
+    if (theirs.indexOf(mine) >= 0) score += 3; else if (theirs.some(function (t) { return mine.indexOf(t) >= 0 || t.indexOf(mine) >= 0; })) score += 1;
     if (st.zip && x.postalCode && st.zip.slice(0, 5) === x.postalCode.slice(0, 5)) score += 2;
     if (st.city && x.city && normSite(st.city) === normSite(x.city)) score += 1;
     if (st.address && x.addressLine && normSite(st.address) === normSite(x.addressLine)) score += 2;
@@ -4287,7 +4310,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function openSiteLink(c, x) {
     sl.conn = c; sl.site = x;
     $('slWho').textContent = personLabel(c.supervisor) + ' lists this as a site you work at under them.';
-    $('slSite').innerHTML = '<p class="label">Their site</p><div style="font-size:17px;font-weight:600">' + esc(x.name) + '</div>' + (siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode }) ? '<div class="meta" style="margin-top:4px">' + esc(siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode })) + '</div>' : '');
+    $('slSite').innerHTML = '<p class="label">Their site</p><div style="font-size:17px;font-weight:600">' + esc(x.name) + '</div>' + (siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode }) ? '<div class="meta" style="margin-top:4px">' + esc(siteAddress({ address: x.addressLine, city: x.city, st: x.stateCode, zip: x.postalCode })) + '</div>' : '') +
+      (x.displayName && x.displayName !== x.name ? '<div class="meta" style="margin-top:4px">Reports call this place ' + esc(x.displayName) + '.</div>' : '');
     var ranked = state.sites.filter(function (st) { return !st.canonical; }).map(function (st) { return { st: st, score: siteScore(st, x) }; }).sort(function (a, b) { return b.score - a.score || a.st.name.localeCompare(b.st.name); });
     $('slList').innerHTML = ranked.map(function (r, i) {
       return '<label><input type="radio" name="slPick" value="' + r.st.id + '"' + (i === 0 && r.score >= 3 ? ' checked' : '') + '><span class="ck-main">' + esc(r.st.name) + (r.score >= 3 ? ' <span class="pill">Likely the same</span>' : '') + (siteAddress(r.st) ? '<span class="ck-sub">' + esc(siteAddress(r.st)) + '</span>' : '') + '</span></label>';
@@ -4333,15 +4357,15 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   /* after a sync: nothing to ask when the person has no sites of their own (their record is made for them);
      otherwise one question per site, the rest wait on the dashboard */
   function settleSiteLinks() {
-    if (autoMirrorSites()) { renderAll(); return; }
-    var todo = unlinkedConnSites();
-    if (!todo.length) { renderConnNotice(); return; }
-    if ($('sheet-sitelink').hidden && !sl.conn) openSiteLink(todo[0].conn, todo[0].site);
+    var changed = autoMirrorSites(), todo = unlinkedConnSites();
+    if (changed) renderAll(); else renderConnNotice();
+    if (todo.length && $('sheet-sitelink').hidden && !sl.conn) openSiteLink(todo[0].conn, todo[0].site);
   }
   /* someone with no sites of their own has nothing to link: their record for each named site is made for them */
   function autoMirrorSites() {
+    var covered = coverKnownSites();
     var todo = unlinkedConnSites();
-    if (!todo.length || state.sites.some(function (st) { return !st.canonical; })) return false;
+    if (!todo.length || state.sites.some(function (st) { return !st.canonical; })) return covered;
     todo.forEach(function (t) { addMirrorSite(t.conn, t.site); });
     toast(todo.length === 1 ? todo[0].site.name + ' added to your sites' : plural(todo.length, 'site') + ' added to your sites');
     return true;
