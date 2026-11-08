@@ -1245,6 +1245,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       </div>
     </fieldset>
     <button class="primary" id="seSave">Save site</button>
+    <button class="secondary" id="seUnlink" hidden>Unlink from their site</button>
     <button class="danger" id="seRemove" hidden>Remove site</button>
     <p class="fine" id="seStatus" role="status" aria-live="polite"></p>
   </div>
@@ -4152,15 +4153,27 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('stAdd').addEventListener('click', function () { openSiteEditor(null, 'sites'); });
   $('stList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-site]'); if (!b) return; var st = site(b.dataset.site); if (st) openSiteEditor(st, 'sites'); });
 
+  /* the connection and the supervisor's site that one of my sites is linked to, if a connection still names it */
+  function linkedTo(st) {
+    if (!st || !st.canonical) return null;
+    for (var i = 0; i < conns.length; i++) { var hit = (conns[i].sites || []).filter(function (x) { return x.id === st.canonical; })[0]; if (hit) return { conn: conns[i], site: hit }; }
+    return null;
+  }
+
   /* --- one site --- */
-  var se = { id: null, after: null, arm: false, timer: null };
+  var UNLINK_LABEL = 'Unlink from their site';
+  var se = { id: null, after: null, arm: false, timer: null, unarm: false, untimer: null };
   function openSiteEditor(st, after) {
-    se = { id: st ? st.id : null, after: after, arm: false, timer: null };
+    se = { id: st ? st.id : null, after: after, arm: false, timer: null, unarm: false, untimer: null };
     $('seTitle').textContent = st ? 'Edit site' : 'New site';
     $('seName').value = st ? st.name : ''; $('seStreet').value = st ? st.address || '' : ''; $('seCity').value = st ? st.city || '' : ''; $('seState').value = st ? st.st || '' : ''; $('seZip').value = st ? st.zip || '' : '';
     $('sePrimary').checked = st ? !!st.primary : !state.sites.length;
-    $('seLinked').hidden = !(st && st.canonical);
-    if (st && st.canonical) $('seLinked').innerHTML = 'Linked to <b>' + esc(siteDisplayName(st)) + '</b>, your supervisor’s record for this place. Reports use their name for it; your name here is for your own lists.';
+    var linked = !!(st && st.canonical), to = linkedTo(st);
+    $('seLinked').hidden = !linked;
+    if (linked) $('seLinked').innerHTML = to
+      ? 'Linked to <b>' + esc(to.site.name) + '</b>, ' + esc(personLabel(to.conn.supervisor)) + '’s record for this place. Reports use their name for it; your name here is for your own lists. Linked by mistake? Unlink it below.'
+      : 'Linked to a site your supervisor no longer lists for you. Unlink it, or remove it if you no longer work there.';
+    $('seUnlink').hidden = !linked; $('seUnlink').textContent = UNLINK_LABEL;
     $('seRemove').hidden = !st; $('seRemove').textContent = 'Remove site'; $('seStatus').textContent = ''; $('seSave').disabled = false;
     openSheet('sheet-site'); setTimeout(function () { $('seName').focus(); }, 50);
   }
@@ -4174,6 +4187,27 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     saveState(); closeSheet('sheet-site'); renderSites(); renderAll(); toast(se.id ? 'Site saved' : 'Site added');
     if (se.after === 'cardsites' && cs.card) { if (!se.id) cs.card.sites.push(st.id); saveState(); renderCardSites(); }
     if (se.after === 'connsites' && cns.conn) { var picked = checkedSites($('cnsList')); if (!se.id) picked.push(st.id); renderConnSiteChecks(picked); }
+  });
+  /* undoing a link made by mistake: the entries that got the site through the link go back to no site (except
+     those in a week that is with the supervisor), the card stops covering it if the link made it so, and the
+     supervisor's site is offered again on the dashboard */
+  function unlinkableEntries(st) {
+    var ids = (st.byLink && st.byLink.entries) || [];
+    return state.entries.filter(function (e) { return ids.indexOf(e.id) >= 0 && e.site === st.id && !weekLockFor(e.sup, e.date); });
+  }
+  function unlinkSite(st) {
+    var theirs = siteDisplayName(st);
+    unlinkableEntries(st).forEach(function (e) { e.site = ''; });
+    if (st.byLink && st.byLink.card) { var card = supervisor(st.byLink.card); if (card) card.sites = (card.sites || []).filter(function (id) { return id !== st.id; }); }
+    st.canonical = ''; delete st.byLink;
+    saveState(); return theirs;
+  }
+  $('seUnlink').addEventListener('click', function () {
+    var st = se.id ? site(se.id) : null; if (!st || !st.canonical) return;
+    var back = unlinkableEntries(st);
+    if (!se.unarm) { se.unarm = true; this.textContent = 'Tap again to unlink' + (back.length ? ' (' + plural(back.length, 'entry') + ' go back to no site)' : ''); se.untimer = setTimeout(function () { se.unarm = false; $('seUnlink').textContent = UNLINK_LABEL; }, 4000); return; }
+    clearTimeout(se.untimer);
+    var theirs = unlinkSite(st); closeSheet('sheet-site'); renderSites(); renderAll(); toast(theirs && theirs !== st.name ? st.name + ' unlinked from ' + theirs : 'Site unlinked');
   });
   $('seRemove').addEventListener('click', function () {
     var st = se.id ? site(se.id) : null; if (!st) return;
@@ -4210,12 +4244,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   });
   $('csAdd').addEventListener('click', function () { openSiteEditor(null, 'cardsites'); });
   $('csBack').addEventListener('click', function () { closeSheet('sheet-cardsites'); cs.card = null; renderSupervisors(); renderAll(); });
-  /* a card with exactly one site gives it to the entries under it that have none */
+  /* a card with exactly one site gives it to the entries under it that have none; an entry in a week that is
+     with the supervisor for sign-off stays as it is (the server would refuse the change) */
   function fillSingleSite(card) {
     var ids = (card.sites || []).filter(function (id) { return site(id); });
-    if (ids.length !== 1) return 0;
-    var n = 0; state.entries.forEach(function (e) { if (e.sup === card.id && !e.site) { e.site = ids[0]; n++; } });
-    return n;
+    if (ids.length !== 1) return [];
+    var set = []; state.entries.forEach(function (e) { if (e.sup === card.id && !e.site && !weekLockFor(card.id, e.date)) { e.site = ids[0]; set.push(e.id); } });
+    return set;
   }
 
   /* --- linking the supervisor's site to one of mine (logbook side) --- */
@@ -4287,11 +4322,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (!st.address) st.address = str(x.addressLine, 160); if (!st.city) st.city = str(x.city, 80); if (!st.st) st.st = str(x.stateCode, 40); if (!st.zip) st.zip = str(x.postalCode, 12);
     coverSite(c, st); saveState();
   }
-  /* the card behind the connection covers the site; one covered site goes onto the entries under the card */
+  /* the card behind the connection covers the site; one covered site goes onto the entries under the card.
+     What the link did is kept on the site so that Unlink can take exactly that back. */
   function coverSite(c, st) {
     var card = cardForConn(c); if (!card) return;
-    card.sites = card.sites || []; if (card.sites.indexOf(st.id) < 0) card.sites.push(st.id);
-    fillSingleSite(card);
+    card.sites = card.sites || [];
+    var added = card.sites.indexOf(st.id) < 0; if (added) card.sites.push(st.id);
+    st.byLink = { card: added ? card.id : '', entries: fillSingleSite(card) };
   }
   /* after a sync: nothing to ask when the person has no sites of their own (their record is made for them);
      otherwise one question per site, the rest wait on the dashboard */
