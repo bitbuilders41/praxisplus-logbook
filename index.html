@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Praxis Plus</title>
-<meta name="description" content="Praxis Plus clinical hours logbook for counseling supervisees.">
+<meta name="description" content="Praxis Plus clinical hours logbook for counseling supervisees and their supervisors.">
 <meta name="application-name" content="Praxis Plus">
 <meta name="theme-color" content="#F3F5F6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F1416" media="(prefers-color-scheme: dark)">
@@ -315,7 +315,7 @@ td:last-child{font-weight:600}
 .dur-val small{font-size:15px;color:var(--ink-2);margin-left:4px;font-weight:500}
 .dur-h{display:block;font-size:13px;color:var(--ink-2);margin-top:6px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 12px}
-input[type="date"],input[type="text"],input[type="number"],textarea,select{
+input[type="date"],input[type="text"],input[type="number"],input[type="email"],input[type="password"],textarea,select{
   width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--line-strong);border-radius:10px;
   padding:12px 12px;min-height:48px;-webkit-appearance:none;appearance:none}
 select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
@@ -433,11 +433,44 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (min-width:600px){body{max-width:480px;margin:0 auto}.bar-nav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}.sheet{max-width:480px;margin:0 auto;box-shadow:0 0 0 1px var(--line)}}
+
+/* Supervising side */
+.top-right{display:flex;align-items:center;gap:10px;min-width:0}
+.mode-btn{min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line-strong);background:var(--panel);font-size:12.5px;font-weight:600;color:var(--brand-2);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.mode-btn svg{width:14px;height:14px}
+.bar-in.sv{grid-template-columns:1fr 1.1fr 1fr}
+.req-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.req-card + .req-card{margin-top:10px}
+.req-card .rq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.req-card .rq-name{font-size:15px;font-weight:600}
+.req-card .rq-meta{font-size:13px;color:var(--ink-2);line-height:1.45}
+.req-card .btns{display:flex;gap:8px;flex-wrap:wrap}
+.sv-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 0;border-top:1px solid var(--line);min-height:60px}
+.sv-row:first-child{border-top:0;padding-top:4px}
+.sv-row .av{width:40px;height:40px;border-radius:50%;background:var(--brand-4);color:var(--brand);display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;flex-shrink:0}
+.sv-row .row-main{flex:1;min-width:0}
+.sv-row .row-title{font-size:15px;font-weight:500}
+.sv-row .row-sub{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:normal}
+.sv-row .row-h{font-size:15px}
+.pill{font-size:11.5px;font-weight:600;color:var(--brand-2);background:var(--brand-4);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.pill.muted{color:var(--ink-2);background:var(--bg)}
+.pill.warn{color:var(--danger);background:var(--danger-bg)}
+.sup-card .sc-conn{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sup-card .sc-conn .pill{flex-shrink:0}
+.sv-hero{background:var(--brand);color:var(--on-brand);border:0;border-radius:16px;padding:18px}
+.sv-hero .label{font-size:14px;color:var(--on-brand-2)}
+.sv-hero .name{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-top:2px}
+.sv-hero .meta{font-size:13.5px;color:var(--on-brand-2);margin-top:8px;line-height:1.5}
+.sv-hero .total{font-size:40px;font-weight:600;line-height:1.05;letter-spacing:-.02em;margin-top:14px;font-variant-numeric:tabular-nums}
+.sv-hero .total small{font-size:16px;font-weight:500;color:var(--on-brand-2);margin-left:6px}
+.ro-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 24px;border-top:1px solid var(--line);min-height:52px}
+.ro-row .row-main{flex:1;min-width:0}
+.ro-row .row-sub{white-space:normal;line-height:1.4}
 </style>
 
 <header class="top wrap">
   <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><span class="wordmark">Praxis<b>Plus</b></span></div>
-  <div class="today" id="todayLabel"></div>
+  <div class="top-right"><button type="button" class="mode-btn" id="modeSwitch" hidden></button><div class="today" id="todayLabel"></div></div>
 </header>
 
 <!-- DASHBOARD -->
@@ -449,6 +482,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="track" id="trackTotal"><div class="fill" id="fillTotal" style="width:0%"></div></div>
     <div class="owner"><span id="ownerLine">Your logbook</span><b id="phaseLine"></b></div>
   </section>
+  <section class="notice" id="connNotice" hidden style="margin-bottom:0"></section>
   <section class="notice" id="supNotice" hidden style="margin-bottom:0"><b>No supervisor on file.</b> Add the person who supervises your hours so supervision sessions and the hours report are attributed to them.<div class="btns"><button type="button" class="btn-sm fill" id="supNoticeAdd">Add supervisor</button></div></section>
 
   <section class="panel" id="panel-targets">
@@ -587,6 +621,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     <div class="panel-head"><h2>Account</h2></div>
     <div class="list">
       <div class="list-row plain">Signed in as<small id="acctEmail"></small></div>
+      <button class="list-row" id="goSupervising">Supervising<small id="goSupervisingSub"></small></button>
       <button class="list-row" id="syncNow">Sync<small id="syncStatus"></small></button>
       <button class="list-row" id="signOut">Sign out<small>Your logbook stays in your account</small></button>
     </div>
@@ -602,7 +637,55 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </section>
 </main>
 
-<nav class="bar-nav" aria-label="Main">
+<!-- SUPERVISING -->
+<main id="view-sv-home" class="view wrap" hidden>
+  <h1 class="view-title">Supervising</h1>
+  <p class="view-sub" id="svSub"></p>
+  <div id="svRequests"></div>
+  <section class="panel">
+    <div class="panel-head"><h2>Supervisees</h2><span class="panel-num" id="svCount"></span></div>
+    <div id="svList"></div>
+    <div class="panel-foot" id="svEndedFoot" hidden><button class="link-btn" id="svToggleEnded"></button></div>
+  </section>
+  <section class="panel"><p class="note" id="svNote"></p></section>
+</main>
+
+<main id="view-sv-settings" class="view wrap" hidden>
+  <h1 class="view-title">Settings</h1>
+  <section class="panel">
+    <div class="panel-head"><h2>Supervisor profile</h2></div>
+    <div class="inline-field"><label for="svName">Name</label><input type="text" id="svName" placeholder="Your name" autocomplete="name" maxlength="60"></div>
+    <div class="inline-field"><label for="svCred">Credentials</label><input type="text" id="svCred" placeholder="For example LPC-S, LCSW" maxlength="120"></div>
+    <div class="inline-field"><label for="svLicense">License number</label><input type="text" id="svLicense" placeholder="As it appears on your license" maxlength="60"></div>
+    <p class="fine">Shown to the supervisees you connect with. The license number is marked as not verified until a clinic or program confirms it.</p>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Account</h2></div>
+    <div class="list">
+      <div class="list-row plain">Signed in as<small id="svAcctEmail"></small></div>
+      <button class="list-row" id="svGoLogbook">My logbook<small id="svGoLogbookSub"></small></button>
+      <button class="list-row" id="svSyncNow">Refresh<small id="svSyncStatus"></small></button>
+      <button class="list-row" id="svSignOut">Sign out<small>Your connections stay in your account</small></button>
+    </div>
+  </section>
+</main>
+
+<nav class="bar-nav" id="svNav" aria-label="Supervising" hidden>
+  <div class="bar-in sv wrap">
+    <button class="tab" data-view="sv-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a4.5 4.5 0 015.5 4.5"/></svg>Supervisees
+    </button>
+    <div class="fab-wrap">
+      <button class="fab" id="btnInvite" aria-label="Invite a supervisee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20a6.5 6.5 0 0113 0"/><path d="M19 8v6M16 11h6"/></svg></button>
+      <span>Invite</span>
+    </div>
+    <button class="tab" data-view="sv-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Settings
+    </button>
+  </div>
+</nav>
+
+<nav class="bar-nav" id="mainNav" aria-label="Main">
   <div class="bar-in wrap">
     <button class="tab" data-view="dashboard" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>Dashboard
@@ -707,12 +790,14 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   <div class="sheet-top wrap"><button class="link" id="supBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Settings</button><h2 id="supTitle">Supervisors</h2><span></span></div>
   <div class="sheet-body wrap">
     <p class="fine">The current supervisor is attached to each new entry and is the one who signs the hours report. If your supervisor changes, add the new one and make them current; earlier entries keep the supervisor they were logged under.</p>
+    <p class="fine">Connect a supervisor by email and they can review the hours you log under them in their own Praxis Plus account. They see those entries and nothing else; they cannot change or delete anything.</p>
     <div id="supList"></div>
     <fieldset class="f"><legend>Add a supervisor</legend>
       <div class="group fields stack-fields">
         <input type="text" id="newSupName" placeholder="Name" maxlength="60" autocomplete="off">
         <input type="text" id="newSupCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
         <label class="lab">Supervising you since<input type="date" id="newSupSince"></label>
+        <input type="email" id="newSupEmail" placeholder="Their email, to connect in Praxis Plus (optional)" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false">
         <button type="button" class="secondary" id="newSupAdd">Add supervisor</button>
       </div>
     </fieldset>
@@ -796,19 +881,34 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 <div class="sheet" id="sheet-setup" hidden role="dialog" aria-modal="true" aria-labelledby="setupTitle">
   <div class="sheet-top wrap"><span></span><h2 id="setupTitle">Set up your logbook</h2><span></span></div>
   <div class="sheet-body wrap">
-    <p class="fine">A minute of setup so your hours and the hours report are attributed correctly. Everything here can be changed later in Settings.</p>
+    <p class="fine">A minute of setup so everything is attributed correctly. All of this can be changed later in Settings.</p>
     <fieldset class="f"><legend>You</legend>
       <div class="group fields stack-fields">
         <input type="text" id="suName" placeholder="Your name" maxlength="60" autocomplete="name">
-        <input type="text" id="suProgram" placeholder="University program or practicum site" maxlength="80">
+        <label class="switch"><span>I log my own clinical hours</span><input type="checkbox" id="suRoleLog" checked><i class="sw-ctl"></i></label>
+        <label class="switch"><span>I supervise other people's hours</span><input type="checkbox" id="suRoleSup"><i class="sw-ctl"></i></label>
       </div>
     </fieldset>
-    <fieldset class="f"><legend>Your supervisor</legend>
+    <div id="suLogFields">
+      <fieldset class="f"><legend>Your logbook</legend>
+        <div class="group fields stack-fields">
+          <input type="text" id="suProgram" placeholder="University program or practicum site" maxlength="80">
+        </div>
+      </fieldset>
+      <fieldset class="f"><legend>Your supervisor</legend>
+        <div class="group fields stack-fields">
+          <input type="text" id="suSupName" placeholder="Supervisor's name" maxlength="60" autocomplete="off">
+          <input type="text" id="suSupCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
+          <label class="lab">Supervising you since<input type="date" id="suSupSince"></label>
+          <p class="fine">Every entry is logged under your current supervisor, and they sign the hours report. You can connect with them by email afterwards in Settings, Supervisors, so they can review your hours in their own account.</p>
+        </div>
+      </fieldset>
+    </div>
+    <fieldset class="f" id="suSupFields" hidden><legend>Your supervisor details</legend>
       <div class="group fields stack-fields">
-        <input type="text" id="suSupName" placeholder="Supervisor's name" maxlength="60" autocomplete="off">
-        <input type="text" id="suSupCred" placeholder="Credentials or license number" maxlength="60" autocomplete="off">
-        <label class="lab">Supervising you since<input type="date" id="suSupSince"></label>
-        <p class="fine">Every entry is logged under your current supervisor, and they sign the hours report. If your supervisor changes later, add the new one in Settings.</p>
+        <input type="text" id="suCred" placeholder="Credentials, for example LPC-S" maxlength="120" autocomplete="off">
+        <input type="text" id="suLicense" placeholder="License number" maxlength="60" autocomplete="off">
+        <p class="fine">Shown to the supervisees you connect with. The license number is marked as not verified until a clinic or program confirms it.</p>
       </div>
     </fieldset>
     <button class="primary" id="suStart">Save and start</button>
@@ -869,6 +969,94 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </fieldset>
     <button class="primary" id="rpDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>Download PDF</button>
     <p class="fine" id="rpStatus"></p>
+  </div>
+</div>
+
+<!-- INVITE A SUPERVISEE (supervising side) -->
+<div class="sheet" id="sheet-sv-invite" hidden role="dialog" aria-modal="true" aria-labelledby="svInvTitle">
+  <div class="sheet-top wrap"><button class="link" id="svInvCancel">Cancel</button><h2 id="svInvTitle">Invite a supervisee</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine">The request goes to the email address they use for Praxis Plus; it waits for them if they have not signed up yet. Once they accept, you see the hours they log under you and nothing else in their logbook.</p>
+    <fieldset class="f"><legend>Supervisee</legend>
+      <div class="group fields stack-fields">
+        <input type="email" id="svInvEmail" placeholder="Their email" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false">
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Supervision</legend>
+      <div class="group fields stack-fields">
+        <label class="lab">Supervising since (optional)<input type="date" id="svInvSince"></label>
+        <p class="fine">Hours dated before this stay out of your view.</p>
+        <label class="lab">Week starts on<select id="svInvWeek" aria-label="Week starts on"><option value="1">Monday</option><option value="0">Sunday</option><option value="6">Saturday</option></select></label>
+        <div class="chips" id="svInvStanding" role="group" aria-label="Standing"><button type="button" class="chip" data-standing="primary" aria-pressed="true">Primary supervisor</button><button type="button" class="chip" data-standing="secondary" aria-pressed="false">Secondary</button></div>
+        <div class="chips" id="svInvType" role="group" aria-label="Type" style="padding-top:0"><button type="button" class="chip" data-type="individual" aria-pressed="true">Individual</button><button type="button" class="chip" data-type="group" aria-pressed="false">Group</button></div>
+      </div>
+    </fieldset>
+    <button class="primary" id="svInvSend">Send request</button>
+    <p class="fine" id="svInvStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- SUPERVISEE DETAIL (supervising side) -->
+<div class="sheet" id="sheet-sv-detail" hidden role="dialog" aria-modal="true" aria-labelledby="svDetTitle">
+  <div class="sheet-top wrap"><button class="link" id="svDetBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Supervisees</button><h2 id="svDetTitle">Supervisee</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <section class="sv-hero" id="svDetHero"></section>
+    <section class="panel">
+      <div class="panel-head"><h2>Hours under you</h2><span class="panel-num" id="svDetTargetNote"></span></div>
+      <div id="svDetTotals"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head" style="flex-wrap:wrap"><h2>Entries</h2>
+        <div class="seg" id="svDetRange" role="group" aria-label="Period"><button type="button" data-range="week">This week</button><button type="button" data-range="4w">4 weeks</button><button type="button" data-range="all" aria-pressed="true">All</button></div>
+      </div>
+      <p class="view-sub" id="svDetCount" style="margin:0 0 8px"></p>
+      <div id="svDetEntries"></div>
+    </section>
+    <section class="panel" id="svDetActions">
+      <div class="list"><button class="list-row danger-row" id="svDetEnd">End connection<small id="svDetEndSub">From today</small></button></div>
+      <p class="fine" style="margin-top:10px">Ending keeps your view of the hours logged while you were connected. Hours after the end date are no longer shared with you.</p>
+    </section>
+    <p class="fine" id="svDetStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- RESPOND TO A SUPERVISOR'S REQUEST (logbook side) -->
+<div class="sheet" id="sheet-accept" hidden role="dialog" aria-modal="true" aria-labelledby="accTitle">
+  <div class="sheet-top wrap"><button class="link" id="accCancel">Cancel</button><h2 id="accTitle">Supervisor request</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="accWho"></p>
+    <p class="fine">Accepting lets this supervisor see the hours you log under them, with the type, subcategory, site, client code and note of each entry. They cannot change or delete anything. Hours under other supervisors and the rest of your logbook stay private.</p>
+    <fieldset class="f"><legend>Supervisor card</legend>
+      <div class="group fields stack-fields">
+        <select id="accCard" aria-label="Supervisor card"></select>
+        <p class="fine">Entries logged under this card are the ones they can see.</p>
+      </div>
+    </fieldset>
+    <button class="primary" id="accAccept">Accept</button>
+    <button class="danger" id="accDecline">Decline</button>
+    <p class="fine" id="accStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- CONNECT A SUPERVISOR CARD BY EMAIL (logbook side) -->
+<div class="sheet" id="sheet-connect" hidden role="dialog" aria-modal="true" aria-labelledby="cnTitle">
+  <div class="sheet-top wrap"><button class="link" id="cnCancel">Cancel</button><h2 id="cnTitle">Connect with your supervisor</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="cnWho"></p>
+    <p class="fine">They get the request when they sign in to Praxis Plus with this address. Once they accept, they can see the hours you log under this card, with the type, subcategory, site, client code and note of each entry. They cannot change or delete anything.</p>
+    <fieldset class="f"><legend>Supervisor's email</legend>
+      <div class="group fields stack-fields">
+        <input type="email" id="cnEmail" placeholder="Email" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false">
+      </div>
+    </fieldset>
+    <fieldset class="f"><legend>Supervising you since (optional)</legend>
+      <div class="group fields stack-fields">
+        <input type="date" id="cnSince">
+        <p class="fine">Entries dated before this stay out of their view.</p>
+      </div>
+    </fieldset>
+    <button class="primary" id="cnSend">Send request</button>
+    <p class="fine" id="cnStatus" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -1330,17 +1518,29 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     renderFilters(); renderLedger(flashId);
     if (!$('view-progress').hidden) renderProgress();
     if (!$('view-settings').hidden) renderSettings();
+    if (!$('view-sv-home').hidden) renderSv();
+    if (!$('view-sv-settings').hidden) renderSvSettings();
+    renderConnNotice(); renderModeSwitch();
   }
 
-  /* ---------- views ---------- */
-  var VIEWS = ['dashboard', 'entries', 'progress', 'settings'];
+  /* ---------- views ----------
+     Two sides share one screen: the logbook (dashboard, entries, progress, settings) and the
+     supervising side (sv-home, sv-settings). Each has its own bottom bar; the view decides which shows. */
+  var VIEWS = ['dashboard', 'entries', 'progress', 'settings', 'sv-home', 'sv-settings'];
+  function isSvView(v) { return v.indexOf('sv-') === 0; }
   function showView(name) {
-    var v = VIEWS.indexOf(name) >= 0 ? name : 'dashboard';
+    var v = VIEWS.indexOf(name) >= 0 ? name : (lastSide() === 'supervising' ? 'sv-home' : 'dashboard');
     VIEWS.forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(function (b) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    var sv = isSvView(v);
+    $('mainNav').hidden = sv; $('svNav').hidden = !sv;
+    rememberSide(sv ? 'supervising' : 'logbook');
     if (v === 'progress') renderProgress();
     if (v === 'settings') renderSettings();
     if (v === 'entries') renderLedger();
+    if (v === 'sv-home') { renderSv(); refreshConnections(); }
+    if (v === 'sv-settings') renderSvSettings();
+    renderModeSwitch();
     window.scrollTo(0, 0);
   }
   function go(v) { if (location.hash !== '#' + v) location.hash = v; else showView(v); }
@@ -1586,25 +1786,51 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
           '<button type="button" class="btn-sm fill" data-dosupmove="' + s.id + '">Move ' + plural(n, 'entry') + '</button></div>'
         : '';
       var hint = n && !others.length ? '<p class="fine">In use by ' + plural(n, 'entry') + '. To remove this person, add another supervisor and move the entries to them, or delete the entries.</p>' : '';
+      var cn = connForCard(s), connLine = '', connBtn = '';
+      if (cn && cn.status === 'active') {
+        connLine = '<div class="sc-conn"><span class="pill">Connected</span><span>' + esc(cn.supervisor.email || '') + ' reviews the hours logged under this card' + (cn.startedOn ? ', from ' + esc(fmtIso(cn.startedOn)) : '') + '</span></div>';
+        connBtn = '<button type="button" class="rm' + (connArm === cn.id ? ' armed' : '') + '" data-endconn="' + cn.id + '">' + (connArm === cn.id ? 'Tap again to end the connection' : 'End connection') + '</button>';
+      } else if (cn && cn.status === 'requested' && cn.requestedByMe) {
+        connLine = '<div class="sc-conn"><span class="pill muted">Request sent</span><span>Waiting for ' + esc(cn.supervisor.email || '') + ' to accept</span></div>';
+        connBtn = '<button type="button" data-withdraw="' + cn.id + '">Withdraw request</button>';
+      } else if (cn && cn.status === 'requested') {
+        connLine = '<div class="sc-conn"><span class="pill">Request waiting</span><span>' + esc(cn.supervisor.displayName || cn.supervisor.email || 'This supervisor') + ' asked to connect</span></div>';
+        connBtn = '<button type="button" data-respond="' + cn.id + '">Respond</button>';
+      } else if (signedIn()) {
+        connBtn = '<button type="button" data-connect="' + s.id + '">Connect by email</button>';
+      }
       return '<div class="sup-card"><div class="sc-head"><span class="sc-name">' + esc(s.name) + '</span>' + (s.current ? '<span class="badge">Current</span>' : '') + '</div>' +
-        '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' +
-        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') + moveBtn +
-        (n ? '<button type="button" class="rm" disabled>In use</button>' : '<button type="button" class="rm" data-rmsup="' + s.id + '">Remove</button>') + '</div>' + hint + moveBox + '</div>';
+        '<div class="sc-meta">' + esc(s.credential || 'No credentials entered') + (s.since ? ' \u00b7 since ' + esc(fmtIso(s.since)) : '') + ' \u00b7 ' + plural(n, 'entry') + '</div>' + connLine +
+        '<div class="sc-actions">' + (s.current ? '' : '<button type="button" data-makecur="' + s.id + '">Make current</button>') + connBtn + moveBtn +
+        (n ? '<button type="button" class="rm" disabled>In use</button>' : (cn && cn.status === 'active' ? '' : '<button type="button" class="rm" data-rmsup="' + s.id + '">Remove</button>')) + '</div>' + hint + moveBox + '</div>';
     }).join('');
   }
-  function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; supMoveOpen = null; renderSupervisors(); openSheet('sheet-supervisors'); }
+  var connArm = null, connArmTimer = null;
+  function openSupervisors() { $('newSupName').value = ''; $('newSupCred').value = ''; $('newSupSince').value = ''; $('newSupEmail').value = ''; supMoveOpen = null; connArm = null; renderSupervisors(); openSheet('sheet-supervisors'); }
   $('openSupervisors').addEventListener('click', openSupervisors);
   $('supNoticeAdd').addEventListener('click', openSupervisors);
   $('supBack').addEventListener('click', function () { closeSheet('sheet-supervisors'); renderAll(); });
   $('newSupAdd').addEventListener('click', function () {
     var name = $('newSupName').value.trim().slice(0, 60); if (!name) { $('newSupName').focus(); return; }
     var since = $('newSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
+    var email = $('newSupEmail').value.trim().toLowerCase();
+    if (email && !validEmail(email)) { toast('Check the email address'); $('newSupEmail').focus(); return; }
     state.supervisors.forEach(function (s) { s.current = false; });
-    state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: name, credential: $('newSupCred').value.trim().slice(0, 60), since: since, current: true });
+    var card = { id: 's' + uid().replace(/-/g, '').slice(0, 10), name: name, credential: $('newSupCred').value.trim().slice(0, 60), since: since, current: true };
+    state.supervisors.push(card);
     saveState(); openSupervisors(); toast(name + ' is now your current supervisor');
+    if (email) sendConnectRequest(card, email, since, null);
   });
   $('supList').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.connect) { var cs = supervisor(b.dataset.connect); if (cs) openConnect(cs); return; }
+    if (b.dataset.withdraw) { withdrawRequest(b.dataset.withdraw, renderSupervisors); return; }
+    if (b.dataset.respond) { var rc = connById(b.dataset.respond); if (rc) openAccept(rc); return; }
+    if (b.dataset.endconn) {
+      /* ending a live connection takes two taps */
+      if (connArm !== b.dataset.endconn) { connArm = b.dataset.endconn; clearTimeout(connArmTimer); connArmTimer = setTimeout(function () { connArm = null; renderSupervisors(); }, 4000); renderSupervisors(); return; }
+      clearTimeout(connArmTimer); connArm = null; endConnection(b.dataset.endconn, null, renderSupervisors); return;
+    }
     if (b.dataset.makecur) { state.supervisors.forEach(function (s) { s.current = s.id === b.dataset.makecur; }); saveState(); renderSupervisors(); toast('Current supervisor updated'); }
     if (b.dataset.supmove) { supMoveOpen = supMoveOpen === b.dataset.supmove ? null : b.dataset.supmove; renderSupervisors(); }
     if (b.dataset.dosupmove) {
@@ -1946,18 +2172,50 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     doc.save('Praxis-Plus-hours-report-' + safeName() + '-' + iso(todayDate()) + '.pdf');
   }
 
-  /* ---------- first-run setup ---------- */
-  function needsSetup() { return !state.supervisors.length && !state.entries.length && !state.name; }
-  function openSetup() { $('suName').value = state.name || ''; $('suProgram').value = state.program || ''; $('suStatus').textContent = ''; openSheet('sheet-setup'); }
+  /* ---------- first-run setup ----------
+     A login can be a supervisee, a supervisor, or both. The logbook is set up only for someone who
+     logs their own hours; a supervisor-only login goes straight to the supervising side. */
+  function needsSetup() {
+    if (state.supervisors.length || state.entries.length || state.name) return false;
+    var p = accountProfiles(); return !(p.supervisee || p.supervisor);
+  }
+  function setupRoles() { return { log: $('suRoleLog').checked, sup: $('suRoleSup').checked }; }
+  function renderSetupFields() { var r = setupRoles(); $('suLogFields').hidden = !r.log; $('suSupFields').hidden = !r.sup; }
+  function openSetup(opts) {
+    opts = opts || {};
+    $('suName').value = state.name || ''; $('suProgram').value = state.program || ''; $('suStatus').textContent = '';
+    var p = accountProfiles();
+    /* adding the second side later: only that side's fields show */
+    $('suRoleLog').checked = opts.side ? opts.side === 'logbook' : !p.supervisor;
+    $('suRoleSup').checked = opts.side ? opts.side === 'supervising' : !!opts.supervisor;
+    $('suRoleLog').disabled = !!opts.side; $('suRoleSup').disabled = !!opts.side;
+    $('suCred').value = (sync.me && sync.me.supervisorProfile && sync.me.supervisorProfile.credentials) || '';
+    $('suLicense').value = (sync.me && sync.me.supervisorProfile && sync.me.supervisorProfile.licenseNumber) || '';
+    $('setupTitle').textContent = opts.side === 'supervising' ? 'Set up supervising' : opts.side === 'logbook' ? 'Set up your logbook' : 'Set up Praxis Plus';
+    renderSetupFields(); openSheet('sheet-setup');
+  }
+  $('suRoleLog').addEventListener('change', renderSetupFields);
+  $('suRoleSup').addEventListener('change', renderSetupFields);
   $('suStart').addEventListener('click', function () {
-    var name = $('suName').value.trim().slice(0, 60); var supName = $('suSupName').value.trim().slice(0, 60);
+    var name = $('suName').value.trim().slice(0, 60); var r = setupRoles();
     if (!name) { $('suStatus').textContent = 'Enter your name to continue.'; $('suName').focus(); return; }
-    if (!supName) { $('suStatus').textContent = 'Enter your supervisor\u2019s name to continue.'; $('suSupName').focus(); return; }
-    var since = $('suSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
-    state.name = name; state.program = $('suProgram').value.trim().slice(0, 80);
-    state.supervisors.forEach(function (x) { x.current = false; });
-    state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: supName, credential: $('suSupCred').value.trim().slice(0, 60), since: since, current: true });
-    saveState(); closeSheet('sheet-setup'); renderAll(); toast('Set up. Tap Log hours to record a session.');
+    if (!r.log && !r.sup) { $('suStatus').textContent = 'Choose at least one: logging your own hours, or supervising.'; return; }
+    var supName = $('suSupName').value.trim().slice(0, 60);
+    if (r.log && !supName) { $('suStatus').textContent = 'Enter your supervisor\u2019s name to continue.'; $('suSupName').focus(); return; }
+    state.name = name;
+    if (r.log) {
+      var since = $('suSupSince').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) since = '';
+      state.program = $('suProgram').value.trim().slice(0, 80);
+      state.supervisors.forEach(function (x) { x.current = false; });
+      state.supervisors.push({ id: 's' + uid().replace(/-/g, '').slice(0, 10), name: supName, credential: $('suSupCred').value.trim().slice(0, 60), since: since, current: true });
+      sync.wantLogbook = true;
+    }
+    if (r.sup) { sync.pendingSupervisorProfile = { credentials: $('suCred').value.trim().slice(0, 120), licenseNumber: $('suLicense').value.trim().slice(0, 60) }; }
+    /* the server confirms with the next sync; the screens can already assume it */
+    if (sync.me && sync.me.profiles) { if (r.log) sync.me.profiles.supervisee = true; if (r.sup) sync.me.profiles.supervisor = true; }
+    saveSync(); saveState(); closeSheet('sheet-setup'); renderAll();
+    if (r.sup && !r.log) { go('sv-home'); toast('Set up. Tap Invite to connect with a supervisee.'); }
+    else { go('dashboard'); toast(r.sup ? 'Set up. Use the switch at the top to move between your logbook and supervising.' : 'Set up. Tap Log hours to record a session.'); }
   });
 
 
@@ -2179,10 +2437,18 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function localCatId(uuid) { return rev.cat[uuid] || null; }
   function subNameFor(uuid) { var k = rev.sub[uuid]; return k ? k.split('\u0001')[1] : ''; }
 
-  /* keepLocal: first sync of an account that was just created, with a logbook already on this
-     phone. The server only has defaults, so the phone's values win and the defaults it does
-     not have get removed on the next push. Otherwise the server wins. */
-  function applyRow(table, row, keepLocal) {
+  /* mode says who wins when the phone and the account disagree.
+     'server': the account wins; the normal case once a phone is synced.
+     'local': first sync of an account that was just created, with a logbook already on this phone.
+              The server only has defaults, so the phone's values win and the defaults it does not
+              have get removed on the next push.
+     'merge': first sign-in on a phone that already has a logbook, into an account that already has
+              one. Same-named supervisors and types are the same thing, both sets of entries are kept,
+              and the phone's settings, targets and removed subcategories stand. */
+  function seenByServer(uuid) { return !!(uuid && sync.snapshot[uuid]); }
+  function sameName(a, b) { return str(a, 120).toLowerCase() === str(b, 120).toLowerCase(); }
+  function applyRow(table, row, mode) {
+    var keepLocal = mode === 'local' || mode === 'merge', merge = mode === 'merge';
     var id = row.id, deleted = !!row.deleted_at, data = canon(table, row), key = snapKey(data, deleted);
     if (sync.versions[id] === row.version && sync.snapshot[id] === key) return false;
     sync.versions[id] = row.version; sync.tables[id] = table; sync.snapshot[id] = key; delete sync.rejected[id];
@@ -2190,6 +2456,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (table === 'supervisee_profiles') {
       sync.ids.profile = id;
       if (!keepLocal && !deleted) { state.program = str(data.program_name, 80); state.totalTarget = num(data.total_target_hours); }
+      else if (!deleted && !state.program) state.program = str(data.program_name, 80);
     } else if (table === 'user_settings') {
       sync.ids.settings = id;
       if (!keepLocal && !deleted) {
@@ -2200,7 +2467,13 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         state.collapsed = {}; Object.keys(data.collapsed_panels || {}).forEach(function (k) { state.collapsed[k] = true; });
       }
     } else if (table === 'hour_categories') {
-      var localId = data.builtin_key || localCatId(id) || id;
+      var localId = data.builtin_key || localCatId(id);
+      if (!localId && merge && !deleted) {
+        /* a type the phone made up on its own that the account also has: one type, not two */
+        var twin = state.categories.filter(function (x) { return !x.builtin && !seenByServer(sync.ids.cat[x.id]) && sameName(x.name, data.name); })[0];
+        if (twin) localId = twin.id;
+      }
+      if (!localId) localId = id;
       if (data.builtin_key) { sync.ids.cat[data.builtin_key] = id; rev.cat[id] = data.builtin_key; }
       else if (!rev.cat[id]) { sync.ids.cat[localId] = id; rev.cat[id] = localId; }
       c = cat(localId);
@@ -2221,20 +2494,37 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         i = c.subs.indexOf(oldName); if (i >= 0) c.subs[i] = name;
         state.entries.forEach(function (e) { if (e.cat === catLocal && e.sub === oldName) e.sub = name; });
       }
+      if (c.subs.indexOf(name) < 0) {
+        /* the same subcategory spelled with different capitals is one subcategory; the account's spelling stands */
+        var ci = c.subs.filter(function (x) { return sameName(x, name); })[0];
+        if (ci) { delete sync.ids.sub[catLocal + '\u0001' + ci]; i = c.subs.indexOf(ci); c.subs[i] = name; state.entries.forEach(function (e) { if (e.cat === catLocal && e.sub === ci) e.sub = name; }); }
+      }
       sync.ids.sub[newKey] = id; rev.sub[id] = newKey;
       if (deleted) { i = c.subs.indexOf(name); if (i >= 0) c.subs.splice(i, 1); }
-      else if (c.subs.indexOf(name) < 0 && !keepLocal) c.subs.push(name);
+      else if (c.subs.indexOf(name) < 0) {
+        /* a default subcategory missing from this phone was removed here on purpose; anything else the account has is added */
+        var isDefault = !!(DEFAULT_SUBS[catLocal] && DEFAULT_SUBS[catLocal].indexOf(name) >= 0);
+        if (!keepLocal || (merge && !isDefault)) c.subs.push(name);
+      }
     } else if (table === 'supervisor_records') {
-      var supLocal = rev.sup[id] || id; if (!rev.sup[id]) { sync.ids.sup[supLocal] = id; rev.sup[id] = supLocal; }
+      var supLocal = rev.sup[id];
+      if (!supLocal && merge && !deleted) {
+        var twinSup = state.supervisors.filter(function (x) { return !seenByServer(sync.ids.sup[x.id]) && sameName(x.name, data.name); })[0];
+        if (twinSup) supLocal = twinSup.id;
+      }
+      if (!supLocal) supLocal = id;
+      if (!rev.sup[id]) { sync.ids.sup[supLocal] = id; rev.sup[id] = supLocal; }
       s = supervisor(supLocal);
       if (deleted) {
         if (s) { state.supervisors = state.supervisors.filter(function (x) { return x.id !== supLocal; }); if (state.report.supervisor === s.name) state.report = { supervisor: '', credential: '' }; }
-      } else if (!s) state.supervisors.push({ id: supLocal, name: str(data.name, 60), credential: str(data.credential, 60), since: data.since_date || '', current: !!data.is_current });
-      else { s.name = str(data.name, 60) || s.name; s.credential = str(data.credential, 60); s.since = data.since_date || ''; s.current = !!data.is_current; }
+      } else if (!s) state.supervisors.push({ id: supLocal, name: str(data.name, 60), credential: str(data.credential, 60), since: data.since_date || '', current: !!data.is_current, linkedTo: row.supervisor_user_id || '' });
+      else if (merge) { s.name = str(data.name, 60) || s.name; s.credential = s.credential || str(data.credential, 60); s.since = s.since || data.since_date || ''; s.linkedTo = row.supervisor_user_id || ''; }
+      else { s.name = str(data.name, 60) || s.name; s.credential = str(data.credential, 60); s.since = data.since_date || ''; s.current = !!data.is_current; s.linkedTo = row.supervisor_user_id || ''; }
     } else if (table === 'carried_in_hours') {
       var carLocal = localCatId(data.category_id); if (!carLocal) return true;
       sync.ids.carried[carLocal] = id; rev.carried[id] = carLocal;
       if (!keepLocal) state.carried[carLocal] = deleted ? 0 : num(data.hours);
+      else if (merge && !deleted && !state.carried[carLocal]) state.carried[carLocal] = num(data.hours);
     } else if (table === 'hour_entries') {
       var entryLocal = rev.entry[id] || id;
       var catFor = localCatId(data.category_id);
@@ -2286,24 +2576,36 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     return syncing;
   }
   function runSync(reason) {
-    var first = !sync.cursor && !sync.userId, keepLocal = false, changed = false;
+    var first = !sync.cursor && !sync.userId, mode = 'server', changed = false, logbook = true;
     return api('/v1/me').then(function (me) {
       if (sync.userId && sync.userId !== me.user.id) {
         /* a different account on this phone: its logbook belongs to someone else, so start clean */
-        state = freshState(); saveQuiet(); resetSync(); first = true;
+        state = freshState(); saveQuiet(); resetSync(); conns = []; saveConns(); first = true;
       }
       sync.userId = me.user.id;
+      sync.me = { profiles: me.profiles || { supervisee: !me.needsBootstrap, supervisor: false }, supervisorProfile: me.supervisorProfile || null, counts: me.connections || null };
       /* display name lives on the user record, not in the sync tables; three-way merge against what we last saw */
       var serverName = me.user.displayName || '';
       if (serverName !== (sync.name || '') && state.name === (sync.name || '')) { state.name = str(serverName, 60); changed = true; }
       var namePush = state.name !== (sync.name || '') && state.name !== serverName ? api('/v1/me', { method: 'PATCH', body: { displayName: state.name } }) : Promise.resolve();
       sync.name = state.name;
-      var boot = me.needsBootstrap ? api('/v1/bootstrap', { method: 'POST', body: {} }) : Promise.resolve();
-      keepLocal = first && me.needsBootstrap && localHasData();
-      return Promise.all([namePush, boot]);
+      /* an old phone logbook meeting a brand-new account: the phone wins. Meeting an account that already has a logbook: combine the two. */
+      var migrating = first && me.needsBootstrap && localHasData();
+      if (migrating) mode = 'local'; else if (first && !me.needsBootstrap && localHasData()) mode = 'merge';
+      /* the logbook is only set up for someone who logs their own hours; a supervisor-only login never gets one */
+      logbook = !me.needsBootstrap || migrating || !!sync.wantLogbook;
+      var boot = me.needsBootstrap && logbook
+        ? api('/v1/bootstrap', { method: 'POST', body: {} }).then(function () { sync.wantLogbook = false; sync.me.profiles.supervisee = true; })
+        : Promise.resolve();
+      var prof = sync.pendingSupervisorProfile
+        ? api('/v1/profiles/supervisor', { method: 'PUT', body: sync.pendingSupervisorProfile }).then(function (r) { sync.pendingSupervisorProfile = null; sync.me.supervisorProfile = r.supervisorProfile; sync.me.profiles.supervisor = true; })
+        : Promise.resolve();
+      return Promise.all([namePush, boot, prof]);
     }).then(function () {
-      return pullAll(keepLocal).then(function (n) { if (n) changed = true; });
+      if (!logbook) return;
+      return pullAll(mode).then(function (n) { if (n) changed = true; });
     }).then(function () {
+      if (!logbook) return;
       var changes = pendingChanges();
       if (!changes.length) return;
       var batches = []; for (var i = 0; i < changes.length; i += 200) batches.push(changes.slice(i, i + 200));
@@ -2314,7 +2616,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
             (res.outcomes || []).forEach(function (o) {
               var ch = byId[o.id]; if (!ch) return;
               if (o.status === 'applied') { sync.versions[o.id] = o.version; sync.tables[o.id] = ch.table; sync.snapshot[o.id] = snapKey(ch.data, ch.deleted); delete sync.rejected[o.id]; }
-              else if (o.status === 'conflict' && o.row) { if (applyRow(ch.table, o.row, false)) changed = true; }
+              else if (o.status === 'conflict' && o.row) { if (applyRow(ch.table, o.row, 'server')) changed = true; }
               else if (o.status === 'rejected') { sync.rejected[o.id] = snapKey(ch.data, ch.deleted); sync.lastRejected = (ch.table.replace(/_/g, ' ') + ': ' + (o.reason || 'not accepted')).slice(0, 140); }
             });
             if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
@@ -2322,18 +2624,21 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         });
       }, Promise.resolve());
     }).then(function () {
+      /* the connection list rides along with every sync; if it cannot be fetched the last one stands */
+      return loadConnections().catch(function () { /* shown next time */ });
+    }).then(function () {
       finishApply();
-      if (changed) { saveQuiet(); renderAll(); }
+      if (changed) { saveQuiet(); renderAll(); } else renderSides();
       saveSync();
       return { changed: changed, reason: reason };
     });
   }
-  function pullAll(keepLocal) {
+  function pullAll(mode) {
     buildReverse();
     var applied = 0;
     function page() {
       return api('/v1/sync?since=' + (sync.cursor || 0) + '&limit=500').then(function (res) {
-        (res.changes || []).forEach(function (ch) { if (FIELDS[ch.table] && applyRow(ch.table, ch.row, keepLocal)) applied++; });
+        (res.changes || []).forEach(function (ch) { if (FIELDS[ch.table] && applyRow(ch.table, ch.row, mode)) applied++; });
         if (res.cursor && res.cursor > sync.cursor) sync.cursor = res.cursor;
         return res.hasMore ? page() : applied;
       });
@@ -2438,7 +2743,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   /* signed in: bring the account and this phone together, then carry on into the app */
   function afterSignIn() {
     $('acctStatus').classList.remove('err');
-    $('acctStatus').textContent = localHasData() ? 'Moving your logbook into your account…' : 'Opening your logbook…';
+    $('acctStatus').textContent = localHasData() ? 'Bringing this phone\u2019s logbook and your account together…' : 'Opening your account…';
     return syncNow('signin').then(function () { enterApp(); }, function (err) {
       /* the account is good even if the server is not reachable right now; the logbook syncs later */
       if (err.code === 'SignedOut') return;
@@ -2457,6 +2762,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('syncStatus').textContent = st.text;
     $('syncStatus').classList.toggle('err', !!st.error);
     $('syncNote').textContent = sync.lastRejected ? 'One item was not accepted by the server (' + sync.lastRejected + '). Edit it to try again.' : '';
+    $('goSupervisingSub').textContent = accountProfiles().supervisor ? 'Your supervisees and requests' : 'Set up a supervisor profile';
   }
   onSyncChange(function () { if (!$('view-settings').hidden) renderAccount(); });
   $('syncNow').addEventListener('click', function () { syncNow('manual').then(function () { toast('Synced'); }, function () { renderAccount(); }); });
@@ -2478,10 +2784,349 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     auth.signOut();
     var keep = { palette: state.palette, chart: state.chart, step: state.step, supWeeks: state.supWeeks };
     state = freshState(); state.palette = keep.palette; state.chart = keep.chart; state.step = keep.step; state.supWeeks = keep.supWeeks;
-    saveQuiet(); resetSync();
+    saveQuiet(); resetSync(); conns = []; saveConns(); rememberSide('logbook');
     dayOpen = {}; filterCat = 'all'; openCat = null; moveOpen = null; rmArm = null; supMoveOpen = null;
     renderAll(); go('dashboard'); showAccount('welcome');
   }
+
+
+  /* ---------- connections ----------
+     A connection is the supervision relationship between a supervisee and a supervisor. The server
+     owns it: who may see what, and which hours fall under it. The phone keeps the list it was last
+     given, asks for a fresh one with every sync, and acts on it through the connection endpoints. */
+  var CONNS_KEY = 'praxisplus.connections', SIDE_KEY = 'praxisplus.side';
+  var conns = [];
+  try { var rawConns = JSON.parse(localStorage.getItem(CONNS_KEY) || '[]'); if (Array.isArray(rawConns)) conns = rawConns; } catch (e) { /* nothing cached */ }
+  function saveConns() { try { localStorage.setItem(CONNS_KEY, JSON.stringify(conns)); } catch (e) { /* storage unavailable */ } }
+  function loadConnections() {
+    return api('/v1/connections').then(function (r) { conns = (r && r.connections) || []; saveConns(); return conns; });
+  }
+  function connById(id) { for (var i = 0; i < conns.length; i++) if (conns[i].id === id) return conns[i]; return null; }
+  /* the open connection for one of the supervisee's cards: the live one first, else a pending request */
+  function connForCard(s) {
+    var u = sync.ids.sup[s.id]; if (!u) return null;
+    var list = conns.filter(function (c) { return c.role === 'supervisee' && c.supervisorRecordId === u && (c.status === 'active' || c.status === 'requested'); });
+    return list.filter(function (c) { return c.status === 'active'; })[0] || list[0] || null;
+  }
+  function accountProfiles() {
+    var p = sync.me && sync.me.profiles;
+    if (p) return { supervisee: !!p.supervisee, supervisor: !!p.supervisor };
+    /* nothing heard from the server yet: a phone with a logbook on it is a supervisee's */
+    return { supervisee: localHasData() || !!sync.cursor, supervisor: false };
+  }
+  function other(c) { return c.role === 'supervisee' ? c.supervisor : c.supervisee; }
+  function personLabel(p) { return (p && (p.displayName || p.email)) || 'Someone'; }
+  function initials(p) {
+    var n = (p && p.displayName) || ''; var parts = n.replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, '').split(/\s+/).filter(Boolean);
+    if (!parts.length) return ((p && p.email) || '?').charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toUpperCase();
+  }
+  function apiMessage(err) {
+    if (!err) return 'Something went wrong. Try again.';
+    if (err.code === 'SignedOut') return 'Your session ended. Sign in again.';
+    if (err.code === 'connection_exists') return 'There is already an open connection between you two.';
+    if (err.code === 'cannot_connect_self') return 'That is your own email address.';
+    if (err.code === 'request_expired') return 'That request has expired. Send a new one.';
+    if (err.code === 'not_pending') return 'That request has already been answered.';
+    if (err.code === 'subscription_required') return 'This needs an active subscription for that side of Praxis Plus.';
+    if (err.status === 400) return 'Check what you entered and try again.';
+    if (err.status) return 'Server problem (' + err.status + ').';
+    return navigator.onLine === false ? 'No connection. Check the internet and try again.' : 'Could not reach the server. Try again.';
+  }
+  function connMeta(c) {
+    var bits = [];
+    if (c.startedOn) bits.push('since ' + fmtIso(c.startedOn));
+    if (c.endedOn) bits.push('ended ' + fmtIso(c.endedOn));
+    bits.push(c.standing === 'secondary' ? 'Secondary' : 'Primary');
+    bits.push(c.connectionType === 'group' ? 'Group' : 'Individual');
+    return bits.join(' · ');
+  }
+  /* opening the supervising home asks for a fresh list; the cached one shows meanwhile */
+  var refreshing = null;
+  function refreshConnections() {
+    if (!signedIn() || refreshing) return;
+    refreshing = loadConnections().then(function () { refreshing = null; renderSides(); }, function () { refreshing = null; });
+  }
+  function afterConnChange() {
+    return loadConnections().catch(function () { /* list keeps what it had */ }).then(function () { renderSides(); if (!$('sheet-supervisors').hidden) renderSupervisors(); });
+  }
+  /* everything outside the logbook proper that depends on the account: the request notice, the
+     header switch, the supervising views when they are showing */
+  function renderSides() {
+    renderConnNotice(); renderModeSwitch();
+    if (!$('view-sv-home').hidden) renderSv();
+    if (!$('view-sv-settings').hidden) renderSvSettings();
+  }
+
+  /* --- which side the phone was last on --- */
+  function lastSide() {
+    var s = ''; try { s = localStorage.getItem(SIDE_KEY) || ''; } catch (e) { /* unavailable */ }
+    if (s === 'supervising' || s === 'logbook') return s;
+    var p = accountProfiles(); return p.supervisor && !p.supervisee ? 'supervising' : 'logbook';
+  }
+  function rememberSide(side) { try { localStorage.setItem(SIDE_KEY, side); } catch (e) { /* unavailable */ } }
+  function renderModeSwitch() {
+    var p = accountProfiles(), b = $('modeSwitch');
+    var sv = !$('view-sv-home').hidden || !$('view-sv-settings').hidden;
+    b.hidden = !(signedIn() && p.supervisee && p.supervisor);
+    b.innerHTML = sv
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>My logbook'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a4.5 4.5 0 015.5 4.5"/></svg>Supervising';
+  }
+  $('modeSwitch').addEventListener('click', function () { var sv = !$('view-sv-home').hidden || !$('view-sv-settings').hidden; go(sv ? 'dashboard' : 'sv-home'); });
+  $('goSupervising').addEventListener('click', function () { if (accountProfiles().supervisor) go('sv-home'); else openSetup({ side: 'supervising' }); });
+  $('svGoLogbook').addEventListener('click', function () { if (accountProfiles().supervisee) go('dashboard'); else openSetup({ side: 'logbook' }); });
+
+  /* --- logbook side: a supervisor asked to connect --- */
+  function renderConnNotice() {
+    var box = $('connNotice');
+    var waiting = conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'requested' && !c.requestedByMe; });
+    var asked = conns.filter(function (c) { return c.role === 'supervisor' && c.status === 'requested' && !c.requestedByMe; });
+    box.hidden = !waiting.length && !asked.length;
+    if (box.hidden) return;
+    var html = waiting.map(function (c) {
+      var who = c.supervisor;
+      return '<div><b>' + esc(personLabel(who)) + '</b>' + (who.displayName && who.email ? ' (' + esc(who.email) + ')' : '') + ' asked to connect as your supervisor.' +
+        '<div class="btns"><button type="button" class="btn-sm fill" data-respond="' + c.id + '">Review the request</button></div></div>';
+    }).join('');
+    /* someone wants this login as their supervisor; that lives on the supervising side */
+    if (asked.length) html += '<div' + (waiting.length ? ' style="margin-top:10px"' : '') + '>' + (asked.length === 1 ? '<b>' + esc(personLabel(asked[0].supervisee)) + '</b> asked you to be their supervisor.' : '<b>' + asked.length + ' people</b> asked you to be their supervisor.') +
+      '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
+    box.innerHTML = html;
+  }
+  $('connNotice').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.goSv) { go('sv-home'); return; }
+    if (b.dataset.respond) { var c = connById(b.dataset.respond); if (c) openAccept(c); }
+  });
+
+  var accepting = null;
+  function openAccept(c) {
+    accepting = c; var who = c.supervisor;
+    var line = esc(personLabel(who)) + (who.credentials ? ', ' + esc(who.credentials) : '') + (who.displayName && who.email ? ' (' + esc(who.email) + ')' : '') + ' asked to connect as your supervisor';
+    if (who.licenseNumber) line += '. License number ' + esc(who.licenseNumber) + ' (not verified)';
+    $('accWho').innerHTML = line + '.';
+    var match = state.supervisors.filter(function (s) { return sameName(s.name, who.displayName || ''); })[0];
+    $('accCard').innerHTML = '<option value="__new"' + (match ? '' : ' selected') + '>Add ' + esc(personLabel(who)) + ' as a new supervisor card</option>' +
+      state.supervisors.map(function (s) { return '<option value="' + s.id + '"' + (match && match.id === s.id ? ' selected' : '') + '>Use my card ' + esc(supLabel(s)) + '</option>'; }).join('');
+    $('accStatus').textContent = ''; $('accAccept').disabled = false; $('accDecline').disabled = false;
+    openSheet('sheet-accept');
+  }
+  $('accCancel').addEventListener('click', function () { closeSheet('sheet-accept'); });
+  $('accAccept').addEventListener('click', function () {
+    if (!accepting) return;
+    var c = accepting, choice = $('accCard').value, card = choice === '__new' ? null : supervisor(choice);
+    $('accAccept').disabled = true; $('accDecline').disabled = true; $('accStatus').textContent = 'Connecting…';
+    /* a card chosen here has to be on the server before the connection can point at it */
+    var ready = card ? syncNow('accept') : Promise.resolve();
+    ready.then(function () {
+      return api('/v1/connections/' + c.id + '/accept', { method: 'POST', body: { supervisorRecordId: card ? supUuid(card.id) : null } });
+    }).then(function () {
+      return syncNow('accept').catch(function () { /* the card arrives with the next sync */ });
+    }).then(function () {
+      closeSheet('sheet-accept'); accepting = null;
+      toast('Connected with ' + personLabel(c.supervisor));
+      return afterConnChange();
+    }).catch(function (err) { $('accAccept').disabled = false; $('accDecline').disabled = false; $('accStatus').textContent = apiMessage(err); });
+  });
+  $('accDecline').addEventListener('click', function () {
+    if (!accepting) return;
+    var c = accepting; $('accAccept').disabled = true; $('accDecline').disabled = true; $('accStatus').textContent = 'One moment…';
+    api('/v1/connections/' + c.id + '/decline', { method: 'POST', body: {} }).then(function () {
+      closeSheet('sheet-accept'); accepting = null; toast('Request declined'); return afterConnChange();
+    }).catch(function (err) { $('accAccept').disabled = false; $('accDecline').disabled = false; $('accStatus').textContent = apiMessage(err); });
+  });
+
+  /* --- logbook side: connect one of my supervisor cards by email --- */
+  var connecting = null;
+  function openConnect(card) {
+    connecting = card;
+    $('cnWho').textContent = 'Send a request to ' + card.name + ' so they can review the hours you log under this card.';
+    $('cnEmail').value = ''; $('cnSince').value = card.since || ''; $('cnStatus').textContent = ''; $('cnSend').disabled = false;
+    openSheet('sheet-connect'); setTimeout(function () { $('cnEmail').focus(); }, 50);
+  }
+  $('cnCancel').addEventListener('click', function () { closeSheet('sheet-connect'); });
+  $('cnSend').addEventListener('click', function () {
+    if (!connecting) return;
+    var email = $('cnEmail').value.trim().toLowerCase(), since = $('cnSince').value;
+    if (!validEmail(email)) { $('cnStatus').textContent = 'Enter the email address they use for Praxis Plus.'; $('cnEmail').focus(); return; }
+    if (!ISO_DATE_RE.test(since)) since = '';
+    $('cnSend').disabled = true; $('cnStatus').textContent = 'Sending…';
+    sendConnectRequest(connecting, email, since, $('cnStatus')).then(function () { closeSheet('sheet-connect'); connecting = null; }, function () { $('cnSend').disabled = false; });
+  });
+  /* the card has to be on the server first, so a sync runs before the request goes out */
+  function sendConnectRequest(card, email, since, statusEl) {
+    return syncNow('connect').then(function () {
+      return api('/v1/connections', { method: 'POST', body: { as: 'supervisee', email: email, supervisorRecordId: supUuid(card.id), startedOn: since || null } });
+    }).then(function () {
+      toast('Request sent to ' + email); return afterConnChange();
+    }).catch(function (err) { var m = apiMessage(err); if (statusEl) statusEl.textContent = m; else toast(m); throw err; });
+  }
+  function withdrawRequest(id, done) {
+    api('/v1/connections/' + id + '/withdraw', { method: 'POST', body: {} }).then(function () { toast('Request withdrawn'); return afterConnChange(); }).then(function () { if (done) done(); }, function (err) { toast(apiMessage(err)); });
+  }
+  function endConnection(id, endedOn, done) {
+    api('/v1/connections/' + id + '/end', { method: 'POST', body: { endedOn: endedOn || null } }).then(function () { toast('Connection ended'); return afterConnChange(); }).then(function () { if (done) done(); }, function (err) { toast(apiMessage(err)); });
+  }
+
+  /* --- supervising side: home --- */
+  var showEnded = false;
+  function renderSv() {
+    var mine = conns.filter(function (c) { return c.role === 'supervisor'; });
+    var incoming = mine.filter(function (c) { return c.status === 'requested' && !c.requestedByMe; });
+    var outgoing = mine.filter(function (c) { return c.status === 'requested' && c.requestedByMe; });
+    var active = mine.filter(function (c) { return c.status === 'active'; });
+    var ended = mine.filter(function (c) { return c.status === 'ended'; });
+    $('svSub').textContent = state.name ? state.name + (sync.me && sync.me.supervisorProfile && sync.me.supervisorProfile.credentials ? ', ' + sync.me.supervisorProfile.credentials : '') : '';
+    var reqs = '';
+    incoming.forEach(function (c) {
+      reqs += '<div class="req-card"><div class="rq-head"><span class="rq-name">' + esc(personLabel(c.supervisee)) + '</span><span class="pill">Request</span></div>' +
+        '<div class="rq-meta">' + (c.supervisee.displayName && c.supervisee.email ? esc(c.supervisee.email) + ' · ' : '') + 'asked you to be their supervisor' + (c.startedOn ? ', from ' + esc(fmtIso(c.startedOn)) : '') + '. Accepting lets you see the hours they log under you.</div>' +
+        '<div class="btns"><button type="button" class="btn-sm fill" data-accept="' + c.id + '">Accept</button><button type="button" class="btn-sm" data-decline="' + c.id + '">Decline</button></div></div>';
+    });
+    outgoing.forEach(function (c) {
+      reqs += '<div class="req-card"><div class="rq-head"><span class="rq-name">' + esc(personLabel(c.supervisee)) + '</span><span class="pill muted">Sent</span></div>' +
+        '<div class="rq-meta">Waiting for them to accept. The request expires ' + esc(fmtIso(c.expiresAt.slice(0, 10))) + '.</div>' +
+        '<div class="btns"><button type="button" class="btn-sm" data-withdraw="' + c.id + '">Withdraw</button></div></div>';
+    });
+    $('svRequests').innerHTML = reqs;
+    $('svCount').textContent = active.length ? plural(active.length, 'supervisee') : '';
+    function row(c, muted) {
+      var p = c.supervisee;
+      return '<button type="button" class="sv-row" data-open="' + c.id + '"' + (muted ? ' style="opacity:.7"' : '') + '><span class="av">' + esc(initials(p)) + '</span>' +
+        '<div class="row-main"><div class="row-title">' + esc(personLabel(p)) + '</div><div class="row-sub">' + (p.displayName && p.email ? esc(p.email) + ' · ' : '') + esc(connMeta(c)) + '</div></div>' + CHEV_R + '</button>';
+    }
+    var list = active.map(function (c) { return row(c, false); }).join('');
+    if (!active.length) list = '<div class="empty">' + (incoming.length || outgoing.length ? 'No one connected yet.' : '<b>No supervisees yet.</b> Tap <b>Invite</b> to send a request to a supervisee’s email, or ask them to send you one from the Supervisors list in their logbook.') + '</div>';
+    if (showEnded && ended.length) list += '<div class="rec-date" style="margin-top:8px">Ended</div>' + ended.map(function (c) { return row(c, true); }).join('');
+    $('svList').innerHTML = list;
+    $('svEndedFoot').hidden = !ended.length;
+    $('svToggleEnded').textContent = (showEnded ? 'Hide ' : 'Show ') + plural(ended.length, 'ended connection');
+    $('svNote').textContent = 'You see the hours each supervisee logs under you, with their type, subcategory, site, client code and note, from the start date of the connection. You cannot change or delete anything in their logbook. Hours they log under other supervisors are not shared with you.';
+  }
+  $('svToggleEnded').addEventListener('click', function () { showEnded = !showEnded; renderSv(); });
+  $('svRequests').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.accept) {
+      b.disabled = true;
+      api('/v1/connections/' + b.dataset.accept + '/accept', { method: 'POST', body: {} }).then(function (r) { toast('Connected with ' + personLabel(r.connection.supervisee)); return afterConnChange(); }, function (err) { b.disabled = false; toast(apiMessage(err)); });
+    }
+    if (b.dataset.decline) {
+      b.disabled = true;
+      api('/v1/connections/' + b.dataset.decline + '/decline', { method: 'POST', body: {} }).then(function () { toast('Request declined'); return afterConnChange(); }, function (err) { b.disabled = false; toast(apiMessage(err)); });
+    }
+    if (b.dataset.withdraw) withdrawRequest(b.dataset.withdraw);
+  });
+  $('svList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-open]'); if (!b) return; var c = connById(b.dataset.open); if (c) openSvDetail(c); });
+
+  /* --- supervising side: invite --- */
+  var inv = { standing: 'primary', type: 'individual' };
+  function openSvInvite() {
+    $('svInvEmail').value = ''; $('svInvSince').value = ''; $('svInvWeek').value = '1'; $('svInvStatus').textContent = ''; $('svInvSend').disabled = false;
+    inv = { standing: 'primary', type: 'individual' }; renderInviteChips();
+    openSheet('sheet-sv-invite'); setTimeout(function () { $('svInvEmail').focus(); }, 50);
+  }
+  function renderInviteChips() {
+    document.querySelectorAll('#svInvStanding [data-standing]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.standing === inv.standing ? 'true' : 'false'); });
+    document.querySelectorAll('#svInvType [data-type]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.type === inv.type ? 'true' : 'false'); });
+  }
+  $('btnInvite').addEventListener('click', openSvInvite);
+  $('svInvCancel').addEventListener('click', function () { closeSheet('sheet-sv-invite'); });
+  $('svInvStanding').addEventListener('click', function (ev) { var b = ev.target.closest('[data-standing]'); if (!b) return; inv.standing = b.dataset.standing; renderInviteChips(); });
+  $('svInvType').addEventListener('click', function (ev) { var b = ev.target.closest('[data-type]'); if (!b) return; inv.type = b.dataset.type; renderInviteChips(); });
+  $('svInvSend').addEventListener('click', function () {
+    var email = $('svInvEmail').value.trim().toLowerCase(), since = $('svInvSince').value;
+    if (!validEmail(email)) { $('svInvStatus').textContent = 'Enter the email address they use for Praxis Plus.'; $('svInvEmail').focus(); return; }
+    if (!ISO_DATE_RE.test(since)) since = '';
+    $('svInvSend').disabled = true; $('svInvStatus').textContent = 'Sending…';
+    api('/v1/connections', { method: 'POST', body: { as: 'supervisor', email: email, startedOn: since || null, weekStartDow: +$('svInvWeek').value, standing: inv.standing, connectionType: inv.type } })
+      .then(function () { closeSheet('sheet-sv-invite'); toast('Request sent to ' + email); return afterConnChange(); })
+      .catch(function (err) { $('svInvSend').disabled = false; $('svInvStatus').textContent = apiMessage(err); });
+  });
+
+  /* --- supervising side: one supervisee --- */
+  var det = { conn: null, hours: null, range: 'all' }, detEndArm = null, detEndTimer = null;
+  function openSvDetail(c) {
+    det = { conn: c, hours: null, range: 'all' }; detEndArm = null;
+    $('svDetTitle').textContent = personLabel(c.supervisee);
+    $('svDetStatus').textContent = ''; $('svDetActions').hidden = c.status !== 'active'; $('svDetEndSub').textContent = 'From today';
+    renderSvDetail(); openSheet('sheet-sv-detail');
+    api('/v1/connections/' + c.id + '/hours').then(function (h) { if (det.conn && det.conn.id === c.id) { det.hours = h; det.conn = h.connection; renderSvDetail(); } }, function (err) { $('svDetStatus').textContent = apiMessage(err); });
+  }
+  function rangeStart() {
+    var t = todayDate();
+    if (det.range === 'week') return iso(startOfWeek(t));
+    if (det.range === '4w') return iso(addDays(startOfWeek(t), -21));
+    return null;
+  }
+  function renderSvDetail() {
+    var c = det.conn, h = det.hours, p = c.supervisee;
+    var program = h && h.supervisee ? [h.supervisee.programName, h.supervisee.universityName].filter(Boolean).join(', ') : '';
+    $('svDetHero').innerHTML = '<p class="label">Supervisee</p><div class="name">' + esc(personLabel(p)) + '</div>' +
+      '<div class="meta">' + (p.displayName && p.email ? esc(p.email) + '<br>' : '') + (program ? esc(program) + '<br>' : '') + esc(connMeta(c)) + (c.status !== 'active' ? ' · ' + esc(c.status) : '') + '</div>' +
+      '<div class="total">' + (h ? hrs(h.totalMinutes) : '–') + '<small>hours under you</small></div>';
+    if (!h) { $('svDetTotals').innerHTML = '<p class="note">Loading…</p>'; $('svDetEntries').innerHTML = ''; $('svDetCount').textContent = ''; $('svDetTargetNote').textContent = ''; return; }
+    var tt = h.supervisee ? h.supervisee.totalTargetHours : 0;
+    $('svDetTargetNote').textContent = tt ? 'Program target ' + tt + ' h' : '';
+    $('svDetTotals').innerHTML = '<div class="rows">' + h.totals.map(function (t) {
+      var cls = t.builtinKey === 'supervision' ? ' sup' : (t.builtinKey ? '' : ' cust');
+      return '<div class="crow"><div class="crow-head"><span class="name">' + esc(t.name) + (t.countsTowardTotal ? '' : '<small>Not in their total</small>') + '</span><span class="val">' + hrs(t.minutes) + (t.targetHours ? '<small>of ' + t.targetHours + '</small>' : '<small>h</small>') + '</span></div>' +
+        (t.targetHours ? '<div class="bar"><div class="fill' + cls + '" style="width:' + pct(t.minutes, t.targetHours * 60) + '%"></div></div>' : '') + '</div>';
+    }).join('') + '</div>' + (h.totals.some(function (t) { return t.targetHours; }) ? '<p class="note" style="margin-top:10px">Targets are the supervisee’s own program targets; the hours shown are only those logged under you.</p>' : '');
+    document.querySelectorAll('#svDetRange button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.range === det.range ? 'true' : 'false'); });
+    var from = rangeStart();
+    var list = h.entries.filter(function (e) { return !from || e.entryDate >= from; });
+    var min = list.reduce(function (a, e) { return a + e.minutes; }, 0);
+    $('svDetCount').textContent = list.length ? plural(list.length, 'entry') + ' · ' + hrs(min) + ' h' + (h.truncated ? ' (showing the most recent ' + h.entries.length + ')' : '') : 'No entries in this period.';
+    var html = '', cur = null;
+    list.forEach(function (e) {
+      if (e.entryDate !== cur) { cur = e.entryDate; html += '<div class="rec-date">' + fmtDate(fromIso(cur)) + '</div>'; }
+      var sub = [];
+      if (e.subcategoryName) sub.push(esc(e.subcategoryName));
+      if (e.modality && MOD_BY_ID[e.modality]) sub.push(MOD_BY_ID[e.modality].label);
+      if (e.siteName) sub.push(esc(e.siteName));
+      if (e.clientCode) sub.push('Client ' + esc(e.clientCode));
+      if (e.note) sub.push(esc(e.note));
+      html += '<div class="ro-row"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div></div>';
+    });
+    $('svDetEntries').innerHTML = html;
+  }
+  $('svDetBack').addEventListener('click', function () { closeSheet('sheet-sv-detail'); det.conn = null; renderSv(); });
+  $('svDetRange').addEventListener('click', function (ev) { var b = ev.target.closest('[data-range]'); if (!b) return; det.range = b.dataset.range; renderSvDetail(); });
+  $('svDetEnd').addEventListener('click', function () {
+    if (!det.conn) return;
+    if (detEndArm !== det.conn.id) {
+      detEndArm = det.conn.id; $('svDetEndSub').textContent = 'Tap again to end it today';
+      clearTimeout(detEndTimer); detEndTimer = setTimeout(function () { detEndArm = null; $('svDetEndSub').textContent = 'From today'; }, 4000); return;
+    }
+    clearTimeout(detEndTimer); detEndArm = null; var id = det.conn.id;
+    endConnection(id, null, function () { var c = connById(id); if (c && det.conn && det.conn.id === id) { det.conn = c; $('svDetActions').hidden = true; renderSvDetail(); } });
+  });
+
+  /* --- supervising side: settings --- */
+  function renderSvSettings() {
+    var sp = (sync.me && sync.me.supervisorProfile) || sync.pendingSupervisorProfile || { credentials: '', licenseNumber: '' };
+    var pending = sync.pendingSupervisorProfile;
+    $('svName').value = state.name || '';
+    $('svCred').value = (pending && pending.credentials != null ? pending.credentials : sp.credentials) || '';
+    $('svLicense').value = (pending && pending.licenseNumber != null ? pending.licenseNumber : sp.licenseNumber) || '';
+    var st = syncStatus();
+    $('svAcctEmail').textContent = session ? session.email : '';
+    $('svSyncStatus').textContent = st.text; $('svSyncStatus').classList.toggle('err', !!st.error);
+    $('svGoLogbookSub').textContent = accountProfiles().supervisee ? 'Your own hours' : 'Set up your own logbook';
+  }
+  function queueSupervisorProfile() {
+    var cur = (sync.me && sync.me.supervisorProfile) || { credentials: '', licenseNumber: '' };
+    sync.pendingSupervisorProfile = { credentials: $('svCred').value.trim().slice(0, 120), licenseNumber: $('svLicense').value.trim().slice(0, 60) };
+    if (sync.pendingSupervisorProfile.credentials === cur.credentials && sync.pendingSupervisorProfile.licenseNumber === cur.licenseNumber) sync.pendingSupervisorProfile = null;
+    saveSync(); scheduleSync(400); toast('Saved');
+  }
+  $('svName').addEventListener('change', function () { state.name = this.value.trim().slice(0, 60); saveState(); renderHeader(); toast('Name saved'); });
+  $('svCred').addEventListener('change', queueSupervisorProfile);
+  $('svLicense').addEventListener('change', queueSupervisorProfile);
+  $('svSyncNow').addEventListener('click', function () { syncNow('manual').then(function () { toast('Up to date'); renderSides(); }, function () { renderSvSettings(); }); });
+  $('svSignOut').addEventListener('click', function () { $('signOut').click(); });
+  onSyncChange(function () { if (!$('view-sv-settings').hidden) renderSvSettings(); });
 
   /* ---------- boot ---------- */
   applyPalette();
@@ -2489,8 +3134,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   showView(location.hash.replace('#', ''));
   if (!signedIn()) showAccount('welcome');
   else if (needsSetup()) {
-    /* an empty phone with an account: the logbook may well be on the server already */
-    var settle = function () { if (needsSetup()) openSetup(); };
+    /* an empty phone with an account: what it holds may well be on the server already */
+    var settle = function () { if (needsSetup()) openSetup(); else if (!location.hash) showView(lastSide() === 'supervising' ? 'sv-home' : 'dashboard'); };
     syncNow('boot').then(settle, settle);
   } else scheduleSync(200);
 })();

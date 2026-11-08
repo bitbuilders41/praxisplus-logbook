@@ -466,6 +466,20 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 .ro-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 24px;border-top:1px solid var(--line);min-height:52px}
 .ro-row .row-main{flex:1;min-width:0}
 .ro-row .row-sub{white-space:normal;line-height:1.4}
+.wk-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 0;border-top:1px solid var(--line);min-height:58px}
+.wk-row:first-child{border-top:0;padding-top:4px}
+.wk-row .row-main{flex:1;min-width:0}
+.wk-row .row-title{font-size:15px;font-weight:500}
+.wk-row .row-sub{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:normal}
+.pill.good{color:#fff;background:var(--good)}
+.wd-status{display:flex;flex-direction:column;gap:6px}
+.wd-status .big{font-size:17px;font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wd-status .fine{margin:0}
+.wd-sig{max-width:220px;max-height:72px;border-bottom:1px solid var(--line-strong);margin-top:6px}
+.hist-row{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.hist-row:first-child{border-top:0;padding-top:2px}
+.hist-row b{font-weight:600}
+.hist-row span{color:var(--ink-2)}
 </style>
 
 <header class="top wrap">
@@ -710,6 +724,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
 <div class="sheet" id="sheet-log" hidden role="dialog" aria-modal="true" aria-labelledby="logTitle">
   <div class="sheet-top wrap"><button class="link" id="logCancel">Cancel</button><h2 id="logTitle">Log hours</h2><span></span></div>
   <div class="sheet-body wrap">
+    <p class="notice" id="logLocked" hidden style="margin-bottom:0"></p>
     <fieldset class="f"><legend>Type of hours</legend>
       <div class="group" id="catList" role="radiogroup"></div>
       <div class="other-box" id="otherBox" hidden>
@@ -1002,6 +1017,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   <div class="sheet-body wrap">
     <section class="sv-hero" id="svDetHero"></section>
     <section class="panel">
+      <div class="panel-head"><h2>Weekly logs</h2><button type="button" class="link-btn" id="svDetAllWeeks" style="min-height:32px">All weeks</button></div>
+      <div id="svDetWeeks"></div>
+    </section>
+    <section class="panel">
       <div class="panel-head"><h2>Hours under you</h2><span class="panel-num" id="svDetTargetNote"></span></div>
       <div id="svDetTotals"></div>
     </section>
@@ -1057,6 +1076,55 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     </fieldset>
     <button class="primary" id="cnSend">Send request</button>
     <p class="fine" id="cnStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- WEEKLY LOGS: the weeks of one connection -->
+<div class="sheet" id="sheet-weeks" hidden role="dialog" aria-modal="true" aria-labelledby="wkTitle">
+  <div class="sheet-top wrap"><button class="link" id="wkBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h2 id="wkTitle">Weekly logs</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <p class="fine" id="wkIntro"></p>
+    <section class="panel"><div id="wkList"></div></section>
+  </div>
+</div>
+
+<!-- WEEKLY LOGS: one week -->
+<div class="sheet" id="sheet-week" hidden role="dialog" aria-modal="true" aria-labelledby="wdTitle">
+  <div class="sheet-top wrap"><button class="link" id="wdBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Weeks</button><h2 id="wdTitle">Week</h2><span></span></div>
+  <div class="sheet-body wrap">
+    <section class="panel" id="wdStatus"></section>
+    <section class="panel">
+      <div class="panel-head"><h2>Entries</h2><span class="panel-num" id="wdTotal"></span></div>
+      <div id="wdEntries"></div>
+    </section>
+    <section class="panel" id="wdActions" hidden>
+      <div id="wdSubmitBox" hidden>
+        <p class="fine" id="wdSubmitText"></p>
+        <button class="primary" id="wdSubmit">Submit for sign-off</button>
+      </div>
+      <div id="wdSignBox" hidden>
+        <p class="fine" id="wdSignAs"></p>
+        <div class="sig" id="sigWeek" style="margin-top:10px"><canvas></canvas><div class="sig-line"></div><div class="sig-hint">Sign here with your finger (optional)</div></div>
+        <div class="sig-tools"><span>Signature</span><button type="button" data-clear="sigWeek">Clear</button></div>
+        <button class="primary" id="wdSign">Sign and lock this week</button>
+        <div class="stack-fields" style="margin-top:16px">
+          <textarea id="wdReturnNote" placeholder="What should be fixed? The supervisee sees this note." maxlength="1000"></textarea>
+          <button class="secondary" id="wdReturn">Return to supervisee</button>
+        </div>
+      </div>
+      <div id="wdReopenBox" hidden>
+        <div class="stack-fields">
+          <textarea id="wdReopenReason" placeholder="Why does this week need to be reopened? The supervisee sees this." maxlength="1000"></textarea>
+          <button class="danger" id="wdReopen">Reopen this week</button>
+        </div>
+        <p class="fine" style="margin-top:10px">The signed version stays on file. The supervisee can change the entries and submit the week again for a new signature.</p>
+      </div>
+    </section>
+    <section class="panel" id="wdHistory" hidden>
+      <div class="panel-head"><h2>History</h2></div>
+      <div id="wdHistoryList" class="list"></div>
+    </section>
+    <p class="fine" id="wdNote" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -1538,7 +1606,8 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     if (v === 'progress') renderProgress();
     if (v === 'settings') renderSettings();
     if (v === 'entries') renderLedger();
-    if (v === 'sv-home') { renderSv(); refreshConnections(); }
+    if (v === 'dashboard') refreshConnections();
+    if (v === 'sv-home') { renderSv(); refreshConnections(true); }
     if (v === 'sv-settings') renderSvSettings();
     renderModeSwitch();
     window.scrollTo(0, 0);
@@ -1627,6 +1696,19 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('moreDates').innerHTML = form.extraDates.map(function (d, i) { return '<div><input type="date" data-extra="' + i + '" value="' + esc(d) + '" aria-label="Additional date"><button type="button" data-remove="' + i + '" aria-label="Remove this date">&times;</button></div>'; }).join('');
     var n = 1 + form.extraDates.filter(function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); }).length;
     $('logSave').textContent = form.id ? 'Save changes' : (n > 1 ? 'Save ' + n + ' entries' : 'Save entry');
+    /* a week that is with the supervisor for sign-off cannot be changed from here */
+    var lock = formLock();
+    $('logLocked').hidden = !lock; if (lock) $('logLocked').innerHTML = lock;
+    $('logSave').disabled = !!lock; $('logDelete').disabled = !!lock;
+  }
+  /* why the entry in the form cannot be saved, or '' when it can */
+  function formLock() {
+    var original = form.id ? state.entries.filter(function (x) { return x.id === form.id; })[0] : null;
+    var at = original ? weekLockFor(original.sup, original.date) : null;
+    if (at) return '<b>This week is with ' + esc(at.who) + ' for sign-off</b> and is locked. Ask them to return or reopen it to make changes.';
+    var dates = [form.date].concat(form.extraDates).filter(function (d) { return ISO_DATE_RE.test(d); });
+    for (var i = 0; i < dates.length; i++) { var l = weekLockFor(form.sup, dates[i]); if (l) return '<b>The week of ' + esc(l.label) + ' is with ' + esc(l.who) + ' for sign-off</b> and is locked. Choose another date, or ask them to return or reopen the week.'; }
+    return '';
   }
   function setMinutes(m) { m = Math.round(m); if (!isFinite(m)) m = form.minutes; form.minutes = Math.min(600, Math.max(1, m)); renderForm(); }
   $('catList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (!b) return; form.cat = b.dataset.cat; form.sub = ''; renderForm(); if (form.cat === '__other') $('otherName').focus(); });
@@ -1789,7 +1871,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
       var cn = connForCard(s), connLine = '', connBtn = '';
       if (cn && cn.status === 'active') {
         connLine = '<div class="sc-conn"><span class="pill">Connected</span><span>' + esc(cn.supervisor.email || '') + ' reviews the hours logged under this card' + (cn.startedOn ? ', from ' + esc(fmtIso(cn.startedOn)) : '') + '</span></div>';
-        connBtn = '<button type="button" class="rm' + (connArm === cn.id ? ' armed' : '') + '" data-endconn="' + cn.id + '">' + (connArm === cn.id ? 'Tap again to end the connection' : 'End connection') + '</button>';
+        var wk = weekAttention(cn);
+        connBtn = '<button type="button" data-weeks="' + cn.id + '">Weekly logs' + (wk ? ' (' + wk + ')' : '') + '</button>' +
+          '<button type="button" class="rm' + (connArm === cn.id ? ' armed' : '') + '" data-endconn="' + cn.id + '">' + (connArm === cn.id ? 'Tap again to end the connection' : 'End connection') + '</button>';
       } else if (cn && cn.status === 'requested' && cn.requestedByMe) {
         connLine = '<div class="sc-conn"><span class="pill muted">Request sent</span><span>Waiting for ' + esc(cn.supervisor.email || '') + ' to accept</span></div>';
         connBtn = '<button type="button" data-withdraw="' + cn.id + '">Withdraw request</button>';
@@ -1824,6 +1908,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('supList').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.connect) { var cs = supervisor(b.dataset.connect); if (cs) openConnect(cs); return; }
+    if (b.dataset.weeks) { var wc = connById(b.dataset.weeks); if (wc) openWeeks(wc); return; }
     if (b.dataset.withdraw) { withdrawRequest(b.dataset.withdraw, renderSupervisors); return; }
     if (b.dataset.respond) { var rc = connById(b.dataset.respond); if (rc) openAccept(rc); return; }
     if (b.dataset.endconn) {
@@ -2347,6 +2432,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function saveSync() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) { /* storage unavailable */ } }
   function resetSync() { try { localStorage.removeItem(SYNC_KEY); } catch (e) { /* ignore */ } sync = loadSync(); }
   var saveQuiet = saveState;   /* the original: writes the logbook without waking the sync */
+  function deviceTimeZone() { try { var z = Intl.DateTimeFormat().resolvedOptions().timeZone; return z && z.indexOf('/') > 0 ? z : ''; } catch (e) { return ''; } }
 
   function str(v, max) { return String(v == null ? '' : v).trim().slice(0, max); }
   function num(v) { var n = +v; return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : 0; }
@@ -2371,8 +2457,10 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   function reverse(map) { var r = {}; Object.keys(map).forEach(function (k) { r[map[k]] = k; }); return r; }
 
   function collapsedFlags() { var out = {}; Object.keys(state.collapsed || {}).forEach(function (k) { if (state.collapsed[k]) out[String(k).slice(0, 40)] = true; }); return out; }
-  function localHasData() {
-    return !!(state.entries.length || state.supervisors.length || state.name || state.program ||
+  /* a logbook worth bringing to the server: entries, supervisor cards, categories of their own or
+     carried-in hours. A name on its own is not one; a supervisor's setup leaves a name behind too */
+  function localHasLogbook() {
+    return !!(state.entries.length || state.supervisors.length ||
       state.categories.some(function (c) { return !c.builtin; }) ||
       Object.keys(state.carried || {}).some(function (k) { return +state.carried[k] > 0; }));
   }
@@ -2580,18 +2668,22 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     return api('/v1/me').then(function (me) {
       if (sync.userId && sync.userId !== me.user.id) {
         /* a different account on this phone: its logbook belongs to someone else, so start clean */
-        state = freshState(); saveQuiet(); resetSync(); conns = []; saveConns(); first = true;
+        state = freshState(); saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); first = true;
       }
       sync.userId = me.user.id;
       sync.me = { profiles: me.profiles || { supervisee: !me.needsBootstrap, supervisor: false }, supervisorProfile: me.supervisorProfile || null, counts: me.connections || null };
       /* display name lives on the user record, not in the sync tables; three-way merge against what we last saw */
       var serverName = me.user.displayName || '';
       if (serverName !== (sync.name || '') && state.name === (sync.name || '')) { state.name = str(serverName, 60); changed = true; }
-      var namePush = state.name !== (sync.name || '') && state.name !== serverName ? api('/v1/me', { method: 'PATCH', body: { displayName: state.name } }) : Promise.resolve();
+      var patch = {};
+      if (state.name !== (sync.name || '') && state.name !== serverName) patch.displayName = state.name;
+      /* weeks close in the supervisee's own time zone, so the server is told which one this phone is in */
+      var tz = deviceTimeZone(); if (tz && tz !== me.user.timeZone) patch.timeZone = tz;
+      var namePush = Object.keys(patch).length ? api('/v1/me', { method: 'PATCH', body: patch }) : Promise.resolve();
       sync.name = state.name;
       /* an old phone logbook meeting a brand-new account: the phone wins. Meeting an account that already has a logbook: combine the two. */
-      var migrating = first && me.needsBootstrap && localHasData();
-      if (migrating) mode = 'local'; else if (first && !me.needsBootstrap && localHasData()) mode = 'merge';
+      var migrating = first && me.needsBootstrap && localHasLogbook();
+      if (migrating) mode = 'local'; else if (first && !me.needsBootstrap && localHasLogbook()) mode = 'merge';
       /* the logbook is only set up for someone who logs their own hours; a supervisor-only login never gets one */
       logbook = !me.needsBootstrap || migrating || !!sync.wantLogbook;
       var boot = me.needsBootstrap && logbook
@@ -2624,8 +2716,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         });
       }, Promise.resolve());
     }).then(function () {
-      /* the connection list rides along with every sync; if it cannot be fetched the last one stands */
-      return loadConnections().catch(function () { /* shown next time */ });
+      /* the connection list and the weeks under each live connection ride along with every sync;
+         if they cannot be fetched the last ones stand */
+      return loadConnections().then(loadAllWeeks).catch(function () { /* shown next time */ });
     }).then(function () {
       finishApply();
       if (changed) { saveQuiet(); renderAll(); } else renderSides();
@@ -2743,7 +2836,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   /* signed in: bring the account and this phone together, then carry on into the app */
   function afterSignIn() {
     $('acctStatus').classList.remove('err');
-    $('acctStatus').textContent = localHasData() ? 'Bringing this phone\u2019s logbook and your account together…' : 'Opening your account…';
+    $('acctStatus').textContent = localHasLogbook() ? 'Bringing this phone\u2019s logbook and your account together…' : 'Opening your account…';
     return syncNow('signin').then(function () { enterApp(); }, function (err) {
       /* the account is good even if the server is not reachable right now; the logbook syncs later */
       if (err.code === 'SignedOut') return;
@@ -2784,7 +2877,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     auth.signOut();
     var keep = { palette: state.palette, chart: state.chart, step: state.step, supWeeks: state.supWeeks };
     state = freshState(); state.palette = keep.palette; state.chart = keep.chart; state.step = keep.step; state.supWeeks = keep.supWeeks;
-    saveQuiet(); resetSync(); conns = []; saveConns(); rememberSide('logbook');
+    saveQuiet(); resetSync(); conns = []; saveConns(); weeksByConn = {}; saveWeeks(); rememberSide('logbook');
     dayOpen = {}; filterCat = 'all'; openCat = null; moveOpen = null; rmArm = null; supMoveOpen = null;
     renderAll(); go('dashboard'); showAccount('welcome');
   }
@@ -2812,7 +2905,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var p = sync.me && sync.me.profiles;
     if (p) return { supervisee: !!p.supervisee, supervisor: !!p.supervisor };
     /* nothing heard from the server yet: a phone with a logbook on it is a supervisee's */
-    return { supervisee: localHasData() || !!sync.cursor, supervisor: false };
+    return { supervisee: localHasLogbook() || !!sync.cursor, supervisor: false };
   }
   function other(c) { return c.role === 'supervisee' ? c.supervisor : c.supervisee; }
   function personLabel(p) { return (p && (p.displayName || p.email)) || 'Someone'; }
@@ -2842,10 +2935,12 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     return bits.join(' · ');
   }
   /* opening the supervising home asks for a fresh list; the cached one shows meanwhile */
-  var refreshing = null;
-  function refreshConnections() {
-    if (!signedIn() || refreshing) return;
-    refreshing = loadConnections().then(function () { refreshing = null; renderSides(); }, function () { refreshing = null; });
+  var refreshing = null, refreshedAt = 0;
+  function refreshConnections(force) {
+    /* a sync in flight loads the connections itself on its way out */
+    if (!signedIn() || refreshing || syncing) return;
+    if (!force && Date.now() - refreshedAt < 60000) return;
+    refreshing = loadConnections().then(loadAllWeeks).then(function () { refreshing = null; refreshedAt = Date.now(); renderSides(); }, function () { refreshing = null; });
   }
   function afterConnChange() {
     return loadConnections().catch(function () { /* list keeps what it had */ }).then(function () { renderSides(); if (!$('sheet-supervisors').hidden) renderSupervisors(); });
@@ -2882,22 +2977,24 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     var box = $('connNotice');
     var waiting = conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'requested' && !c.requestedByMe; });
     var asked = conns.filter(function (c) { return c.role === 'supervisor' && c.status === 'requested' && !c.requestedByMe; });
-    box.hidden = !waiting.length && !asked.length;
-    if (box.hidden) return;
+    box.hidden = !waiting.length && !asked.length && !weekNoticesHtml(false);
+    if (box.hidden) { box.innerHTML = ''; return; }
     var html = waiting.map(function (c) {
       var who = c.supervisor;
       return '<div><b>' + esc(personLabel(who)) + '</b>' + (who.displayName && who.email ? ' (' + esc(who.email) + ')' : '') + ' asked to connect as your supervisor.' +
         '<div class="btns"><button type="button" class="btn-sm fill" data-respond="' + c.id + '">Review the request</button></div></div>';
     }).join('');
     /* someone wants this login as their supervisor; that lives on the supervising side */
-    if (asked.length) html += '<div' + (waiting.length ? ' style="margin-top:10px"' : '') + '>' + (asked.length === 1 ? '<b>' + esc(personLabel(asked[0].supervisee)) + '</b> asked you to be their supervisor.' : '<b>' + asked.length + ' people</b> asked you to be their supervisor.') +
+    if (asked.length) html += '<div' + (html ? ' style="margin-top:10px"' : '') + '>' + (asked.length === 1 ? '<b>' + esc(personLabel(asked[0].supervisee)) + '</b> asked you to be their supervisor.' : '<b>' + asked.length + ' people</b> asked you to be their supervisor.') +
       '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
+    html += weekNoticesHtml(!!html);
     box.innerHTML = html;
   }
   $('connNotice').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.goSv) { go('sv-home'); return; }
-    if (b.dataset.respond) { var c = connById(b.dataset.respond); if (c) openAccept(c); }
+    if (b.dataset.respond) { var c = connById(b.dataset.respond); if (c) openAccept(c); return; }
+    if (b.dataset.week) { var wc = connById(b.dataset.weekConn); if (wc) openWeek(wc, b.dataset.week); }
   });
 
   var accepting = null;
@@ -2993,8 +3090,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('svCount').textContent = active.length ? plural(active.length, 'supervisee') : '';
     function row(c, muted) {
       var p = c.supervisee;
+      var waiting = c.weeks && c.weeks.awaitingSignature ? '<span class="pill">' + plural(c.weeks.awaitingSignature, 'week') + ' to sign</span>' : '';
       return '<button type="button" class="sv-row" data-open="' + c.id + '"' + (muted ? ' style="opacity:.7"' : '') + '><span class="av">' + esc(initials(p)) + '</span>' +
-        '<div class="row-main"><div class="row-title">' + esc(personLabel(p)) + '</div><div class="row-sub">' + (p.displayName && p.email ? esc(p.email) + ' · ' : '') + esc(connMeta(c)) + '</div></div>' + CHEV_R + '</button>';
+        '<div class="row-main"><div class="row-title">' + esc(personLabel(p)) + '</div><div class="row-sub">' + (p.displayName && p.email ? esc(p.email) + ' · ' : '') + esc(connMeta(c)) + '</div></div>' + waiting + CHEV_R + '</button>';
     }
     var list = active.map(function (c) { return row(c, false); }).join('');
     if (!active.length) list = '<div class="empty">' + (incoming.length || outgoing.length ? 'No one connected yet.' : '<b>No supervisees yet.</b> Tap <b>Invite</b> to send a request to a supervisee’s email, or ask them to send you one from the Supervisors list in their logbook.') + '</div>';
@@ -3052,6 +3150,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('svDetStatus').textContent = ''; $('svDetActions').hidden = c.status !== 'active'; $('svDetEndSub').textContent = 'From today';
     renderSvDetail(); openSheet('sheet-sv-detail');
     api('/v1/connections/' + c.id + '/hours').then(function (h) { if (det.conn && det.conn.id === c.id) { det.hours = h; det.conn = h.connection; renderSvDetail(); } }, function (err) { $('svDetStatus').textContent = apiMessage(err); });
+    if (c.status === 'active') loadWeeks(c.id).then(function () { if (det.conn && det.conn.id === c.id) renderDetailWeeks(c); }, function () { /* cached weeks stand */ });
   }
   function rangeStart() {
     var t = todayDate();
@@ -3065,9 +3164,11 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
     $('svDetHero').innerHTML = '<p class="label">Supervisee</p><div class="name">' + esc(personLabel(p)) + '</div>' +
       '<div class="meta">' + (p.displayName && p.email ? esc(p.email) + '<br>' : '') + (program ? esc(program) + '<br>' : '') + esc(connMeta(c)) + (c.status !== 'active' ? ' · ' + esc(c.status) : '') + '</div>' +
       '<div class="total">' + (h ? hrs(h.totalMinutes) : '–') + '<small>hours under you</small></div>';
+    renderDetailWeeks(c);
     if (!h) { $('svDetTotals').innerHTML = '<p class="note">Loading…</p>'; $('svDetEntries').innerHTML = ''; $('svDetCount').textContent = ''; $('svDetTargetNote').textContent = ''; return; }
     var tt = h.supervisee ? h.supervisee.totalTargetHours : 0;
     $('svDetTargetNote').textContent = tt ? 'Program target ' + tt + ' h' : '';
+    renderDetailWeeks(c);
     $('svDetTotals').innerHTML = '<div class="rows">' + h.totals.map(function (t) {
       var cls = t.builtinKey === 'supervision' ? ' sup' : (t.builtinKey ? '' : ' cust');
       return '<div class="crow"><div class="crow-head"><span class="name">' + esc(t.name) + (t.countsTowardTotal ? '' : '<small>Not in their total</small>') + '</span><span class="val">' + hrs(t.minutes) + (t.targetHours ? '<small>of ' + t.targetHours + '</small>' : '<small>h</small>') + '</span></div>' +
@@ -3128,16 +3229,269 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   $('svSignOut').addEventListener('click', function () { $('signOut').click(); });
   onSyncChange(function () { if (!$('view-sv-settings').hidden) renderSvSettings(); });
 
+  /* ---------- weekly logs ----------
+     A week of hours under a connection goes from the supervisee to the supervisor for
+     sign-off. The server owns the week boundary, the lock and the history; the phone keeps
+     the week list of each live connection so it can show where things stand and keep a
+     locked week out of the log form. */
+  var WEEKS_KEY = 'praxisplus.weeks';
+  var weeksByConn = {};
+  try { var rawWeeks = JSON.parse(localStorage.getItem(WEEKS_KEY) || '{}'); if (rawWeeks && typeof rawWeeks === 'object') weeksByConn = rawWeeks; } catch (e) { /* nothing cached */ }
+  function saveWeeks() { try { localStorage.setItem(WEEKS_KEY, JSON.stringify(weeksByConn)); } catch (e) { /* storage unavailable */ } }
+  function loadWeeks(connId) {
+    return api('/v1/connections/' + connId + '/weeks').then(function (r) { weeksByConn[connId] = (r && r.weeks) || []; saveWeeks(); return weeksByConn[connId]; });
+  }
+  /* the weeks of every live connection, both sides; a connection that is gone drops out of the cache */
+  function loadAllWeeks() {
+    var live = conns.filter(function (c) { return c.status === 'active' || c.status === 'ended'; });
+    var keep = {}; live.forEach(function (c) { keep[c.id] = true; });
+    Object.keys(weeksByConn).forEach(function (k) { if (!keep[k]) delete weeksByConn[k]; });
+    return Promise.all(live.filter(function (c) { return c.status === 'active'; }).map(function (c) { return loadWeeks(c.id).catch(function () { /* keep the old list */ }); }));
+  }
+  function weeksOf(connId) { return weeksByConn[connId] || []; }
+
+  /* --- where a date falls --- */
+  function dow(d) { return d.getDay(); }
+  function weekStartFor(dateIso, startDow) { var d = fromIso(dateIso); return iso(addDays(d, -((dow(d) - startDow + 7) % 7))); }
+  function weekLabel(ws) {
+    var a = fromIso(ws), b = addDays(a, 6);
+    return a.getMonth() === b.getMonth() ? MONTHS[a.getMonth()] + ' ' + a.getDate() + '–' + b.getDate() : MONTHS[a.getMonth()] + ' ' + a.getDate() + ' – ' + MONTHS[b.getMonth()] + ' ' + b.getDate();
+  }
+  function weekLabelLong(ws) { var a = fromIso(ws), b = addDays(a, 6); return fmtDateLong(a) + ' to ' + fmtDateLong(b); }
+  /* the live connection behind one of the supervisee's cards */
+  function activeConnForCard(localSupId) {
+    var u = sync.ids.sup[localSupId]; if (!u) return null;
+    return conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'active' && c.supervisorRecordId === u; })[0] || null;
+  }
+  /* is the week holding this date, under this card, with the supervisor for sign-off? */
+  function weekLockFor(localSupId, dateIso) {
+    if (!localSupId || !ISO_DATE_RE.test(dateIso || '')) return null;
+    var c = activeConnForCard(localSupId); if (!c) return null;
+    var ws = weekStartFor(dateIso, c.weekStartDow);
+    var w = weeksOf(c.id).filter(function (x) { return x.weekStart === ws; })[0];
+    if (!w || (w.status !== 'submitted' && w.status !== 'signed')) return null;
+    return { conn: c, week: w, who: personLabel(c.supervisor), label: weekLabel(ws) };
+  }
+  /* how many weeks of a connection need the person's attention, in their own role */
+  function weekAttention(c) {
+    if (!c.weeks) return 0;
+    return c.role === 'supervisor' ? c.weeks.awaitingSignature : c.weeks.toFix + readyWeeks(c).length;
+  }
+  /* closed weeks with hours that the supervisee has not sent yet */
+  function readyWeeks(c) { return weeksOf(c.id).filter(function (w) { return w.closed && w.status === 'open' && w.entryCount > 0; }); }
+
+  function statusPill(w) {
+    if (w.status === 'signed') return '<span class="pill good">Signed</span>';
+    if (w.status === 'submitted') return '<span class="pill">Waiting for signature</span>';
+    if (w.status === 'returned') return '<span class="pill warn">Returned</span>';
+    if (w.status === 'reopened') return '<span class="pill warn">Reopened</span>';
+    if (!w.closed) return '<span class="pill muted">In progress</span>';
+    return w.entryCount ? '<span class="pill">Ready to submit</span>' : '<span class="pill muted">No hours</span>';
+  }
+  function statusLine(w, role, other) {
+    var s = w.submission;
+    if (w.status === 'signed' && s) return 'Signed by ' + (s.signedName || other) + (s.signedCredential ? ', ' + s.signedCredential : '') + ' on ' + fmtIso(s.signedAt.slice(0, 10)) + '.';
+    if (w.status === 'submitted' && s) return 'Submitted ' + fmtIso(s.submittedAt.slice(0, 10)) + (role === 'supervisee' ? ', waiting for ' + other + ' to sign.' : ', waiting for your signature.');
+    if (w.status === 'returned' && s) return 'Returned ' + fmtIso(s.returnedAt.slice(0, 10)) + (role === 'supervisee' ? ' by ' + other : '') + ': ' + (s.returnNote || '');
+    if (w.status === 'reopened' && s) return 'Reopened ' + fmtIso(s.reopenedAt.slice(0, 10)) + (role === 'supervisee' ? ' by ' + other : '') + ': ' + (s.reopenReason || '');
+    if (!w.closed) return role === 'supervisee' ? 'This week is still in progress. It can be submitted once it ends.' : 'This week is still in progress.';
+    if (!w.entryCount) return 'No hours were logged in this week.';
+    return role === 'supervisee' ? 'This week has ended and can be submitted to ' + other + ' for sign-off.' : 'The supervisee has not submitted this week yet.';
+  }
+
+  /* --- the dashboard: what needs the supervisee's attention --- */
+  function weekNoticesHtml(after) {
+    var html = '';
+    conns.filter(function (c) { return c.role === 'supervisee' && c.status === 'active'; }).forEach(function (c) {
+      var who = personLabel(c.supervisor);
+      weeksOf(c.id).forEach(function (w) {
+        if (w.status !== 'returned' && w.status !== 'reopened') return;
+        var s = w.submission || {};
+        html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '><b>' + esc(who) + '</b> ' + (w.status === 'returned' ? 'returned' : 'reopened') + ' the week of ' + esc(weekLabel(w.weekStart)) +
+          (s.returnNote || s.reopenReason ? ': ' + esc(s.returnNote || s.reopenReason) : '.') +
+          '<div class="btns"><button type="button" class="btn-sm fill" data-week="' + w.weekStart + '" data-week-conn="' + c.id + '">Open the week</button></div></div>';
+      });
+      var ready = readyWeeks(c);
+      if (ready.length) {
+        var w0 = ready[ready.length - 1];
+        html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '>' + (ready.length === 1 ? 'The week of <b>' + esc(weekLabel(w0.weekStart)) + '</b> is ready to submit to ' + esc(who) + ' for sign-off.' : ready.length + ' weeks are ready to submit to ' + esc(who) + ' for sign-off, starting with <b>' + esc(weekLabel(w0.weekStart)) + '</b>.') +
+          '<div class="btns"><button type="button" class="btn-sm fill" data-week="' + w0.weekStart + '" data-week-conn="' + c.id + '">Review and submit</button></div></div>';
+      }
+    });
+    var toSign = conns.filter(function (c) { return c.role === 'supervisor' && c.status === 'active' && c.weeks && c.weeks.awaitingSignature; });
+    if (toSign.length) {
+      var n = toSign.reduce(function (a, c) { return a + c.weeks.awaitingSignature; }, 0);
+      html += '<div' + (after || html ? ' style="margin-top:10px"' : '') + '>' + (n === 1 ? 'A week from <b>' + esc(personLabel(toSign[0].supervisee)) + '</b> is waiting for your signature.' : '<b>' + n + ' weeks</b> are waiting for your signature.') +
+        '<div class="btns"><button type="button" class="btn-sm fill" data-go-sv="1">Open supervising</button></div></div>';
+    }
+    return html;
+  }
+
+  /* --- the supervising side: weeks of one supervisee inside the detail sheet --- */
+  function renderDetailWeeks(c) {
+    var list = weeksOf(c.id);
+    if (!list.length) { $('svDetWeeks').innerHTML = '<p class="note">' + (c.status === 'active' ? 'Loading…' : 'No weeks on file.') + '</p>'; if (c.status === 'active') loadWeeks(c.id).then(function () { if (det.conn && det.conn.id === c.id) renderDetailWeeks(c); }, function () { $('svDetWeeks').innerHTML = '<p class="note">The weeks could not be loaded.</p>'; }); return; }
+    var waiting = list.filter(function (w) { return w.status === 'submitted'; });
+    var recent = list.filter(function (w) { return w.status !== 'submitted'; }).slice(0, 3);
+    var rows = waiting.concat(recent);
+    $('svDetWeeks').innerHTML = rows.map(function (w) { return weekRowHtml(w, c); }).join('') || '<p class="note">No weeks yet.</p>';
+    $('svDetAllWeeks').hidden = list.length <= rows.length;
+  }
+  function weekRowHtml(w, c) {
+    return '<button type="button" class="wk-row" data-week="' + w.weekStart + '" data-week-conn="' + c.id + '"><div class="row-main"><div class="row-title">' + esc(weekLabel(w.weekStart)) + '</div>' +
+      '<div class="row-sub">' + (w.entryCount ? plural(w.entryCount, 'entry') + ' · ' + hrs(w.totalMinutes) + ' h' : 'No entries') + '</div></div>' + statusPill(w) + CHEV_R + '</button>';
+  }
+  $('svDetWeeks').addEventListener('click', function (ev) { var b = ev.target.closest('[data-week]'); if (!b) return; var c = connById(b.dataset.weekConn); if (c) openWeek(c, b.dataset.week); });
+  $('svDetAllWeeks').addEventListener('click', function () { if (det.conn) openWeeks(det.conn); });
+
+  /* --- the list of weeks --- */
+  var wk = { conn: null };
+  function openWeeks(c) {
+    wk.conn = c;
+    var other = personLabel(other_(c));
+    $('wkTitle').textContent = 'Weekly logs';
+    $('wkIntro').textContent = c.role === 'supervisee'
+      ? 'Each week of hours logged under ' + other + ' is sent to them for sign-off once the week has ended. A submitted week is locked until they sign it or return it with a note.'
+      : 'The weeks ' + other + ' logged under you. A submitted week waits for your signature; you can sign it, or return it with a note on what to fix.';
+    renderWeeks(); openSheet('sheet-weeks');
+    if (c.status === 'active') loadWeeks(c.id).then(renderWeeks, function () { /* cached list stands */ });
+  }
+  function other_(c) { return c.role === 'supervisee' ? c.supervisor : c.supervisee; }
+  function renderWeeks() {
+    var c = wk.conn; if (!c) return;
+    var list = weeksOf(c.id);
+    $('wkList').innerHTML = list.length ? list.map(function (w) { return weekRowHtml(w, c); }).join('') : '<div class="empty">No weeks yet.</div>';
+  }
+  $('wkBack').addEventListener('click', function () { closeSheet('sheet-weeks'); wk.conn = null; });
+  $('wkList').addEventListener('click', function (ev) { var b = ev.target.closest('[data-week]'); if (!b) return; if (wk.conn) openWeek(wk.conn, b.dataset.week); });
+
+  /* --- one week --- */
+  var wd = { conn: null, ws: '', detail: null, arm: null, armTimer: null };
+  pads.sigWeek = makePad('sigWeek');
+  function openWeek(c, ws) {
+    wd = { conn: c, ws: ws, detail: null, arm: null, armTimer: null };
+    $('wdTitle').textContent = weekLabel(ws); $('wdNote').textContent = '';
+    /* opened from the list of weeks, or straight from a notice */
+    $('wdBack').lastChild.textContent = $('sheet-weeks').hidden ? 'Back' : 'Weeks';
+    $('wdReturnNote').value = ''; $('wdReopenReason').value = ''; pads.sigWeek.clear();
+    renderWeekSheet(); openSheet('sheet-week');
+    reloadWeek();
+  }
+  function reloadWeek() {
+    var c = wd.conn, ws = wd.ws;
+    return api('/v1/connections/' + c.id + '/weeks/' + ws).then(function (r) { applyWeekDetail(c, ws, r.week); }, function (err) { $('wdNote').textContent = apiMessage(err); });
+  }
+  /* what the server just said about a week, into the open sheet and the cached list */
+  function applyWeekDetail(c, ws, week) {
+    var list = weeksOf(c.id); var i = -1; list.forEach(function (w, k) { if (w.weekStart === ws) i = k; });
+    var summary = { weekStart: week.weekStart, weekEnd: week.weekEnd, closed: week.closed, entryCount: week.entryCount, totalMinutes: week.totalMinutes, status: week.status, logId: week.logId, submission: week.submission };
+    if (i >= 0) list[i] = summary; else { list.push(summary); list.sort(function (a, b) { return a.weekStart < b.weekStart ? 1 : -1; }); }
+    weeksByConn[c.id] = list; saveWeeks();
+    if (wd.conn && wd.conn.id === c.id && wd.ws === ws) { wd.detail = week; renderWeekSheet(); }
+    renderSides();
+    if (!$('sheet-weeks').hidden) renderWeeks();
+    if (!$('sheet-sv-detail').hidden && det.conn) renderDetailWeeks(det.conn);
+    if (!$('sheet-supervisors').hidden) renderSupervisors();
+  }
+  function renderWeekSheet() {
+    var c = wd.conn, d = wd.detail, role = c.role, other = personLabel(other_(c));
+    var summary = d || weeksOf(c.id).filter(function (w) { return w.weekStart === wd.ws; })[0] || { weekStart: wd.ws, weekEnd: iso(addDays(fromIso(wd.ws), 6)), closed: false, entryCount: 0, totalMinutes: 0, status: 'open', submission: null };
+    var s = summary.submission;
+    $('wdStatus').innerHTML = '<div class="wd-status"><div class="big">' + esc(weekLabelLong(summary.weekStart)) + ' ' + statusPill(summary) + '</div>' +
+      '<p class="fine">' + esc(statusLine(summary, role, other)) + '</p>' +
+      (d && d.signatureImage ? '<img class="wd-sig" src="' + d.signatureImage + '" alt="Signature">' : '') +
+      (s && s.signedLicense && summary.status === 'signed' ? '<p class="fine">License number ' + esc(s.signedLicense) + ' (not verified)</p>' : '') +
+      (summary.status === 'submitted' || summary.status === 'signed' ? '<p class="fine">' + (role === 'supervisee' ? 'These entries are locked while the week is with ' + esc(other) + '.' : 'The entries below are the week as it was submitted.') + '</p>' : '') + '</div>';
+    $('wdTotal').textContent = summary.entryCount ? plural(summary.entryCount, 'entry') + ' · ' + hrs(summary.totalMinutes) + ' h' : '';
+    if (!d) { $('wdEntries').innerHTML = '<p class="note">Loading…</p>'; }
+    else if (!d.entries.length) { $('wdEntries').innerHTML = '<p class="note">No entries in this week.</p>'; }
+    else {
+      var html = '', cur = null;
+      d.entries.forEach(function (e) {
+        if (e.entryDate !== cur) { cur = e.entryDate; html += '<div class="rec-date">' + fmtDate(fromIso(cur)) + '</div>'; }
+        var sub = [];
+        if (e.subcategoryName) sub.push(esc(e.subcategoryName));
+        if (e.modality && MOD_BY_ID[e.modality]) sub.push(MOD_BY_ID[e.modality].label);
+        if (e.siteName) sub.push(esc(e.siteName));
+        if (e.clientCode) sub.push('Client ' + esc(e.clientCode));
+        if (e.note) sub.push(esc(e.note));
+        html += '<div class="ro-row"><div class="row-main"><div class="row-title">' + esc(e.categoryName) + '</div>' + (sub.length ? '<div class="row-sub">' + sub.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') + '</div><div class="row-h">' + hrs(e.minutes) + '<small>h</small></div></div>';
+      });
+      $('wdEntries').innerHTML = html;
+    }
+    /* actions by role and status */
+    var canSubmit = role === 'supervisee' && c.status === 'active' && summary.closed && (summary.status === 'open' || summary.status === 'returned' || summary.status === 'reopened');
+    var canSign = role === 'supervisor' && c.status === 'active' && summary.status === 'submitted';
+    var canReopen = role === 'supervisor' && c.status === 'active' && summary.status === 'signed' && s && s.signedName !== null;
+    $('wdActions').hidden = !(canSubmit || canSign || canReopen);
+    $('wdSubmitBox').hidden = !canSubmit; $('wdSignBox').hidden = !canSign; $('wdReopenBox').hidden = !canReopen;
+    if (canSubmit) {
+      $('wdSubmitText').textContent = (summary.status === 'open' ? 'Send this week to ' + other + ' for sign-off. ' : 'Send this week to ' + other + ' again. ') + 'The ' + plural(summary.entryCount, 'entry') + ' below ' + (summary.entryCount === 1 ? 'is' : 'are') + ' locked until they sign it or return it.';
+      $('wdSubmit').textContent = wd.arm === 'submit' ? 'Tap again to submit' : (summary.status === 'open' ? 'Submit for sign-off' : 'Submit again');
+    }
+    if (canSign) {
+      var sp = (sync.me && sync.me.supervisorProfile) || {};
+      $('wdSignAs').textContent = 'Signing as ' + (state.name || (session && session.email) || 'you') + (sp.credentials ? ', ' + sp.credentials : '') + (sp.licenseNumber ? ' · license ' + sp.licenseNumber : '') + '. Your name, credential and license number are recorded with the week as they stand now.';
+      setTimeout(function () { pads.sigWeek.resize(); }, 50);
+    }
+    if (canReopen) $('wdReopen').textContent = wd.arm === 'reopen' ? 'Tap again to reopen' : 'Reopen this week';
+    /* history */
+    var hist = d && d.submissions && d.submissions.length ? d.submissions : [];
+    $('wdHistory').hidden = !hist.length;
+    $('wdHistoryList').innerHTML = hist.map(function (h, i) {
+      var n = hist.length - i; var lines = ['Submitted ' + fmtIso(h.submittedAt.slice(0, 10)) + ' · ' + plural(h.entryCount, 'entry') + ', ' + hrs(h.totalMinutes) + ' h'];
+      if (h.signedAt) lines.push('Signed by ' + (h.signedName || other) + (h.signedCredential ? ', ' + h.signedCredential : '') + ' on ' + fmtIso(h.signedAt.slice(0, 10)));
+      if (h.reopenedAt) lines.push('Reopened ' + fmtIso(h.reopenedAt.slice(0, 10)) + (h.reopenReason ? ': ' + h.reopenReason : ''));
+      if (h.returnedAt) lines.push('Returned ' + fmtIso(h.returnedAt.slice(0, 10)) + (h.returnNote ? ': ' + h.returnNote : ''));
+      if (h.status === 'superseded') lines.push('Replaced by a later submission');
+      return '<div class="hist-row"><b>Version ' + n + '</b>' + lines.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') + '</div>';
+    }).join('');
+  }
+  function armThen(kind, btn, fn) {
+    if (wd.arm !== kind) { wd.arm = kind; clearTimeout(wd.armTimer); wd.armTimer = setTimeout(function () { wd.arm = null; renderWeekSheet(); }, 4000); renderWeekSheet(); return; }
+    clearTimeout(wd.armTimer); wd.arm = null; btn.disabled = true; $('wdNote').textContent = 'One moment…';
+    fn().then(function () { btn.disabled = false; $('wdNote').textContent = ''; }, function (err) { btn.disabled = false; $('wdNote').textContent = apiMessage(err); renderWeekSheet(); });
+  }
+  function weekAction(path, body) {
+    var c = wd.conn, ws = wd.ws;
+    return api('/v1/connections/' + c.id + '/weeks/' + ws + '/' + path, { method: 'POST', body: body || {} }).then(function (r) {
+      applyWeekDetail(c, ws, r.week);
+      return loadConnections().catch(function () { /* list keeps what it had */ });
+    }).then(renderSides);
+  }
+  $('wdBack').addEventListener('click', function () { closeSheet('sheet-week'); wd.conn = null; });
+  $('wdSubmit').addEventListener('click', function () {
+    var btn = this;
+    armThen('submit', btn, function () { return weekAction('submit').then(function () { toast('Week submitted for sign-off'); }); });
+  });
+  $('wdSign').addEventListener('click', function () {
+    var btn = this; btn.disabled = true; $('wdNote').textContent = 'Signing…';
+    weekAction('sign', { signatureImage: pads.sigWeek.image() }).then(function () { btn.disabled = false; $('wdNote').textContent = ''; toast('Week signed'); }, function (err) { btn.disabled = false; $('wdNote').textContent = apiMessage(err); });
+  });
+  $('wdReturn').addEventListener('click', function () {
+    var note = $('wdReturnNote').value.trim(); if (!note) { $('wdNote').textContent = 'Write a note on what should be fixed first.'; $('wdReturnNote').focus(); return; }
+    var btn = this; btn.disabled = true; $('wdNote').textContent = 'One moment…';
+    weekAction('return', { note: note }).then(function () { btn.disabled = false; $('wdNote').textContent = ''; toast('Week returned'); }, function (err) { btn.disabled = false; $('wdNote').textContent = apiMessage(err); });
+  });
+  $('wdReopen').addEventListener('click', function () {
+    var reason = $('wdReopenReason').value.trim(); if (!reason) { $('wdNote').textContent = 'Write the reason first.'; $('wdReopenReason').focus(); return; }
+    var btn = this;
+    armThen('reopen', btn, function () { return weekAction('reopen', { reason: reason }).then(function () { toast('Week reopened'); }); });
+  });
+  window.addEventListener('resize', function () { if (!$('sheet-week').hidden && !$('wdSignBox').hidden) pads.sigWeek.resize(); });
+
   /* ---------- boot ---------- */
   applyPalette();
   renderAll();
-  showView(location.hash.replace('#', ''));
-  if (!signedIn()) showAccount('welcome');
+  if (!signedIn()) { showView(location.hash.replace('#', '')); showAccount('welcome'); }
   else if (needsSetup()) {
-    /* an empty phone with an account: what it holds may well be on the server already */
+    /* an empty phone with an account: what it holds may well be on the server already. The sync
+       starts before the first view so a brand-new login's first request is one request, not two */
+    var boot = syncNow('boot');
+    showView(location.hash.replace('#', ''));
     var settle = function () { if (needsSetup()) openSetup(); else if (!location.hash) showView(lastSide() === 'supervising' ? 'sv-home' : 'dashboard'); };
-    syncNow('boot').then(settle, settle);
-  } else scheduleSync(200);
+    boot.then(settle, settle);
+  } else { showView(location.hash.replace('#', '')); scheduleSync(200); }
 })();
 </script>
 
